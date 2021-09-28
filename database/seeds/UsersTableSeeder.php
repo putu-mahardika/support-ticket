@@ -36,6 +36,13 @@ class UsersTableSeeder extends Seeder
                 'password'       => '$2y$10$UnLIBQB1uZZC1r5msFWTPuZCZsMBUpZINpJ48G5FmMxz6yVGP83rO',
                 'remember_token' => null,
             ],
+            [
+                'id'             => 5,
+                'name'           => 'Client 1',
+                'email'          => 'client@client.com',
+                'password'       => '$2y$10$UnLIBQB1uZZC1r5msFWTPuZCZsMBUpZINpJ48G5FmMxz6yVGP83rO',
+                'remember_token' => null,
+            ],
         ];
 
         User::insert($users);
