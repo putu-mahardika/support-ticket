@@ -32,7 +32,7 @@
                             {{ trans('cruds.user.fields.email') }}
                         </th>
                         <th>
-                            {{ trans('cruds.user.fields.email_verified_at') }}
+                            {{ trans('cruds.user.fields.company') }}
                         </th>
                         <th>
                             {{ trans('cruds.user.fields.roles') }}
@@ -58,11 +58,17 @@
                                 {{ $user->email ?? '' }}
                             </td>
                             <td>
-                                {{ $user->email_verified_at ?? '' }}
+                                {{ $user->company ?? '' }}
                             </td>
                             <td>
                                 @foreach($user->roles as $key => $item)
-                                    <span class="badge badge-info">{{ $item->title }}</span>
+                                    @if ($item->title == 'Admin')
+                                        <span class="badge badge-primary">{{ $item->title }}</span>
+                                    @elseif ($item->title == 'Agent')
+                                        <span class="badge badge-success">{{ $item->title }}</span>
+                                    @else
+                                        <span class="badge badge-danger">{{ $item->title }}</span>
+                                    @endif
                                 @endforeach
                             </td>
                             <td>

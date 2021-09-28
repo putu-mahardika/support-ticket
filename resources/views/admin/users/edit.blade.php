@@ -34,6 +34,39 @@
                     {{ trans('cruds.user.fields.email_helper') }}
                 </p>
             </div>
+
+            <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
+                <label for="company">{{ trans('cruds.user.fields.company') }}</label>
+                <input type="text" id="company" name="company" class="form-control" value="{{ old('name', isset($user) ? $user->company : '') }}" required>
+                @if($errors->has('company'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('company') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.user.fields.company_helper') }}
+                </p>
+            </div>
+
+            <div class="form-group {{ $errors->has('project') ? 'has-error' : '' }}">
+                <label for="project">{{ trans('cruds.user.fields.project') }}*
+                    <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
+                    <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
+                <select name="project" id="project" class="form-control select2" required>
+                    @foreach($projects as $id => $project)
+                        <option value="{{ $id }}" {{ (in_array($id, old('roles', [])) || isset($user) && $user->project->contains($id)) ? 'selected' : '' }}>{{ $project }}</option>
+                    @endforeach
+                </select>
+                @if($errors->has('project'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('project') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.user.fields.project_helper') }}
+                </p>
+            </div>
+
             <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
                 <label for="password">{{ trans('cruds.user.fields.password') }}</label>
                 <input type="password" id="password" name="password" class="form-control">
