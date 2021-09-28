@@ -118,7 +118,8 @@
   let colvisButtonTrans = '{{ trans('global.datatables.colvis') }}'
 
   let languages = {
-    'en': 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/English.json'
+    // 'en': 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/English.json'
+    'en' : 'https://cdn.datatables.net/plug-ins/1.11.3/i18n/id.json'
   };
 
   $.extend(true, $.fn.dataTable.Buttons.defaults.dom.button, { className: 'btn' })

@@ -1,5 +1,9 @@
 <?php
-Route::get('/', 'TicketController@create');
+// Route::get('/', 'TicketController@create');
+Route::get('/', function () {
+    return redirect('/login');
+});
+
 Route::get('/home', function () {
     $route = Gate::denies('dashboard_access') ? 'admin.tickets.index' : 'admin.home';
     if (session('status')) {
@@ -53,4 +57,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Audit Logs
     Route::resource('audit-logs', 'AuditLogsController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);
+
+    // Projects
+    Route::delete('projects/destroy', 'ProjectsController@massDestroy')->name('projects.massDestroy');
+    Route::resource('projects', 'ProjectsController');
 });

@@ -205,4 +205,20 @@ return [
             'updated_at_helper'   => '',
         ],
     ],
+    'project'       => [
+        'title'          => 'Projects',
+        'title_singular' => 'Project',
+        'fields'         => [
+            'id'                => 'ID',
+            'id_helper'         => '',
+            'title'             => 'Name',
+            'title_helper'      => '',
+            'created_at'        => 'Created at',
+            'created_at_helper' => '',
+            'updated_at'        => 'Updated at',
+            'updated_at_helper' => '',
+            'deleted_at'        => 'Deleted at',
+            'deleted_at_helper' => '',
+        ],
+    ],
 ];

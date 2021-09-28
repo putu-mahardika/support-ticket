@@ -47,6 +47,7 @@
                     {{ trans('cruds.ticket.fields.attachments_helper') }}
                 </p>
             </div>
+            @can('pick_status')
             <div class="form-group {{ $errors->has('status_id') ? 'has-error' : '' }}">
                 <label for="status">{{ trans('cruds.ticket.fields.status') }}*</label>
                 <select name="status_id" id="status" class="form-control select2" required>
@@ -60,6 +61,8 @@
                     </em>
                 @endif
             </div>
+            @endcan
+            @can('pick_priority')
             <div class="form-group {{ $errors->has('priority_id') ? 'has-error' : '' }}">
                 <label for="priority">{{ trans('cruds.ticket.fields.priority') }}*</label>
                 <select name="priority_id" id="priority" class="form-control select2" required>
@@ -73,6 +76,8 @@
                     </em>
                 @endif
             </div>
+            @endcan
+            @can('pick_category')
             <div class="form-group {{ $errors->has('category_id') ? 'has-error' : '' }}">
                 <label for="category">{{ trans('cruds.ticket.fields.category') }}*</label>
                 <select name="category_id" id="category" class="form-control select2" required>
@@ -86,6 +91,7 @@
                     </em>
                 @endif
             </div>
+            @endcan
             <div class="form-group {{ $errors->has('author_name') ? 'has-error' : '' }}">
                 <label for="author_name">{{ trans('cruds.ticket.fields.author_name') }}</label>
                 <input type="text" id="author_name" name="author_name" class="form-control" value="{{ old('author_name', isset($ticket) ? $ticket->author_name : '') }}">

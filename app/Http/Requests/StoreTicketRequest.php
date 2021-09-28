@@ -22,18 +22,18 @@ class StoreTicketRequest extends FormRequest
             'title'       => [
                 'required',
             ],
-            'status_id'   => [
-                'required',
-                'integer',
-            ],
-            'priority_id' => [
-                'required',
-                'integer',
-            ],
-            'category_id' => [
-                'required',
-                'integer',
-            ],
+            // 'status_id'   => [
+            //     'required',
+            //     'integer',
+            // ],
+            // 'priority_id' => [
+            //     'required',
+            //     'integer',
+            // ],
+            // 'category_id' => [
+            //     'required',
+            //     'integer',
+            // ],
         ];
     }
 }

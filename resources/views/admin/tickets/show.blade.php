@@ -53,7 +53,7 @@
                         </th>
                         <td>
                             @foreach($ticket->attachments as $attachment)
-                                <a href="{{ $attachment->getUrl() }}" target="_blank">{{ $attachment->file_name }}</a>
+                                <a href="{{ $attachment->geturl() }}" target="_blank">{{ $attachment->file_name }}</a>
                             @endforeach
                         </td>
                     </tr>

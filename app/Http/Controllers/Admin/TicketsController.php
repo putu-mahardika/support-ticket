@@ -128,7 +128,16 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request)
     {
-        $ticket = Ticket::create($request->all());
+        // $ticket = Ticket::create($request->all());
+        $ticket = Ticket::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'author_name' => $request->author_name,
+            'author_email' => $request->author_email,
+            'status_id' => $request->status_id ?? 1,
+            'priority_id' => $request->priority_id ?? 1,
+            'category_id' => $request->category_id ?? 1,
+        ]);
 
         foreach ($request->input('attachments', []) as $file) {
             $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
@@ -186,6 +195,7 @@ class TicketsController extends Controller
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments');
+        // dd($ticket);
 
         return view('admin.tickets.show', compact('ticket'));
     }
