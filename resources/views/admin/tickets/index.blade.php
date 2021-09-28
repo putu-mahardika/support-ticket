@@ -140,53 +140,53 @@ $('.card-body').on('change', 'select', function() {
     },
     columns: [
       { data: 'placeholder', name: 'placeholder' },
-{ data: 'id', name: 'id' },
-{
-    data: 'title',
-    name: 'title', 
-    render: function ( data, type, row) {
-        return '<a href="'+row.view_link+'">'+data+' ('+row.comments_count+')</a>';
-    }
-},
-{ 
-  data: 'status_name', 
-  name: 'status.name', 
-  render: function ( data, type, row) {
-      return '<span style="color:'+row.status_color+'">'+data+'</span>';
-  }
-},
-{ 
-  data: 'priority_name', 
-  name: 'priority.name', 
-  render: function ( data, type, row) {
-      return '<span style="color:'+row.priority_color+'">'+data+'</span>';
-  }
-},
-{ 
-  data: 'category_name', 
-  name: 'category.name', 
-  render: function ( data, type, row) {
-      return '<span style="color:'+row.category_color+'">'+data+'</span>';
-  } 
-},
-{ data: 'author_name', name: 'author_name' },
-{ data: 'author_email', name: 'author_email' },
-{ data: 'project', name: 'project' },
-{ data: 'assigned_to_user_name', name: 'assigned_to_user.name' },
-{ data: 'actions', name: '{{ trans('global.actions') }}' }
+      { data: 'created_at', name: 'created_at' },
+      {
+          data: 'title',
+          name: 'title', 
+          render: function ( data, type, row) {
+              return '<a href="'+row.view_link+'">'+data+' ('+row.comments_count+')</a>';
+          }
+      },
+      { 
+        data: 'status_name', 
+        name: 'status.name', 
+        render: function ( data, type, row) {
+            return '<span style="color:'+row.status_color+'">'+data+'</span>';
+        }
+      },
+      { 
+        data: 'priority_name', 
+        name: 'priority.name', 
+        render: function ( data, type, row) {
+            return '<span style="color:'+row.priority_color+'">'+data+'</span>';
+        }
+      },
+      { 
+        data: 'category_name', 
+        name: 'category.name', 
+        render: function ( data, type, row) {
+            return '<span style="color:'+row.category_color+'">'+data+'</span>';
+        } 
+      },
+      { data: 'author_name', name: 'author_name' },
+      { data: 'author_email', name: 'author_email' },
+      { data: 'project_name', name: 'project.name' },
+      { data: 'assigned_to_user_name', name: 'assigned_to_user.name' },
+      { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
     order: [[ 1, 'desc' ]],
     pageLength: 100,
   };    
-$(".datatable-Ticket").one("preInit.dt", function () {
- $(".dataTables_filter").after(filters);
-});
-  $('.datatable-Ticket').DataTable(dtOverrideGlobals);
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
-        $($.fn.dataTable.tables(true)).DataTable()
-            .columns.adjust();
-    });
-});
+  $(".datatable-Ticket").one("preInit.dt", function () {
+  $(".dataTables_filter").after(filters);
+  });
+    $('.datatable-Ticket').DataTable(dtOverrideGlobals);
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+          $($.fn.dataTable.tables(true)).DataTable()
+              .columns.adjust();
+      });
+  });
 
 </script>
 @endsection
