@@ -38,6 +38,7 @@ class User extends Authenticatable
         'deleted_at',
         'remember_token',
         'email_verified_at',
+        'company',
     ];
 
     public function tickets()
@@ -80,5 +81,9 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->roles->contains(1);
+    }
+
+    public function project(){
+        return $this->belongsToMany(Project::class, 'user_project', 'user_id', 'project_id');
     }
 }

@@ -7,6 +7,7 @@ use App\Project;
 use App\Http\Requests\MassDestroyProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\User;
 use Illuminate\Http\Request;
 use Gate;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +39,13 @@ class ProjectsController extends Controller
     {
         abort_if(Gate::denies('project_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return view('admin.projects.create');
+        $assigned_to_users = User::whereHas('roles', function($query) {
+            $query->whereId(2);
+        })
+        ->pluck('name', 'id')
+        ->prepend(trans('global.pleaseSelect'), '');
+
+        return view('admin.projects.create', compact('assigned_to_users'));
     }
 
     /**

@@ -23,4 +23,12 @@ class Project extends Model
         'updated_at',
         // 'deleted_at',
     ];
+
+    public function user(){
+        return $this->belongsToMany(User::class, 'user_project', 'project_id', 'user_id');
+    }
+
+    public function ticket(){
+        return $this->hasMany(Ticket::class, 'project_id', 'id');
+    }
 }

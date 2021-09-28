@@ -9,11 +9,13 @@ use App\Http\Requests\MassDestroyTicketRequest;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Priority;
+use App\Project;
 use App\Status;
 use App\Ticket;
 use App\User;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -23,8 +25,9 @@ class TicketsController extends Controller
 
     public function index(Request $request)
     {
+        // dd($request);
         if ($request->ajax()) {
-            $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments'])
+            $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
                 ->filterTickets($request)
                 ->select(sprintf('%s.*', (new Ticket)->table));
             $table = Datatables::of($query);
@@ -47,8 +50,8 @@ class TicketsController extends Controller
                 ));
             });
 
-            $table->editColumn('id', function ($row) {
-                return $row->id ? $row->id : "";
+            $table->editColumn('created_at', function ($row) {
+                return $row->id ? $row->created_at : "";
             });
             $table->editColumn('title', function ($row) {
                 return $row->title ? $row->title : "";
@@ -80,8 +83,8 @@ class TicketsController extends Controller
             $table->editColumn('author_email', function ($row) {
                 return $row->author_email ? $row->author_email : "";
             });
-            $table->editColumn('project', function ($row) {
-                return "HJEX";
+            $table->editColumn('project_name', function ($row) {
+                return $row->project ? $row->project->name : '';
             });
             $table->addColumn('assigned_to_user_name', function ($row) {
                 return $row->assigned_to_user ? $row->assigned_to_user->name : '';
@@ -95,7 +98,7 @@ class TicketsController extends Controller
                 return route('admin.tickets.show', $row->id);
             });
 
-            $table->rawColumns(['actions', 'placeholder', 'status', 'priority', 'category', 'assigned_to_user']);
+            $table->rawColumns(['actions', 'placeholder', 'status', 'priority', 'category', 'assigned_to_user', 'project']);
 
             return $table->make(true);
         }
@@ -122,22 +125,27 @@ class TicketsController extends Controller
             })
             ->pluck('name', 'id')
             ->prepend(trans('global.pleaseSelect'), '');
+        
+        $projects = Project::all()->pluck('name', 'id');
 
-        return view('admin.tickets.create', compact('statuses', 'priorities', 'categories', 'assigned_to_users'));
+        return view('admin.tickets.create', compact('statuses', 'priorities', 'categories', 'assigned_to_users', 'projects'));
     }
 
     public function store(StoreTicketRequest $request)
     {
-        // $ticket = Ticket::create($request->all());
         $ticket = Ticket::create([
             'title' => $request->title,
             'content' => $request->content,
-            'author_name' => $request->author_name,
-            'author_email' => $request->author_email,
+            'author_name' => Auth::user()->name,
+            'author_email' => Auth::user()->email,
             'status_id' => $request->status_id ?? 1,
             'priority_id' => $request->priority_id ?? 1,
             'category_id' => $request->category_id ?? 1,
         ]);
+        
+        $project_id = Project::find(Auth::user()->project->pluck('id')->first());
+        $ticket->project()->associate($project_id);
+        $ticket->save();
 
         foreach ($request->input('attachments', []) as $file) {
             $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');

@@ -20,7 +20,7 @@ class TicketsApiController extends Controller
     {
         abort_if(Gate::denies('ticket_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return new TicketResource(Ticket::with(['status', 'priority', 'category', 'assigned_to_user'])->get());
+        return new TicketResource(Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'project'])->get());
     }
 
     public function store(StoreTicketRequest $request)

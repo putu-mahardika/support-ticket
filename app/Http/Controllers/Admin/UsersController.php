@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Project;
 use App\Role;
 use App\User;
 use Gate;
@@ -29,12 +30,15 @@ class UsersController extends Controller
 
         $roles = Role::all()->pluck('title', 'id');
 
-        return view('admin.users.create', compact('roles'));
+        $projects = Project::all()->pluck('name', 'id');
+
+        return view('admin.users.create', compact('roles', 'projects'));
     }
 
     public function store(StoreUserRequest $request)
     {
         $user = User::create($request->all());
+        $user->project()->attach($request->project);
         $user->roles()->sync($request->input('roles', []));
 
         return redirect()->route('admin.users.index');
@@ -45,10 +49,12 @@ class UsersController extends Controller
         abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $roles = Role::all()->pluck('title', 'id');
+        $projects = Project::all()->pluck('name', 'id');
 
-        $user->load('roles');
+        $user->load('roles', 'project');
+        // dd($user);
 
-        return view('admin.users.edit', compact('roles', 'user'));
+        return view('admin.users.edit', compact('roles', 'user', 'projects'));
     }
 
     public function update(UpdateUserRequest $request, User $user)

@@ -40,6 +40,7 @@ class Ticket extends Model implements HasMedia
         'author_name',
         'author_email',
         'assigned_to_user_id',
+        'project_id',
     ];
 
     public static function boot()
@@ -136,5 +137,9 @@ class Ticket extends Model implements HasMedia
         {
             Notification::route('mail', $this->author_email)->notify($notification);
         }
+    }
+
+    public function project(){
+        return $this->belongsTo(Project::class, 'project_id');
     }
 }
