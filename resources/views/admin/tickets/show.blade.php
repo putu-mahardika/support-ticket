@@ -126,7 +126,7 @@
                                 </div>
                                 <hr />
                             @endforelse
-                            <form action="{{ route('admin.tickets.storeComment', $ticket->id) }}" method="POST">
+                            <form action="{{ route('admin.tickets.storeComment', $ticket->id) }}" method="POST" id="add-comment">
                                 @csrf
                                 <div class="form-group">
                                     <label for="comment_text">Leave a comment</label>
@@ -143,9 +143,12 @@
             {{ trans('global.back_to_list') }}
         </a>
 
-        <a href="{{ route('admin.tickets.edit', $ticket->id) }}" class="btn btn-primary">
-            @lang('global.edit') @lang('cruds.ticket.title_singular')
-        </a>
+        @can('ticket_edit')
+            <a href="{{ route('admin.tickets.edit', $ticket->id) }}" class="btn btn-primary">
+                @lang('global.edit') @lang('cruds.ticket.title_singular')
+            </a>
+        @endcan
+        
 
         <nav class="mb-3">
             <div class="nav nav-tabs">
@@ -154,4 +157,12 @@
         </nav>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    $('#add-comment').one('submit', function() {
+        $(this).find('button[type="submit"]').attr('disabled','disabled');
+    });
+</script>
 @endsection

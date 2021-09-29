@@ -13,7 +13,11 @@
     <div class="card-header">
         {{ trans('cruds.ticket.title_singular') }} {{ trans('global.list') }}
     </div>
-
+    @if(session('status'))
+        <div class="alert alert-success" role="alert">
+            {{ session('status') }}
+        </div>
+    @endif
     <div class="card-body">
         <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-Ticket">
             <thead>
@@ -22,7 +26,7 @@
 
                     </th>
                     <th>
-                        {{ trans('cruds.ticket.fields.id') }}
+                        {{ trans('cruds.ticket.fields.created_at') }}
                     </th>
                     <th>
                         {{ trans('cruds.ticket.fields.title') }}
@@ -67,7 +71,7 @@ let filters = `
 <form class="form-inline" id="filtersForm">
   <div class="form-group mx-sm-3 mb-2">
     <select class="form-control" name="status">
-      <option value="">All statuses</option>
+      <option value="">Semua Status</option>
       @foreach($statuses as $status)
         <option value="{{ $status->id }}"{{ request('status') == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
       @endforeach
@@ -75,7 +79,7 @@ let filters = `
   </div>
   <div class="form-group mx-sm-3 mb-2">
     <select class="form-control" name="priority">
-      <option value="">All priorities</option>
+      <option value="">Semua Prioritas</option>
       @foreach($priorities as $priority)
         <option value="{{ $priority->id }}"{{ request('priority') == $priority->id ? 'selected' : '' }}>{{ $priority->name }}</option>
       @endforeach
@@ -83,7 +87,7 @@ let filters = `
   </div>
   <div class="form-group mx-sm-3 mb-2">
     <select class="form-control" name="category">
-      <option value="">All categories</option>
+      <option value="">Semua Kategori</option>
       @foreach($categories as $category)
         <option value="{{ $category->id }}"{{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
       @endforeach
