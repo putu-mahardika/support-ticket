@@ -109,10 +109,10 @@
             @endif
             <div class="row">
                 <div class="col-md-1">
-                    <input class="btn btn-danger btn-block inline" type="submit" value="{{ trans('global.save') }}">
+                    <input class="btn btn-danger btn-block" type="submit" value="{{ trans('global.save') }}">
                 </div>
-                <div class="col-1">
-                    {{-- <p class="inline">aaaa</p> --}}
+                <div class="col-2">
+                    <p class="btn" id="loading"></p>
                 </div>
             </div>
         </form>
@@ -182,6 +182,7 @@ Dropzone.options.attachmentsDropzone = {
 <script>
     $('#create-ticket').one('submit', function() {
         $(this).find('input[type="submit"]').attr('disabled','disabled');
+        $('#loading').html('Tunggu sebentar...');
     });
 </script>
 @stop

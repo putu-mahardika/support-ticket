@@ -132,7 +132,15 @@
                                     <label for="comment_text">Leave a comment</label>
                                     <textarea class="form-control" id="comment_text" name="comment_text" rows="3" required></textarea>
                                 </div>
-                                <button type="submit" class="btn btn-primary">@lang('global.submit')</button>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary btn-block">@lang('global.submit')</button>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="btn" id="loading"></p>
+                                    </div>
+                                </div>
+                                
                             </form>
                         </td>
                     </tr>
@@ -163,6 +171,7 @@
 <script>
     $('#add-comment').one('submit', function() {
         $(this).find('button[type="submit"]').attr('disabled','disabled');
+        $('#loading').html('Tunggu sebentar...');
     });
 </script>
 @endsection

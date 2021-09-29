@@ -97,8 +97,13 @@
                     {{ trans('cruds.user.fields.roles_helper') }}
                 </p>
             </div>
-            <div>
-                <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+            <div class="row">
+                <div class="col-md-1">
+                    <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+                </div>
+                <div class="col-md-2">
+                    <p id="loading"></p>
+                </div>
             </div>
         </form>
 
