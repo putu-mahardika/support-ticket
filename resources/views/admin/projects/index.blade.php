@@ -29,6 +29,12 @@
                             {{ trans('cruds.project.fields.title') }}
                         </th>
                         <th>
+                            {{ trans('cruds.project.fields.pm_name') }}
+                        </th>
+                        <th>
+                            {{ trans('cruds.project.fields.pm_email') }}
+                        </th>
+                        <th>
                             &nbsp;
                         </th>
                     </tr>
@@ -44,6 +50,12 @@
                             </td>
                             <td>
                                 {{ $project->name ?? '' }}
+                            </td>
+                            <td>
+                                {{ $project->pm_name ?? '' }}
+                            </td>
+                            <td>
+                                {{ $project->pm_email ?? '' }}
                             </td>
                             <td>
                                 @can('project_show')

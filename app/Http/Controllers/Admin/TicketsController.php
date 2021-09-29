@@ -26,10 +26,22 @@ class TicketsController extends Controller
     public function index(Request $request)
     {
         // dd($request);
+        // dd(Auth::user()->name);
+        $user_role = Auth::user()->roles()->first()->id;
         if ($request->ajax()) {
-            $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
+            if($user_role == 1 || $user_role == 2){
+                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
                 ->filterTickets($request)
                 ->select(sprintf('%s.*', (new Ticket)->table));
+            } else {
+                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
+                ->filterTickets($request)
+                ->select(sprintf('%s.*', (new Ticket)->table))
+                ->where('author_name',Auth::user()->name);
+            }
+            // $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
+            //     ->filterTickets($request)
+            //     ->select(sprintf('%s.*', (new Ticket)->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -133,6 +145,11 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request)
     {
+        // dd($request);
+        $project_id = Auth::user()->project->first()->id;
+        // dd($project_id);
+        $assign_pm = Project::find($project_id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+        // dd($assign_pm);
         $ticket = Ticket::create([
             'title' => $request->title,
             'content' => $request->content,
@@ -141,8 +158,9 @@ class TicketsController extends Controller
             'status_id' => $request->status_id ?? 1,
             'priority_id' => $request->priority_id ?? 1,
             'category_id' => $request->category_id ?? 1,
+            'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
         ]);
-        
+
         $project_id = Project::find(Auth::user()->project->pluck('id')->first());
         $ticket->project()->associate($project_id);
         $ticket->save();

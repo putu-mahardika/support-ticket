@@ -17,6 +17,7 @@ class CreateUserProjectTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->index();
             $table->unsignedBigInteger('project_id')->index();
+            $table->boolean('is_pm')->default(false);
             $table->timestamps();
         });
     }

@@ -7,7 +7,7 @@
     </div>
 
     <div class="card-body">
-        <form action="{{ route("admin.tickets.store") }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route("admin.tickets.store") }}" method="POST" enctype="multipart/form-data" id="create-ticket">
             @csrf
             <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                 <label for="title">{{ trans('cruds.ticket.fields.title') }}*</label>
@@ -92,30 +92,6 @@
                 @endif
             </div>
             @endcan
-            {{-- <div class="form-group {{ $errors->has('author_name') ? 'has-error' : '' }}">
-                <label for="author_name">{{ trans('cruds.ticket.fields.author_name') }}</label>
-                <input type="text" id="author_name" name="author_name" class="form-control" value="{{ old('author_name', isset($ticket) ? $ticket->author_name : '') }}">
-                @if($errors->has('author_name'))
-                    <em class="invalid-feedback">
-                        {{ $errors->first('author_name') }}
-                    </em>
-                @endif
-                <p class="helper-block">
-                    {{ trans('cruds.ticket.fields.author_name_helper') }}
-                </p>
-            </div> --}}
-            {{-- <div class="form-group {{ $errors->has('author_email') ? 'has-error' : '' }}">
-                <label for="author_email">{{ trans('cruds.ticket.fields.author_email') }}</label>
-                <input type="text" id="author_email" name="author_email" class="form-control" value="{{ old('author_email', isset($ticket) ? $ticket->author_email : '') }}">
-                @if($errors->has('author_email'))
-                    <em class="invalid-feedback">
-                        {{ $errors->first('author_email') }}
-                    </em>
-                @endif
-                <p class="helper-block">
-                    {{ trans('cruds.ticket.fields.author_email_helper') }}
-                </p>
-            </div> --}}
             @if(auth()->user()->isAdmin())
                 <div class="form-group {{ $errors->has('assigned_to_user_id') ? 'has-error' : '' }}">
                     <label for="assigned_to_user">{{ trans('cruds.ticket.fields.assigned_to_user') }}</label>
@@ -131,8 +107,13 @@
                     @endif
                 </div>
             @endif
-            <div>
-                <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+            <div class="row">
+                <div class="col-md-1">
+                    <input class="btn btn-danger btn-block inline" type="submit" value="{{ trans('global.save') }}">
+                </div>
+                <div class="col-1">
+                    {{-- <p class="inline">aaaa</p> --}}
+                </div>
             </div>
         </form>
 
@@ -197,5 +178,10 @@ Dropzone.options.attachmentsDropzone = {
          return _results
      }
 }
+</script>
+<script>
+    $('#create-ticket').one('submit', function() {
+        $(this).find('input[type="submit"]').attr('disabled','disabled');
+    });
 </script>
 @stop

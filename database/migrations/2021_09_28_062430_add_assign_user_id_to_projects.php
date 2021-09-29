@@ -14,7 +14,9 @@ class AddAssignUserIdToProjects extends Migration
     public function up()
     {
         Schema::table('projects', function (Blueprint $table) {
-            //
+            // $table->unsignedBigInteger('assign_user_id')->index();
+            // $table->string('pm_name')->nullable();
+            // $table->string('pm_email')->unique();
         });
     }
 
@@ -26,7 +28,8 @@ class AddAssignUserIdToProjects extends Migration
     public function down()
     {
         Schema::table('projects', function (Blueprint $table) {
-            //
+            // $table->dropColumn('pm_name');
+            // $table->dropColumn('pm_email');
         });
     }
 }

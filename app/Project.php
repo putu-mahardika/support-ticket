@@ -22,6 +22,9 @@ class Project extends Model
         'created_at',
         'updated_at',
         // 'deleted_at',
+        // 'assign_user_id',
+        // 'pm_name',
+        // 'pm_email',
     ];
 
     public function user(){
