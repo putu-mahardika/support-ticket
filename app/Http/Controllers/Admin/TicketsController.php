@@ -169,7 +169,7 @@ class TicketsController extends Controller
             $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
         }
 
-        return redirect()->route('admin.tickets.index');
+        return redirect()->route('admin.tickets.index')->withStatus('Tiket anda telah berhasil ditambahkan. Silahkan tunggu hingga mendapatkan balasan melalui email dari kami');
     }
 
     public function edit(Ticket $ticket)
@@ -257,6 +257,6 @@ class TicketsController extends Controller
 
         $ticket->sendCommentNotification($comment);
 
-        return redirect()->back()->withStatus('Your comment added successfully');
+        return redirect()->back()->withStatus('Komentar anda berhasil ditambahkan');
     }
 }

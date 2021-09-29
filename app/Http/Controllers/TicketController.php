@@ -79,6 +79,6 @@ class TicketController extends Controller
 
         $ticket->sendCommentNotification($comment);
 
-        return redirect()->back()->withStatus('Your comment added successfully');
+        return redirect()->back()->withStatus('Tiket anda berhasil ditambahkan');
     }
 }

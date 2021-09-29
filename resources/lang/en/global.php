@@ -2,7 +2,7 @@
 
 return [
     'actions'                              => 'Actions',
-    'add'                                  => 'Add',
+    'add'                                  => 'Tambah',
     'allRightsReserved'                    => 'All rights reserved.',
     'areYouSure'                           => 'Are you sure?',
     'clickHereToVerify'                    => 'Click here to verify',
@@ -44,7 +44,7 @@ return [
     'user_name'                            => 'Name',
     'verifyYourEmail'                      => 'Please verify your email',
     'verifyYourUser'                       => 'To finish your registration - site asks you to verify your email',
-    'view'                                 => 'View',
+    'view'                                 => 'Lihat',
     'view_file'                            => 'View file',
     'year'                                 => 'Year',
     'yes'                                  => 'Yes',

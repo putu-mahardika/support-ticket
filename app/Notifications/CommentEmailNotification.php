@@ -41,6 +41,7 @@ class CommentEmailNotification extends Notification
      */
     public function toMail($notifiable)
     {
+        // dd($this->comment->ticket);
         return (new MailMessage)
                     ->subject('Balasan Tiket : '.$this->comment->ticket->title)
                     ->greeting('Hi,')
