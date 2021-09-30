@@ -10,7 +10,7 @@
         <form action="{{ route("admin.projects.update", [$project->id]) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            <input type="text" name="temp_pm" value="{{ $pm }}">
+            <input type="hidden" name="temp_pm" value="{{ $pm }}">
             <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                 <label for="name">{{ trans('cruds.project.fields.title') }}*</label>
                 <!-- <input type="text" id="title" name="title" class="form-control" value="{{ old('title', isset($permission) ? $permission->title : '') }}" required> -->

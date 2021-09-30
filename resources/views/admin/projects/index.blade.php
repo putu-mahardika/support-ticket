@@ -52,10 +52,23 @@
                                 {{ $project->name ?? '' }}
                             </td>
                             <td>
-                                {{ $project->pm_name ?? '' }}
+                                {{-- {{ $project->pm_name ?? '' }} --}}
+                                @foreach ($projects_pm as $pm)
+                                    @if ($project->id == $pm->project_id)
+                                        {{ $pm->pm_name }}
+                                    @else
+                                        {{ '' }}
+                                    @endif
+                                @endforeach
                             </td>
                             <td>
-                                {{ $project->pm_email ?? '' }}
+                                @foreach ($projects_pm as $pm)
+                                    @if ($project->id == $pm->project_id)
+                                        {{ $pm->pm_email }}
+                                    @else
+                                        {{ '' }}
+                                    @endif
+                                @endforeach
                             </td>
                             <td>
                                 @can('project_show')
