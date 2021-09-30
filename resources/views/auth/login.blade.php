@@ -37,24 +37,22 @@
 
 
                                 <div class="form-group">
-                                    <input type="password" class="form-control form-control-user"
+                                    <div class="input-group">
+                                        <input type="password" class="form-control form-control-user" style="border-radius:10rem;"
                                     id="password" name="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" required placeholder="{{ trans('global.login_password') }}">
-
+                                    
+                                    <span class="input-group-text" onclick="password_show_hide();" style="cursor: pointer; background-color:transparent;border:none;margin-left:-45px;z-index:10;">
+                                        <i class="fas fa-eye-slash" id="btn-eye"></i>
+                                        {{-- <i class="fas fa-eye-slash d-none" id="hide_eye"></i> --}}
+                                    </span>
+                                    </div>
+                                    
                                     @if($errors->has('password'))
                                     <div class="invalid-feedback">
                                         {{ $errors->first('password') }}
                                     </div>
                                     @endif
-                                </div>
-                                <div class="form-group">
-                                    <div class="custom-control custom-checkbox small">
-
-                                        <input class="form-check-input" name="remember" type="checkbox" id="remember" style="vertical-align: middle;"  class="custom-control-input"/>
-
-                                        <label class="custom-control-label" for="remember" style="vertical-align: middle;">
-                                            {{ trans('global.remember_me') }}
-                                        </label>
-                                    </div>
+                                    
                                 </div>
 
                                 <button type="submit" class="btn btn-primary btn-user btn-block"">
@@ -84,3 +82,19 @@
 
 </div>
 @endsection
+
+<script>
+    function password_show_hide() {
+        var x = document.getElementById("password");
+        var show_eye = document.getElementById("btn-eye");
+        if (x.type === "password") {
+            x.type = "text";
+            show_eye.classList.remove("fa-eye-slash");
+            show_eye.classList.add("fa-eye");
+        } else {
+            x.type = "password";
+            show_eye.classList.add("fa-eye-slash");
+            show_eye.classList.remove("fa-eye");
+        }
+    }
+</script>

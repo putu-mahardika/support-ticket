@@ -113,7 +113,7 @@
                             @empty
                                 <div class="row">
                                     <div class="col">
-                                        <p>There are no comments.</p>
+                                        <p>Tidak ada balasan</p>
                                     </div>
                                 </div>
                                 <hr />
@@ -121,7 +121,7 @@
                             <form action="{{ route('admin.tickets.storeComment', $ticket->id) }}" method="POST" id="add-comment">
                                 @csrf
                                 <div class="form-group">
-                                    <label for="comment_text">Leave a comment</label>
+                                    <label for="comment_text">Tinggalkan balasan</label>
                                     <textarea class="form-control" id="comment_text" name="comment_text" rows="3" required></textarea>
                                 </div>
                                 <div class="row">
