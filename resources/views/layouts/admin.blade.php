@@ -23,6 +23,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     @yield('styles')
+    <style>
+      .logo {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
 </head>
 
 <body class="app header-fixed sidebar-fixed aside-menu-fixed pace-done sidebar-lg-show">
@@ -31,8 +37,10 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <a class="navbar-brand" href="#">
-            <span class="navbar-brand-full">{{ trans('panel.site_title') }}</span>
-            <span class="navbar-brand-minimized">{{ trans('panel.site_title') }}</span>
+            {{-- <span class="navbar-brand-full"> --}}
+            <img class="navbar-brand-full logo" src="{{ asset('theme/img/logo-group-1.png') }}" alt="monster-group">
+            {{-- </span> --}}
+            <span class="navbar-brand-minimized"></span>
         </a>
         <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button" data-toggle="sidebar-lg-show">
             <span class="navbar-toggler-icon"></span>
@@ -52,7 +60,11 @@
                 </li>
             @endif
 
-
+          <li style="margin-right: 20px;">
+            <div class="col-md-12">
+              Hallo {{ auth()->user()->name ?? '(null)' }}
+            </div>
+          </li>
         </ul>
     </header>
 

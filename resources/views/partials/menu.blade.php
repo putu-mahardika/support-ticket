@@ -84,10 +84,10 @@
                     </a>
                 </li>
             @endcan
-            @can('comment_access')
+            @can('project_access')
                 <li class="nav-item">
-                    <a href="{{ route("admin.projects.index") }}" class="nav-link {{ request()->is('admin/comments') || request()->is('admin/comments/*') ? 'active' : '' }}">
-                        <i class="fa-fw fas fa-comment nav-icon">
+                    <a href="{{ route("admin.projects.index") }}" class="nav-link {{ request()->is('admin/projects') || request()->is('admin/projects/*') ? 'active' : '' }}">
+                        <i class="fa-fw fas fa-code-branch nav-icon">
 
                         </i>
                         {{ trans('cruds.project.title') }}
@@ -106,7 +106,7 @@
                         @can('status_access')
                             <li class="nav-item">
                                 <a href="{{ route("admin.statuses.index") }}" class="nav-link {{ request()->is('admin/statuses') || request()->is('admin/statuses/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-unlock-alt nav-icon">
+                                    <i class="fa-fw fas fa-info-circle nav-icon">
 
                                     </i>
                                     {{ trans('cruds.status.title') }}
@@ -116,7 +116,7 @@
                         @can('config_settings')
                             <li class="nav-item">
                                 <a href="{{ route("admin.priorities.index") }}" class="nav-link {{ request()->is('admin/priorities') || request()->is('admin/priorities/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-briefcase nav-icon">
+                                    <i class="fa-fw fas fa-exclamation-triangle nav-icon">
 
                                     </i>
                                     {{ trans('cruds.priority.title') }}
@@ -126,7 +126,7 @@
                         @can('user_access')
                             <li class="nav-item">
                                 <a href="{{ route("admin.categories.index") }}" class="nav-link {{ request()->is('admin/categories') || request()->is('admin/categories/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-user nav-icon">
+                                    <i class="fa-fw fas fa-tags nav-icon">
 
                                     </i>
                                     {{ trans('cruds.category.title') }}
