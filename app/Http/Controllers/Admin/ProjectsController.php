@@ -8,8 +8,10 @@ use App\Http\Requests\MassDestroyProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\User;
+use App\User_Project;
 use Illuminate\Http\Request;
 use Gate;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProjectsController extends Controller
@@ -25,8 +27,16 @@ class ProjectsController extends Controller
             abort_if(Gate::denies('project_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
     
             $projects = Project::all();
+
+            $projects_pm = DB::table('projects')
+                ->join('user_project', 'user_project.project_id', '=', 'projects.id')
+                ->join('users', 'users.id', '=', 'user_project.user_id', )
+                ->select('projects.id as project_id', 'users.name as pm_name', 'users.email as pm_email')
+                ->where('user_project.is_pm', 1)
+                ->get();
+            // dd($projects_pm);
     
-            return view('admin.projects.index', compact('projects'));
+            return view('admin.projects.index', compact('projects', 'projects_pm'));
         }
     }
 
@@ -56,20 +66,8 @@ class ProjectsController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        // dd($request->assign_user_id);
-        // $get_user = User::find($request->assign_user_id);
-        // $pm_name = $get_user->name;
-        // $pm_email = $get_user->email;
-        // dd($pm_email);
         $project = Project::create($request->all());
         $project->user()->attach($request->assign_user_id, ['is_pm' => true]);
-
-
-        // $project = Project::create([
-        //     'name'      =>  $request->name,
-        //     'pm_name'   =>  $pm_name,
-        //     'pm_email'  =>  $pm_email,
-        // ]);
 
         return redirect()->route('admin.projects.index');
     }

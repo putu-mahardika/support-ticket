@@ -1,79 +1,100 @@
 @extends('layouts.auth')
 @section('content')
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card mx-4">
-            <div class="card-body p-4">
-                <h1>{{ trans('panel.site_title') }}</h1>
 
-                <p class="text-muted">{{ trans('global.login') }}</p>
+    <div class="col-xl-10 col-lg-12 col-md-9">
 
-                @if(session('status'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('status') }}
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="fa fa-user"></i>
-                            </span>
-                        </div>
-
-                        <input id="email" name="email" type="text" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" required autocomplete="email" autofocus placeholder="{{ trans('global.login_email') }}" value="{{ old('email', null) }}">
-
-                        @if($errors->has('email'))
-                            <div class="invalid-feedback">
-                                {{ $errors->first('email') }}
+        <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body p-0">
+                <!-- Nested Row within Card Body -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="p-5">
+                            <div class="container mb-3">
+                                <img src="{{ asset('theme/img/logo-group-1.png') }}" width="100%" height="auto">
+                                <h3 class="text-center mb-2">{{ trans('panel.site_title') }}</h3>
+                                {{-- <p class="text-muted">{{ trans('global.login') }}</p> --}}
                             </div>
-                        @endif
-                    </div>
 
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                        </div>
-
-                        <input id="password" name="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" required placeholder="{{ trans('global.login_password') }}">
-
-                        @if($errors->has('password'))
-                            <div class="invalid-feedback">
-                                {{ $errors->first('password') }}
+                            @if(session('status'))
+                            <div class="alert alert-success" role="alert">
+                                {{ session('status') }}
                             </div>
-                        @endif
-                    </div>
-
-                    <div class="input-group mb-4">
-                        <div class="form-check checkbox">
-                            <input class="form-check-input" name="remember" type="checkbox" id="remember" style="vertical-align: middle;" />
-                            <label class="form-check-label" for="remember" style="vertical-align: middle;">
-                                {{ trans('global.remember_me') }}
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
-                            <button type="submit" class="btn btn-primary px-4">
-                                {{ trans('global.login') }}
-                            </button>
-                        </div>
-                        <div class="col-6 text-right">
-                            @if(Route::has('password.request'))
-                                <a class="btn btn-link px-0" href="{{ route('password.request') }}">
-                                    {{ trans('global.forgot_password') }}
-                                </a><br>
                             @endif
 
+                            <form class="user" method="POST" action="{{ route('login') }}">
+                            @csrf
+                                <div class="form-group">
+                                    <input class="form-control form-control-user"
+                                    id="email" name="email" type="text" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" required autocomplete="email" autofocus placeholder="{{ trans('global.login_email') }}" value="{{ old('email', null) }}">
+
+                                    @if($errors->has('email'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('email') }}
+                                    </div>
+                                    @endif
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control form-control-user" style="border-radius:10rem;"
+                                    id="password" name="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" required placeholder="{{ trans('global.login_password') }}">
+                                    
+                                    <span class="input-group-text" onclick="password_show_hide();" style="cursor: pointer; background-color:transparent;border:none;margin-left:-45px;z-index:10;">
+                                        <i class="fas fa-eye-slash" id="btn-eye"></i>
+                                        {{-- <i class="fas fa-eye-slash d-none" id="hide_eye"></i> --}}
+                                    </span>
+                                    </div>
+                                    
+                                    @if($errors->has('password'))
+                                    <div class="invalid-feedback">
+                                        {{ $errors->first('password') }}
+                                    </div>
+                                    @endif
+                                    
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-user btn-block"">
+                                    {{ trans('global.login') }}
+                                </button>
+                            </form>
+                            <hr>
+                            <div class="text-center">
+                                @if(Route::has('password.request'))
+                                <a class="small" href="{{ route('password.request') }}">
+                                    {{ trans('global.forgot_password') }}
+                                </a><br>
+                                @endif
+                                
+                            </div>
                         </div>
                     </div>
-                </form>
+                    <div class="col-lg-6">
+                        <img src="{{ asset('theme/img/note.png') }}" style="width: auto; height:  600px; position: center;" >
+                    </div>
+                </div>
             </div>
+
         </div>
+
     </div>
+
 </div>
 @endsection
+
+<script>
+    function password_show_hide() {
+        var x = document.getElementById("password");
+        var show_eye = document.getElementById("btn-eye");
+        if (x.type === "password") {
+            x.type = "text";
+            show_eye.classList.remove("fa-eye-slash");
+            show_eye.classList.add("fa-eye");
+        } else {
+            x.type = "password";
+            show_eye.classList.add("fa-eye-slash");
+            show_eye.classList.remove("fa-eye");
+        }
+    }
+</script>

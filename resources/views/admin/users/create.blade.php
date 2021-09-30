@@ -36,7 +36,7 @@
 
             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                 <label for="company">{{ trans('cruds.user.fields.company') }}</label>
-                <input type="text" id="company" name="company" class="form-control" value="{{ old('name', isset($user) ? $user->company : '') }}" required>
+                <input type="text" id="company" name="company" class="form-control" value="{{ old('name', isset($user) ? $user->company : '') }}">
                 @if($errors->has('company'))
                     <em class="invalid-feedback">
                         {{ $errors->first('company') }}
@@ -51,7 +51,8 @@
                 <label for="project">{{ trans('cruds.user.fields.project') }}*
                     <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
                     <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
-                <select name="project" id="project" class="form-control select2" multiple="multiple" required>
+                <select name="project" id="project" class="form-control select2">
+                        <option></option>
                     @foreach($projects as $id => $project)
                         <option value="{{ $id }}" {{ (in_array($id, old('roles', [])) || isset($user) && $user->project->contains($id)) ? 'selected' : '' }}>{{ $project }}</option>
                     @endforeach

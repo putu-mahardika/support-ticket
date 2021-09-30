@@ -35,6 +35,9 @@
                             {{ trans('cruds.user.fields.company') }}
                         </th>
                         <th>
+                            {{ trans('cruds.user.fields.project') }}
+                        </th>
+                        <th>
                             {{ trans('cruds.user.fields.roles') }}
                         </th>
                         <th>
@@ -59,6 +62,16 @@
                             </td>
                             <td>
                                 {{ $user->company ?? '' }}
+                            </td>
+                            <td>
+                                {{-- {{ $user->company ?? '' }} --}}
+                                @foreach ($users_project as $project)
+                                    @if ($user->id == $project->id)
+                                        {{ $project->project_name }}
+                                    @else
+                                        {{ '' }}
+                                    @endif
+                                @endforeach
                             </td>
                             <td>
                                 @foreach($user->roles as $key => $item)

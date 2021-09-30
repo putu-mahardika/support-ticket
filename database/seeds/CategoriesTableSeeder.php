@@ -12,17 +12,34 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run()
     {
-        $faker = Faker\Factory::create();
+        // $faker = Faker\Factory::create();
         $categories = [
-            "Uncategorized", "Billing/Payments", "Technical question"
+            [
+                'name'  =>  'Bug',
+                'color' =>  '#ff0000',
+            ],
+            [
+                'name'  =>  'Update',
+                'color' =>  '#cc5200',
+            ],
+            [
+                'name'  =>  'New Feature',
+                'color' =>  '#009933',
+            ],
+            [
+                'name'  =>  'Report',
+                'color' =>  '#0000ff',
+            ],
         ];
 
-        foreach($categories as $category)
-        {
-            Category::create([
-                'name'  => $category,
-                'color' => $faker->hexcolor
-            ]);
-        }
+        Category::insert($categories);
+
+        // foreach($categories as $category)
+        // {
+        //     Category::create([
+        //         'name'  => $category,
+        //         'color' => $faker->hexcolor
+        //     ]);
+        // }
     }
 }

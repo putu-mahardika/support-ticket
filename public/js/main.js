@@ -41,7 +41,9 @@ $(document).ready(function () {
     $select2.trigger('change')
   })
 
-  $('.select2').select2()
+  $('.select2').select2({
+    placeholder: "Pilih",
+  })
 
   $('.treeview').each(function () {
     var shouldExpand = false
