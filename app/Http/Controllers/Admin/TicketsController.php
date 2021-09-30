@@ -137,7 +137,7 @@ class TicketsController extends Controller
             })
             ->pluck('name', 'id')
             ->prepend(trans('global.pleaseSelect'), '');
-        
+
         $projects = Project::all()->pluck('name', 'id');
 
         return view('admin.tickets.create', compact('statuses', 'priorities', 'categories', 'assigned_to_users', 'projects'));
@@ -145,11 +145,8 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request)
     {
-        // dd($request);
-        $project_id = Auth::user()->project->first()->id;
-        // dd($project_id);
-        $assign_pm = Project::find($project_id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
-        // dd($assign_pm);
+        $project = Auth::user()->project->first();
+        $assign_pm = Project::find($project->id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
         $ticket = Ticket::create([
             'title' => $request->title,
             'content' => $request->content,
@@ -159,10 +156,9 @@ class TicketsController extends Controller
             'priority_id' => $request->priority_id ?? 1,
             'category_id' => $request->category_id ?? 1,
             'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
+            'project_id' => $project->id
         ]);
-
-        $project_id = Project::find(Auth::user()->project->pluck('id')->first());
-        $ticket->project()->associate($project_id);
+        $ticket->project()->associate($project);
         $ticket->save();
 
         foreach ($request->input('attachments', []) as $file) {
