@@ -24,8 +24,8 @@ class TicketController extends Controller
             ]);
         }
 
-        $project_id = $request->user()->project->first()->id;
-        $assign_pm = Project::find($project_id)->user()->where('is_pm', true)->first()->pivot->user_id ?? 0;
+        $project = $request->user()->project->first();
+        $assign_pm = Project::find($project->id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
         $ticket = Ticket::create([
             'title' => $request->title,
             'content' => $request->content,
@@ -35,10 +35,13 @@ class TicketController extends Controller
             'priority_id' => $request->priority_id ?? 1,
             'category_id' => $request->category_id ?? 1,
             'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
+            'project_id' => $project->id
         ]);
+        $ticket->project()->associate($project);
+        $ticket->save();
 
-        if ($request->input('attachments', false)) {
-            $ticket->addMedia(storage_path('tmp/uploads/' . $request->input('attachments')))->toMediaCollection('attachments');
+        foreach ($request->input('attachments', []) as $file) {
+            $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
         }
 
         return response()->json([
