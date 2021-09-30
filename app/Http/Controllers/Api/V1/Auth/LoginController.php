@@ -41,7 +41,8 @@ class LoginController extends Controller
                 'success' => true,
                 'message' => '',
                 'data' => compact('user'),
-                'token' => $token
+                'token' => $token,
+                'token_expire' => now()->addHour()
             ]);
         }
     }
