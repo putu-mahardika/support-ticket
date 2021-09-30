@@ -28,6 +28,7 @@
                 <div class="form-group {{ $errors->has('assign_user_id') ? 'has-error' : '' }}">
                     <label for="assigned_to_user">{{ trans('cruds.ticket.fields.assigned_to_user') }}</label>
                     <select name="assign_user_id" id="assigned_to_user" class="form-control select2">
+                        <option value=""></option>
                         @foreach($assigned_to_users as $id => $assigned_to_user)
                             <option value="{{ $id }}" {{ old('assigned_to_user_id', $id) == $pm ? 'selected' : '' }}>{{ $assigned_to_user }}</option>
                         @endforeach

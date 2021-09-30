@@ -5,7 +5,11 @@
     <div class="card-header">
         {{ trans('global.create') }} {{ trans('cruds.ticket.title_singular') }}
     </div>
-
+    @if(session('status'))
+        <div class="alert alert-danger" role="alert">
+            {{ session('status') }}
+        </div>
+    @endif
     <div class="card-body">
         <form action="{{ route("admin.tickets.store") }}" method="POST" enctype="multipart/form-data" id="create-ticket">
             @csrf
