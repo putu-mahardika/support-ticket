@@ -98,7 +98,7 @@ class ProjectsController extends Controller
         // dd($project);
         abort_if(Gate::denies('project_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $pm = Project::find($project->id)->user()->where('is_pm', true)->first()->pivot->user_id;
+        $pm = Project::find($project->id)->user()->where('is_pm', true)->first()->pivot->user_id ?? null;
         // dd($pm);
 
         $assigned_to_users = User::whereHas('roles', function($query) {

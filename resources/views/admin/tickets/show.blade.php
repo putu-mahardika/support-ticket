@@ -17,14 +17,6 @@
                 <tbody>
                     <tr>
                         <th>
-                            {{ trans('cruds.ticket.fields.id') }}
-                        </th>
-                        <td>
-                            {{ $ticket->id }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
                             {{ trans('cruds.ticket.fields.created_at') }}
                         </th>
                         <td>
