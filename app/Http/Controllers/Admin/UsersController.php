@@ -11,6 +11,7 @@ use App\Role;
 use App\User;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class UsersController extends Controller
@@ -20,8 +21,16 @@ class UsersController extends Controller
         abort_if(Gate::denies('user_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $users = User::all();
+        $users_project = DB::table('users')
+                ->join('user_project', 'user_project.user_id', '=', 'users.id')
+                ->join('projects', 'projects.id', '=', 'user_project.project_id')
+                ->select('users.id', 'projects.name as project_name')
+                ->where('user_project.is_pm', 0)
+                ->get();
+        
+        // dd($users);
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'users_project'));
     }
 
     public function create()
