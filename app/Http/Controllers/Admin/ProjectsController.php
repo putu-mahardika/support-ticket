@@ -7,6 +7,7 @@ use App\Project;
 use App\Http\Requests\MassDestroyProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Ticket;
 use App\User;
 use App\User_Project;
 use Illuminate\Http\Request;
@@ -49,8 +50,8 @@ class ProjectsController extends Controller
     {
         abort_if(Gate::denies('project_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $assigned_to_users = User::whereHas('roles', function($query) {
-            $query->whereId(2);
+        $assigned_to_users = User::whereDoesntHave('roles', function($query) {
+            $query->where('title', 'client');
         })
         ->pluck('name', 'id')
         ->prepend(trans('global.pleaseSelect'), '');
@@ -99,8 +100,8 @@ class ProjectsController extends Controller
         $pm = Project::find($project->id)->user()->where('is_pm', true)->first()->pivot->user_id ?? null;
         // dd($pm);
 
-        $assigned_to_users = User::whereHas('roles', function($query) {
-            $query->whereId(2);
+        $assigned_to_users = User::whereDoesntHave('roles', function($query) {
+            $query->where('title', 'client');
         })
         ->pluck('name', 'id')
         ->prepend(trans('global.pleaseSelect'), '');
@@ -119,6 +120,11 @@ class ProjectsController extends Controller
     {
         // dd($project);
         $project->update($request->all());
+        DB::table('tickets')
+            ->where('assigned_to_user_id', $request->temp_pm)
+            ->update([
+                'assigned_to_user_id' => $request->assign_user_id,
+            ]);
         $project->user()->detach($request->temp_pm);
         $project->user()->attach($request->assign_user_id, ['is_pm' => true]);
 
