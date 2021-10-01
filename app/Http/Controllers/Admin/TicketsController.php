@@ -137,7 +137,7 @@ class TicketsController extends Controller
             })
             ->pluck('name', 'id')
             ->prepend(trans('global.pleaseSelect'), '');
-        
+
         $projects = Project::all()->pluck('name', 'id');
 
         return view('admin.tickets.create', compact('statuses', 'priorities', 'categories', 'assigned_to_users', 'projects'));
@@ -145,33 +145,24 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
-        // dd($request);
-        $project_id = Auth::user()->project->first()->id ?? null;
-        
-        if ($project_id != null) {
-            // dd($project_id);
-            $assign_pm = Project::find($project_id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
-            // dd($assign_pm);
-            $ticket = Ticket::create([
-                'title' => $request->title,
-                'content' => $request->content,
-                'author_name' => Auth::user()->name,
-                'author_email' => Auth::user()->email,
-                'status_id' => $request->status_id ?? null,
-                'priority_id' => $request->priority_id ?? null,
-                'category_id' => $request->category_id ?? null,
-                'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
-            ]);
-    
-            $project_id = Project::find(Auth::user()->project->pluck('id')->first());
-            $ticket->project()->associate($project_id);
-            $ticket->save();
-    
-            foreach ($request->input('attachments', []) as $file) {
-                $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
-            }
-        } else {
-            return redirect()->back()->withStatus('Tiket anda gagal ditambahkan. Silahkan hubungi Admin kami untuk info lebih lanjut');
+        $project = Auth::user()->project->first();
+        $assign_pm = Project::find($project->id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+        $ticket = Ticket::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'author_name' => Auth::user()->name,
+            'author_email' => Auth::user()->email,
+            'status_id' => $request->status_id ?? 1,
+            'priority_id' => $request->priority_id ?? 1,
+            'category_id' => $request->category_id ?? 1,
+            'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
+            'project_id' => $project->id
+        ]);
+        $ticket->project()->associate($project);
+        $ticket->save();
+
+        foreach ($request->input('attachments', []) as $file) {
+            $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
         }
 
         return redirect()->route('admin.tickets.index')->withStatus('Tiket anda telah berhasil ditambahkan. Silahkan tunggu hingga mendapatkan balasan melalui email dari kami');
