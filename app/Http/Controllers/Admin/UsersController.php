@@ -68,7 +68,13 @@ class UsersController extends Controller
         $roles = Role::all()->pluck('title', 'id');
         $projects = Project::all()->pluck('name', 'id');
 
-        $user->load('roles', 'project');
+        // $user->load('roles', 'project');
+        $projects = DB::table('projects')
+                ->join('user_project', 'user_project.project_id', '=', 'projects.id')
+                ->join('users', 'users.id', '=', 'user_project.user_id', )
+                ->select('projects.id as id', 'projects.name as name')
+                ->where('user_project.is_pm', 1)
+                ->get();
         // dd($user);
 
         return view('admin.users.edit', compact('roles', 'user', 'projects'));

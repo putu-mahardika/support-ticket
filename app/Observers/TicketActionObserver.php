@@ -17,8 +17,13 @@ class TicketActionObserver
                        ->whereDoesntHave('roles', function ($q) {
                            return $q->where('title', 'client');
                         })->get();
+        
+        $users_admin = \App\User::whereHas('roles', function ($q) {
+            return $q->where('title', 'Admin');
+        })->get();
         try {
             Notification::send($users, new DataChangeEmailNotification($data));
+            Notification::send($users_admin, new DataChangeEmailNotification($data));
         } catch (\Exception $e) {
 
         }
