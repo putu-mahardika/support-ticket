@@ -3,7 +3,7 @@
 
 <div class="card">
     <div class="card-header">
-        {{ trans('global.show') }} {{ trans('cruds.ticket.title') }}
+        {{ trans('global.show') }} {{ trans('cruds.ticket.title_singular') }}
     </div>
 
     <div class="card-body">
