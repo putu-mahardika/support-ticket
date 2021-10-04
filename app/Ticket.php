@@ -130,13 +130,17 @@ class Ticket extends Model implements HasMedia
                 $q->where('id', '!=', $comment->user_id);
             })
             ->get();
-        $notification = new CommentEmailNotification($comment);
-
-        Notification::send($users, $notification);
-        if($comment->user_id && $this->author_email)
-        {
-            Notification::route('mail', $this->author_email)->notify($notification);
-        }
+            try {
+                $notification = new CommentEmailNotification($comment);
+                Notification::send($users, $notification);
+                if($comment->user_id && $this->author_email)
+                {
+                    Notification::route('mail', $this->author_email)->notify($notification);
+                }
+            } catch (\Exception $e) {
+                //throw $th;
+            }
+        
     }
 
     public function project(){
