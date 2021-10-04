@@ -47,7 +47,7 @@
                         {{ trans('cruds.ticket.fields.author_email') }}
                     </th>
                     <th>
-                        Project
+                      {{ trans('cruds.ticket.fields.project') }}
                     </th>
                     <th>
                         {{ trans('cruds.ticket.fields.assigned_to_user') }}

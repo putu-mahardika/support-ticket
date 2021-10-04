@@ -143,6 +143,8 @@ return [
             'priority_helper'         => '',
             'category'                => 'Kategori',
             'category_helper'         => '',
+            'project'                 =>  'Proyek',
+            'project_helper'          => '',
             'author_name'             => 'Nama Pelapor',
             'author_name_helper'      => '',
             'author_email'            => 'Email Pelapor',
