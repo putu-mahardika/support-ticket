@@ -153,7 +153,7 @@ class TicketsController extends Controller
                 'content' => $request->content,
                 'author_name' => Auth::user()->name,
                 'author_email' => Auth::user()->email,
-                'status_id' => $request->status_id ?? null,
+                'status_id' => $request->status_id ?? 1,
                 'priority_id' => $request->priority_id ?? null,
                 'category_id' => $request->category_id ?? null,
                 'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
