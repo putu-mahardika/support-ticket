@@ -21,6 +21,8 @@ Route::resource('tickets', 'TicketController')->only(['show', 'create', 'store']
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'middleware' => ['auth']], function () {
     Route::get('/', 'HomeController@index')->name('home');
+    Route::get('/getJumlahTiketHarian', 'HomeController@getJumlahTiketHarian')->name('getJumlahTiketHarian');
+    Route::get('/getLastComment', 'HomeController@getLastComment')->name('getLastComment');
     // Permissions
     Route::delete('permissions/destroy', 'PermissionsController@massDestroy')->name('permissions.massDestroy');
     Route::resource('permissions', 'PermissionsController');
