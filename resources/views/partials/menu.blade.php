@@ -3,9 +3,9 @@
 	<!-- Sidebar - Brand -->
 		<a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route("admin.home") }}">
 			<div class="sidebar-brand-icon rotate-n-15">
-				<i class="fas fa-ticket-alt"></i>
+				<i class="fas fa-headset"></i>
 			</div>
-			<div class="sidebar-brand-text mx-3">E - Ticketing</sup></div>
+			<div class="sidebar-brand-text mx-3">Help Desk</sup></div>
 		</a>
 		<!-- Divider -->
 		<hr class="sidebar-divider my-0">
