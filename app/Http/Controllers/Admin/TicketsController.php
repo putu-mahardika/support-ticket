@@ -16,6 +16,7 @@ use App\User;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -154,8 +155,8 @@ class TicketsController extends Controller
                 'author_name' => Auth::user()->name,
                 'author_email' => Auth::user()->email,
                 'status_id' => $request->status_id ?? 1,
-                'priority_id' => $request->priority_id ?? null,
-                'category_id' => $request->category_id ?? null,
+                'priority_id' => $request->priority_id ?? 1,
+                'category_id' => $request->category_id ?? 1,
                 'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
                 'project_id' => $project->id
             ]);
@@ -258,5 +259,63 @@ class TicketsController extends Controller
         $ticket->sendCommentNotification($comment);
 
         return redirect()->back()->withStatus('Komentar anda berhasil ditambahkan');
+    }
+
+    public function showReport()
+    {
+        return view('admin.tickets.report');
+    }
+    public function getReport(Request $request)
+    {
+        $awal = $request->awal . " 00:00:00" ?? '';
+        $akhir = $request->akhir . " 23:59:59" ?? '';
+        $user_role = Auth::user()->roles()->first()->id;
+        if($user_role == 1){
+            $data = DB::table('tickets')
+                ->join('projects', 'tickets.project_id', '=', 'projects.id')
+                ->join('users', 'tickets.assigned_to_user_id', '=', 'users.id')
+                ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
+                ->join('categories', 'tickets.category_id', '=', 'categories.id')
+                ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
+                ->select(
+                    'tickets.created_at as tgl',
+                    'tickets.title as judul',
+                    'tickets.content as deskripsi',
+                    'tickets.author_name as author',
+                    'projects.name as proyek',
+                    'users.name as PIC',
+                    'categories.name as kategori',
+                    'priorities.name as prioritas',
+                    'statuses.name as status'
+                )
+                ->whereBetween('tickets.created_at', [$awal, $akhir])
+                ->get();
+        } else {
+            $project = Auth::user()->project->first()->id ?? null;
+            if (!is_null($project)) {
+                $data = DB::table('tickets')
+                ->join('projects', 'tickets.project_id', '=', 'projects.id')
+                ->join('users', 'tickets.assigned_to_user_id', '=', 'users.id')
+                ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
+                ->join('categories', 'tickets.category_id', '=', 'categories.id')
+                ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
+                ->select(
+                    'tickets.created_at as tgl',
+                    'tickets.title as judul',
+                    'tickets.content as deskripsi',
+                    'tickets.author_name as author',
+                    'projects.name as proyek',
+                    'users.name as PIC',
+                    'categories.name as kategori',
+                    'priorities.name as prioritas',
+                    'statuses.name as status'
+                )
+                ->where('tickets.project_id', $project)
+                ->whereBetween('tickets.created_at', [$awal, $akhir])
+                ->get();
+            }
+        }
+        // dd($data);
+        return collect($data);
     }
 }

@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>{{ trans('panel.site_title') }}</title>
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 
     {{-- template bawaaan --}}
@@ -19,6 +19,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.common.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.light.css" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     @yield('styles')
 
@@ -30,7 +32,7 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('theme/css/sb-admin-2.min.css') }}" rel="stylesheet">
     <!-- Custom styles for this page -->
-    <link href="{{ asset('theme/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('theme/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet"> --}}
 
 </head>
 <body id="page-top">
@@ -232,11 +234,11 @@
     </script>
     @yield('scripts')
         <!-- Bootstrap core JavaScript-->
-        <script src="{{ asset('theme/vendor/jquery/jquery.min.js') }}"></script>
+        {{-- <script src="{{ asset('theme/vendor/jquery/jquery.min.js') }}"></script> --}}
         <script src="{{ asset('theme/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     
         <!-- Core plugin JavaScript-->
-        <script src="{{ asset('theme/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+        {{-- <script src="{{ asset('theme/vendor/jquery-easing/jquery.easing.min.js') }}"></script> --}}
     
         <!-- Custom scripts for all pages-->
         <script src="{{ asset('theme/js/sb-admin-2.min.js') }}"></script>

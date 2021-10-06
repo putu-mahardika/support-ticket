@@ -6,6 +6,9 @@
             <a class="btn btn-success" href="{{ route("admin.tickets.create") }}">
                 {{ trans('global.add') }} {{ trans('cruds.ticket.title_singular') }}
             </a>
+            <a class="btn btn-primary" href="{{ route("admin.tickets.showReport") }}">
+                Laporan
+            </a>
         </div>
     </div>
 @endcan
