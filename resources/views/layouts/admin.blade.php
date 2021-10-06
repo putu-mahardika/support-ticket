@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ trans('panel.site_title') }}</title>
-
-
-
+    <title>Help Desk</title>
+    <link rel="icon" href="{{ asset('theme/img/headset.png') }}">
     {{-- template bawaaan --}}
-    <link rel="icon" href="{{ asset('theme/img/ticket.png') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" rel="stylesheet" />
@@ -31,8 +28,7 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="{{ asset('theme/css/sb-admin-2.min.css') }}" rel="stylesheet">
-    <!-- Custom styles for this page -->
-    {{-- <link href="{{ asset('theme/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet"> --}}
+    
 
 </head>
 <body id="page-top">
@@ -46,43 +42,28 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <!-- Main Content -->
             <div id="content">
-
-               
                         <!-- Topbar -->
-                            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            </button>
+                          
+                            <!-- Topbar Navbar -->
+                            <ul class="navbar-nav ml-auto">
+                                <div class="topbar-divider d-none d-sm-block"></div>
 
-                                <!-- Sidebar Toggle (Topbar) -->
-                                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                                    <i class="fa fa-bars"></i>
-                                </button>
-
-                                <!-- Topbar Navbar -->
-                                <ul class="navbar-nav ml-auto">
-                                    <div class="topbar-divider d-none d-sm-block"></div>
-
-                                    <!-- Nav Item - User Information -->
-                                    <li class="nav-item dropdown no-arrow">
-                                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Hallo {{ auth()->user()->name ?? '(null)' }}</span>
-                                            <img class="img-profile rounded-circle" src="{{ asset('theme/img/undraw_profile.svg') }}">
-                                         </a>
-                                        <!-- Dropdown - User Information -->
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                        aria-labelledby="userDropdown">
-                                                <a class="dropdown-item" href="user-profile.html">
-                                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                                    Profile
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                                    Logout
-                                                </a>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </nav>
+                                <!-- Nav Item - User Information -->
+                                <li class="nav-item dropdown no-arrow">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">Hallo {{ auth()->user()->name ?? '(null)' }}</span>
+                                        <img class="img-profile rounded-circle" src="{{ asset('theme/img/undraw_profile.svg') }}"> 
+                                        </a>
+                                  
+                                </li>
+                            </ul>
+                        </nav>
                          <!-- End of Topbar -->
                     {{-- Konten disini --}}
                     <div class="container-fluid">
@@ -94,31 +75,32 @@
                         
                     </div>
             <!-- End Main Content -->
-        </div>
-     <!-- End Content Wrapper -->
-     <!-- Footer -->
-        <footer class="sticky-footer bg-white">
-            <div class="container my-auto">
-                <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Your Website 2021</span>
-                </div>
             </div>
-        </footer>
-       <!-- End of Footer -->
-               {{-- Logout Form --}}
+            <!-- End Content Wrapper -->
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Your Website 2021</span>
+                    </div>
+                </div>
+            </footer>
+             <!-- End of Footer -->
+        </div>
+        {{-- Logout Form --}}
 
         <form id="logoutform" action="{{ route('logout') }}" method="POST" style="display: none;">
         {{ csrf_field() }}
         </form>
 
-    </div>
+   
      <!-- Page Wrapper End-->
+    </div>
 
 
 
-
-{{-- Template bawaan --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    {{-- Template bawaan --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://unpkg.com/@coreui/coreui@2.1.16/dist/js/coreui.min.js"></script>
