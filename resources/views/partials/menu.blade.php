@@ -1,153 +1,119 @@
-<div class="sidebar">
-    <nav class="sidebar-nav">
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+	
+	<!-- Sidebar - Brand -->
+		<a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route("admin.home") }}">
+			<div class="sidebar-brand-icon rotate-n-15">
+				<i class="fas fa-ticket-alt"></i>
+			</div>
+			<div class="sidebar-brand-text mx-3">E - Ticketing</sup></div>
+		</a>
+		<!-- Divider -->
+		<hr class="sidebar-divider my-0">
 
-        <ul class="nav">
-            @can('dashboard_access')
-                <li class="nav-item">
-                    <a href="{{ route("admin.home") }}" class="nav-link">
-                        <i class="nav-icon fas fa-fw fa-tachometer-alt">
+		<!-- Nav Item - Dashboard -->
+		<li class="nav-item active">
+			@can('dashboard_access')
+			<a class="nav-link" href="{{ route("admin.home") }}">
+				<i class="fas fa-fw fa-tachometer-alt"></i>
+				<span>{{ trans('global.dashboard') }}</span>
+			</a>
+			@endcan
+		</li>
 
-                        </i>
-                        {{ trans('global.dashboard') }}
-                    </a>
-                </li>
-            @endcan
-            @can('user_management_access')
-                <li class="nav-item nav-dropdown">
-                    <a class="nav-link  nav-dropdown-toggle" href="#">
-                        <i class="fa-fw fas fa-users nav-icon">
+	@can('user_management_access')
+		<!-- Heading -->
+		<div class="sidebar-heading">
+			Managements
+		</div>
+		<!-- Nav Item - User Management -->
+		<li class="nav-item">
+			<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+			aria-expanded="true" aria-controls="collapseTwo">
+				<i class="fas fa-users"></i>
+				<span>{{ trans('cruds.userManagement.title') }}</span>
+			</a>
 
-                        </i>
-                        {{ trans('cruds.userManagement.title') }}
-                    </a>
-                    <ul class="nav-dropdown-items">
-                        @can('permission_access')
-                            <li class="nav-item">
-                                <a href="{{ route("admin.permissions.index") }}" class="nav-link {{ request()->is('admin/permissions') || request()->is('admin/permissions/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-unlock-alt nav-icon">
+			<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+				<div class="bg-white py-2 collapse-inner rounded">
+					@can('permission_access')
+					<a class="collapse-item" href="{{ route("admin.permissions.index") }}">{{ trans('cruds.permission.title') }}</a>
+					@endcan
+					@can('role_access')
+					<a class="collapse-item" href="{{ route("admin.roles.index") }}">{{ trans('cruds.role.title') }}</a>
+					@endcan
+					@can('user_access')
+					<a class="collapse-item" href="{{ route("admin.users.index") }}">{{ trans('cruds.user.title')}} </a>
+					@endcan 
+					@can('audit_log_acces')
+					<a class="collapse-item" href="{{ route("admin.audit-logs.index") }}">{{ trans('cruds.auditLog.t')}}</a>
+					@endcan
+				</div>
+			</div>
+		</li>
+	@endcan
 
-                                    </i>
-                                    {{ trans('cruds.permission.title') }}
-                                </a>
-                            </li>
-                        @endcan
-                        @can('role_access')
-                            <li class="nav-item">
-                                <a href="{{ route("admin.roles.index") }}" class="nav-link {{ request()->is('admin/roles') || request()->is('admin/roles/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-briefcase nav-icon">
+	<!-- Nav Item - Category -->
+	@can('status_access')
+		<li class="nav-item">
+			<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+			aria-expanded="true" aria-controls="collapseUtilities">
+				<i class="fas fa-fw fa-wrench"></i>
+				<span>{{ trans('cruds.setting.title') }}</span>
+			</a>
+			<div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+				<div class="bg-white py-2 collapse-inner rounded">
+					@can('status_access')
+					<a class="collapse-item" href="{{ route("admin.statuses.index") }}">{{ trans('cruds.status.title') }}</a>
+					@endcan
+					@can('config_settings')
+					<a class="collapse-item" href="{{ route("admin.priorities.index") }}">{{ trans('cruds.priority.title') }}</a>
+					@endcan
+					@can('user_access')
+					<a class="collapse-item" href="{{ route("admin.categories.index") }}"> {{ trans('cruds.category.title') }}</a>
+					@endcan
+				</div>
+			</div>
+		</li>
+	@endcan
 
-                                    </i>
-                                    {{ trans('cruds.role.title') }}
-                                </a>
-                            </li>
-                        @endcan
-                        @can('user_access')
-                            <li class="nav-item">
-                                <a href="{{ route("admin.users.index") }}" class="nav-link {{ request()->is('admin/users') || request()->is('admin/users/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-user nav-icon">
-
-                                    </i>
-                                    {{ trans('cruds.user.title') }}
-                                </a>
-                            </li>
-                        @endcan
-                        @can('audit_log_access')
-                            <li class="nav-item">
-                                <a href="{{ route("admin.audit-logs.index") }}" class="nav-link {{ request()->is('admin/audit-logs') || request()->is('admin/audit-logs/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-file-alt nav-icon">
-
-                                    </i>
-                                    {{ trans('cruds.auditLog.title') }}
-                                </a>
-                            </li>
-                        @endcan
-                    </ul>
-                </li>
-            @endcan
-            @can('ticket_access')
-                <li class="nav-item">
-                    <a href="{{ route("admin.tickets.index") }}" class="nav-link {{ request()->is('admin/tickets') || request()->is('admin/tickets/*') ? 'active' : '' }}">
-                        <i class="fa-fw fas fa-question-circle nav-icon">
-
-                        </i>
-                        {{ trans('cruds.ticket.title') }}
-                    </a>
-                </li>
-            @endcan
-            @can('comment_access')
-                <li class="nav-item">
-                    <a href="{{ route("admin.comments.index") }}" class="nav-link {{ request()->is('admin/comments') || request()->is('admin/comments/*') ? 'active' : '' }}">
-                        <i class="fa-fw fas fa-comment nav-icon">
-
-                        </i>
-                        {{ trans('cruds.comment.title') }}
-                    </a>
-                </li>
-            @endcan
-            @can('project_access')
-                <li class="nav-item">
-                    <a href="{{ route("admin.projects.index") }}" class="nav-link {{ request()->is('admin/projects') || request()->is('admin/projects/*') ? 'active' : '' }}">
-                        <i class="fa-fw fas fa-code-branch nav-icon">
-
-                        </i>
-                        {{ trans('cruds.project.title') }}
-                    </a>
-                </li>
-            @endcan
-            @can('status_access')
-                <li class="nav-item nav-dropdown">
-                    <a class="nav-link  nav-dropdown-toggle" href="#">
-                        <i class="fa-fw fas fa-cog nav-icon">
-
-                        </i>
-                        {{ trans('cruds.setting.title') }}
-                    </a>
-                    <ul class="nav-dropdown-items">
-                        @can('status_access')
-                            <li class="nav-item">
-                                <a href="{{ route("admin.statuses.index") }}" class="nav-link {{ request()->is('admin/statuses') || request()->is('admin/statuses/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-info-circle nav-icon">
-
-                                    </i>
-                                    {{ trans('cruds.status.title') }}
-                                </a>
-                            </li>
-                        @endcan
-                        @can('config_settings')
-                            <li class="nav-item">
-                                <a href="{{ route("admin.priorities.index") }}" class="nav-link {{ request()->is('admin/priorities') || request()->is('admin/priorities/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-exclamation-triangle nav-icon">
-
-                                    </i>
-                                    {{ trans('cruds.priority.title') }}
-                                </a>
-                            </li>
-                        @endcan
-                        @can('user_access')
-                            <li class="nav-item">
-                                <a href="{{ route("admin.categories.index") }}" class="nav-link {{ request()->is('admin/categories') || request()->is('admin/categories/*') ? 'active' : '' }}">
-                                    <i class="fa-fw fas fa-tags nav-icon">
-
-                                    </i>
-                                    {{ trans('cruds.category.title') }}
-                                </a>
-                            </li>
-                        @endcan
-                    </ul>
-                </li>
-            @endcan  
-            
-
-            <li class="nav-item">
-                <a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
-                    <i class="nav-icon fas fa-fw fa-sign-out-alt">
-
-                    </i>
-                    {{ trans('global.logout') }}
-                </a>
-            </li>
-        </ul>
-
-    </nav>
-    <button class="sidebar-minimizer brand-minimizer" type="button"></button>
-</div>
+	  <!-- Heading -->
+		<div class="sidebar-heading">
+		    Action
+		</div>
+	 
+	 <!-- Nav Item - Ticket -->
+	@can('dashboard_access')
+		<li class="nav-item">
+			<a class="nav-link" href="{{ route("admin.tickets.index") }}">
+			    <i class="fas fa-ticket-alt"></i>
+			    <span>{{ trans('cruds.ticket.title') }}</span>
+			</a>
+		</li>
+	@endcan
+	<!-- Nav Item - Comments -->
+	@can('comment_access')
+		  <li class="nav-item">
+		      <a class="nav-link" href="{{ route("admin.comments.index") }}">
+		        <i class="fas fa-comments"></i>
+		          <span> {{ trans('cruds.comment.title') }}</span>
+		      </a>
+		  </li>
+	@endcan
+	<!-- Nav Item - Project -->
+	@can('comment_access')
+	    <li class="nav-item">
+	      <a class="nav-link" href="{{ route("admin.projects.index") }}">
+	          <i class="fas fa-tasks"></i>
+	          <span> {{ trans('cruds.project.title') }}</span>
+	          </a>
+	      </a>
+	  	</li>
+	@endcan
+	<!-- Nav Item - Logout -->
+	<li class="nav-item">
+	    <a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
+	      	<i class="fas fa-sign-out-alt"></i>
+	        <span>{{ trans('global.logout') }}</span>
+	   	 </a> 
+	</li>
+</ul>

@@ -12,7 +12,7 @@
                         <div class="p-5">
                             <div class="container mb-3">
                                 <img src="{{ asset('theme/img/logo-group-1.png') }}" width="100%" height="auto">
-                                <h3 class="text-center mb-2">{{ trans('panel.site_title') }}</h3>
+                                <h3 class="text-center mb-2">Help Desk</h3>
                                 {{-- <p class="text-muted">{{ trans('global.login') }}</p> --}}
                             </div>
 
@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <img src="{{ asset('theme/img/note.png') }}" style="width: auto; height:  600px; position: center;" >
+                        <img src="{{ asset('theme/img/bg-login.jpg') }}" style="width: auto; height:  600px; position: left;" >
                     </div>
                 </div>
             </div>

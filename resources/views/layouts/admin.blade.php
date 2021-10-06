@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <link rel="icon" href="{{ asset('theme/img/ticket.png') }}">
     <title>{{ trans('panel.site_title') }}</title>
+
+
+
+    {{-- template bawaaan --}}
+    <link rel="icon" href="{{ asset('theme/img/ticket.png') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" rel="stylesheet" />
@@ -16,96 +14,109 @@
     <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
-    <link href="https://unpkg.com/@coreui/coreui@2.1.16/dist/css/coreui.min.css" rel="stylesheet" />
+    {{-- <link href="https://unpkg.com/@coreui/coreui@2.1.16/dist/css/coreui.min.css" rel="stylesheet" /> --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.common.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.light.css" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
     @yield('styles')
-    <style>
-      .logo {
-        width: 100%;
-        height: 100%;
-      }
-    </style>
+
+    {{-- template SB-ADMIN-2 --}}
+
+    <!-- Custom fonts for this template-->
+    <link href="{{ asset('theme/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="{{ asset('theme/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link href="{{ asset('theme/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+
 </head>
+<body id="page-top">
+     <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+         @include('partials.menu')
+        <!-- End Sidebar -->
 
-<body class="app header-fixed sidebar-fixed aside-menu-fixed pace-done sidebar-lg-show">
-    <header class="app-header navbar">
-        <button class="navbar-toggler sidebar-toggler d-lg-none mr-auto" type="button" data-toggle="sidebar-show">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <a class="navbar-brand" href="#">
-            {{-- <span class="navbar-brand-full"> --}}
-            <img class="navbar-brand-full logo" src="{{ asset('theme/img/logo-group-1.png') }}" alt="monster-group">
-            {{-- </span> --}}
-            <span class="navbar-brand-minimized"></span>
-        </a>
-        <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button" data-toggle="sidebar-lg-show">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
 
-        <ul class="nav navbar-nav ml-auto">
-            @if(count(config('panel.available_languages', [])) > 1)
-                <li class="nav-item dropdown d-md-down-none">
-                    <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        {{ strtoupper(app()->getLocale()) }}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        @foreach(config('panel.available_languages') as $langLocale => $langName)
-                            <a class="dropdown-item" href="{{ url()->current() }}?change_language={{ $langLocale }}">{{ strtoupper($langLocale) }} ({{ $langName }})</a>
-                        @endforeach
+               
+                        <!-- Topbar -->
+                            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                                <!-- Sidebar Toggle (Topbar) -->
+                                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                                    <i class="fa fa-bars"></i>
+                                </button>
+
+                                <!-- Topbar Navbar -->
+                                <ul class="navbar-nav ml-auto">
+                                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                                    <!-- Nav Item - User Information -->
+                                    <li class="nav-item dropdown no-arrow">
+                                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Hallo {{ auth()->user()->name ?? '(null)' }}</span>
+                                            <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                                         </a>
+                                        <!-- Dropdown - User Information -->
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                        aria-labelledby="userDropdown">
+                                                <a class="dropdown-item" href="user-profile.html">
+                                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                                    Profile
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                                    Logout
+                                                </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </nav>
+                         <!-- End of Topbar -->
+                    {{-- Konten disini --}}
+                    <div class="container-fluid">
+                     <!-- Content Row -->
+                        
+                           
+                        @yield('content')
+                          
+                        
                     </div>
-                </li>
-            @endif
-
-          <li style="margin-right: 20px;">
-            <div class="col-md-12">
-              Hallo {{ auth()->user()->name ?? '(null)' }}
+            <!-- End Main Content -->
+        </div>
+     <!-- End Content Wrapper -->
+     <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Your Website 2021</span>
+                </div>
             </div>
-          </li>
-        </ul>
-    </header>
+        </footer>
+       <!-- End of Footer -->
+               {{-- Logout Form --}}
 
-    <div class="app-body">
-        @include('partials.menu')
-        <main class="main">
-
-
-            <div style="padding-top: 20px" class="container-fluid">
-                @if(session('message'))
-                    <div class="row mb-2">
-                        <div class="col-lg-12">
-                            <div class="alert alert-success" role="alert">{{ session('message') }}</div>
-                        </div>
-                    </div>
-                @endif
-                @if($errors->count() > 0)
-                    <div class="alert alert-danger">
-                        <ul class="list-unstyled">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                @yield('content')
-
-            </div>
-
-
-        </main>
         <form id="logoutform" action="{{ route('logout') }}" method="POST" style="display: none;">
-            {{ csrf_field() }}
+        {{ csrf_field() }}
         </form>
+
     </div>
+     <!-- Page Wrapper End-->
 
 
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+{{-- Template bawaan --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://unpkg.com/@coreui/coreui@2.1.16/dist/js/coreui.min.js"></script>
@@ -220,6 +231,14 @@
 
     </script>
     @yield('scripts')
+        <!-- Bootstrap core JavaScript-->
+        <script src="{{ asset('theme/vendor/jquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('theme/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    
+        <!-- Core plugin JavaScript-->
+        <script src="{{ asset('theme/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+    
+        <!-- Custom scripts for all pages-->
+        <script src="{{ asset('theme/js/sb-admin-2.min.js') }}"></script>
 </body>
-
 </html>
