@@ -5,6 +5,7 @@ namespace App;
 use App\Scopes\AgentScope;
 use App\Traits\Auditable;
 use App\Notifications\CommentEmailNotification;
+use Faker\Provider\Lorem;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -41,6 +42,11 @@ class Ticket extends Model implements HasMedia
         'author_email',
         'assigned_to_user_id',
         'project_id',
+        'ref_id',
+        'code',
+        'work_start',
+        'work_end',
+        'work_duration',
     ];
 
     public static function boot()
@@ -118,7 +124,7 @@ class Ticket extends Model implements HasMedia
                     })
                     ->orWhereHas('tickets', function ($q) {
                         return $q->whereId($this->id);
-                    }); 
+                    });
                 });
             })
             ->when(!$comment->user_id && !$this->assigned_to_user_id, function ($q) {
@@ -140,10 +146,14 @@ class Ticket extends Model implements HasMedia
             } catch (\Exception $e) {
                 //throw $th;
             }
-        
     }
 
     public function project(){
         return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function ref()
+    {
+        return $this->belongsTo(Ticket::class, 'ref_id');
     }
 }

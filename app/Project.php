@@ -18,6 +18,7 @@ class Project extends Model
     ];
 
     protected $fillable = [
+        'code',
         'name',
         'created_at',
         'updated_at',

@@ -11,10 +11,22 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="temp_pm" value="{{ $pm }}">
+            <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
+                <label for="code">{{ trans('cruds.project.fields.code') }}*</label>
+                <input type="text" id="code" name="code" class="form-control" value="{{ old('code', $project->code ?? '') }}" required>
+                @if($errors->has('code'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('code') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.project.fields.code_helper') }}
+                </p>
+            </div>
             <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                 <label for="name">{{ trans('cruds.project.fields.title') }}*</label>
                 <!-- <input type="text" id="title" name="title" class="form-control" value="{{ old('title', isset($permission) ? $permission->title : '') }}" required> -->
-                <input type="text" id="name" name="name" class="form-control" value="{{ old('name', isset($project) ? $project->name : '') }}" required>
+                <input type="text" id="name" name="name" class="form-control" value="{{ old('name', isset($project) ? $project->name : '') }}" autofocus required>
                 @if($errors->has('name'))
                     <em class="invalid-feedback">
                         {{ $errors->first('name') }}
@@ -48,4 +60,20 @@
 
     </div>
 </div>
+@endsection
+
+@section('scripts')
+    <script>
+        $('body').on('keyup', '#name', function () {
+            $('#code').val(
+                getInitials($(this).val().trim())
+            );
+        });
+
+        $('body').on('keyup', '#code', function () {
+            $(this).val(
+                $(this).val().toUpperCase()
+            );
+        });
+    </script>
 @endsection

@@ -27,8 +27,10 @@ class UpdateStatusCategoryPriorityDefaultTicket extends Migration
      */
     public function down()
     {
-        $table->unsignedInteger('status_id')->change();
-        $table->unsignedInteger('priority_id')->change();
-        $table->unsignedInteger('category_id')->change();
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->unsignedInteger('status_id')->change();
+            $table->unsignedInteger('priority_id')->change();
+            $table->unsignedInteger('category_id')->change();
+        });
     }
 }
