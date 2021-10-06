@@ -116,7 +116,7 @@ class HomeController
                 ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
                 ->get();
         } else {
-            $project = Auth::user()->project->first() ?? null;
+            $project = Auth::user()->project->first()->id ?? null;
             if (!is_null($project)) {
                 $data = DB::table('comments')
                 ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')

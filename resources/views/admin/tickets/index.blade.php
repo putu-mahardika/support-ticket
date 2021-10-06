@@ -2,9 +2,12 @@
 @section('content')
 @can('ticket_create')
     <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12 d-flex justify-content-between">
             <a class="btn btn-success" href="{{ route("admin.tickets.create") }}">
                 {{ trans('global.add') }} {{ trans('cruds.ticket.title_singular') }}
+            </a>
+            <a class="btn btn-primary" href="{{ route("admin.tickets.showReport") }}">
+                Laporan
             </a>
         </div>
     </div>
