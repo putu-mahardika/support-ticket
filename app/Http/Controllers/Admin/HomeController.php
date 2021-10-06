@@ -29,8 +29,17 @@ class HomeController
         $closedTickets = Ticket::whereHas('status', function($query) {
             $query->whereName('Closed');
         })->count();
+        $workingTickets = Ticket::whereHas('status', function($query){
+            $query->whereName('Working');
+        })->count();
+        $pendingTickets = Ticket::whereHas('status', function($query){
+            $query->whereName('Pending');
+        })->count();
+        $confirmTickets = Ticket::whereHas('status', function($query){
+            $query->whereName('Confirm Client');
+        })->count();
 
-        return view('home', compact('totalTickets', 'openTickets', 'closedTickets', 'monthName'));
+        return view('home', compact('totalTickets', 'openTickets', 'workingTickets', 'pendingTickets', 'confirmTickets', 'closedTickets', 'monthName'));
     }
 
     public function getJumlahTiketHarian(){
