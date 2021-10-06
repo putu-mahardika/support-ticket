@@ -161,6 +161,8 @@ return [
             'deleted_at_helper'       => '',
             'attachments'             => 'Lampiran',
             'attachments_helper'      => '',
+            'code'                    => 'Kode',
+            'code_helper'             => '',
         ],
     ],
     'comment'        => [
@@ -217,6 +219,8 @@ return [
         'fields'         => [
             'id'                => 'ID',
             'id_helper'         => '',
+            'code'              => 'code',
+            'code_helper'      => '',
             'title'             => 'Name',
             'title_helper'      => '',
             'pm_name'           => 'PM Name',

@@ -10,14 +10,15 @@ class CreatePrioritiesTable extends Migration
     {
         Schema::create('priorities', function (Blueprint $table) {
             $table->increments('id');
-
             $table->string('name');
-
             $table->string('color')->nullable();
-
             $table->timestamps();
-
             $table->softDeletes();
         });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('priorities');
     }
 }

@@ -213,15 +213,24 @@
             $.fn.dataTable.ext.classes.sPageButton = '';
         });
 
+        const getInitials = (name) => {
+            let initials = name.split(' ');
+            if (initials.length > 1) {
+                initials = initials.shift().charAt(0) + initials.pop().charAt(0);
+            } else {
+                initials = name.substring(0, 2);
+            }
+            return initials.toUpperCase();
+        }
     </script>
+    <!-- Bootstrap core JavaScript-->
+    <script src="{{ asset('theme/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{{ asset('theme/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{{ asset('theme/js/sb-admin-2.min.js') }}"></script>
     @yield('scripts')
-        <!-- Bootstrap core JavaScript-->
-        <script src="{{ asset('theme/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    
-        <!-- Core plugin JavaScript-->
-        <script src="{{ asset('theme/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
-    
-        <!-- Custom scripts for all pages-->
-        <script src="{{ asset('theme/js/sb-admin-2.min.js') }}"></script>
 </body>
 </html>

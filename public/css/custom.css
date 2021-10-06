@@ -103,6 +103,6 @@ table.dataTable thead .sorting_desc {
     background: #eaeaea;
 }
 .select2-results__option {
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
