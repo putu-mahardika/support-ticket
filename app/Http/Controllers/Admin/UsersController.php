@@ -45,7 +45,7 @@ class UsersController extends Controller
     public function store(StoreUserRequest $request)
     {
         $user = User::create($request->all());
-        $user->project()->attach($request->project);
+        $user->projects()->attach($request->project);
         $user->roles()->sync($request->input('roles', []));
 
         return redirect()->route('admin.users.index');
@@ -75,8 +75,8 @@ class UsersController extends Controller
         // dd($request);
         $user->update($request->all());
         $user->roles()->sync($request->input('roles', []));
-        $user->project()->detach();
-        $user->project()->attach($request->project);
+        $user->projects()->detach();
+        $user->projects()->attach($request->project);
 
         return redirect()->route('admin.users.index');
     }
