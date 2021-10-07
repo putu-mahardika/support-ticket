@@ -82,7 +82,7 @@
 		</div>
 	 
 	 <!-- Nav Item - Ticket -->
-	@can('dashboard_access')
+	@can('ticket_access')
 		<li class="nav-item">
 			<a class="nav-link" href="{{ route("admin.tickets.index") }}">
 			    <i class="fas fa-ticket-alt"></i>
