@@ -38,7 +38,7 @@ class TicketsController extends Controller
                 $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
                                ->filterTickets($request)
                                ->select(sprintf('%s.*', (new Ticket)->table))
-                               ->where('author_name',Auth::user()->name);
+                               ->where('author_name', Auth::user()->name);
             }
             $table = Datatables::of($query);
 
@@ -94,7 +94,7 @@ class TicketsController extends Controller
                 return $row->author_email ? $row->author_email : "";
             });
             $table->editColumn('project_name', function ($row) {
-                return $row->project ? $row->project->name : '';
+                return $row->projects ? $row->projects->first()->name : '';
             });
             $table->addColumn('assigned_to_user_name', function ($row) {
                 return $row->assigned_to_user ? $row->assigned_to_user->name : '';
@@ -151,11 +151,11 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
-        $project = Auth::user()->project->first() ?? null;
+        $project = Auth::user()->projects->first() ?? null;
 
         if ($project != null) {
             $code = $this->getCode($project);
-            $assign_pm = Project::find($project->id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+            $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
             $ticket = Ticket::create([
                 'title' => $request->title,
                 'code' => $code,
@@ -327,7 +327,7 @@ class TicketsController extends Controller
      **/
     private function getCode($project)
     {
-        $lastCode = $project->ticket()
+        $lastCode = $project->tickets()
                             ->whereYear('created_at', now()->year)
                             ->latest()
                             ->first();

@@ -54,7 +54,7 @@
                 <select name="project" id="project" class="form-control select2">
                         <option value=""></option>
                     @foreach($projects as $project)
-                        <option value="{{ $project->id }}" {{ (in_array($project->id, old('roles', [])) || isset($user) && $user->project->contains($project->id)) ? 'selected' : '' }}>{{ $project->name }}</option>
+                        <option value="{{ $project->id }}" {{ (in_array($project->id, old('roles', [])) || isset($user) && $user->projects->contains($project->id)) ? 'selected' : '' }}>{{ $project->name }}</option>
                     @endforeach
                 </select>
                 @if($errors->has('project'))

@@ -24,8 +24,8 @@ class TicketController extends Controller
             ]);
         }
 
-        $project = $request->user()->project->first();
-        $assign_pm = Project::find($project->id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+        $project = $request->user()->projects->first();
+        $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
         $ticket = Ticket::create([
             'title' => $request->title,
             'content' => $request->content,
