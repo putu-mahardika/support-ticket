@@ -32,7 +32,7 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="{{ asset('theme/css/sb-admin-2.min.css') }}" rel="stylesheet">
-    
+
 
 </head>
 <body id="page-top">
@@ -52,7 +52,7 @@
                                 <i class="fa fa-bars"></i>
                             </button>
                             </button>
-                          
+
                             <!-- Topbar Navbar -->
                             <ul class="navbar-nav ml-auto">
                                 <div class="topbar-divider d-none d-sm-block"></div>
@@ -62,9 +62,9 @@
                                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="mr-2 d-none d-lg-inline text-gray-600 small">Hallo {{ auth()->user()->name ?? '(null)' }}</span>
-                                        <img class="img-profile rounded-circle" src="{{ asset('theme/img/undraw_profile.svg') }}"> 
+                                        <img class="img-profile rounded-circle" src="{{ asset('theme/img/undraw_profile.svg') }}">
                                         </a>
-                                  
+
                                 </li>
                             </ul>
                         </nav>
@@ -72,11 +72,11 @@
                     {{-- Konten disini --}}
                     <div class="container-fluid">
                      <!-- Content Row -->
-                        
-                           
+
+
                         @yield('content')
-                          
-                        
+
+
                     </div>
             <!-- End Main Content -->
             </div>
@@ -97,7 +97,7 @@
         {{ csrf_field() }}
         </form>
 
-   
+
      <!-- Page Wrapper End-->
     </div>
 
@@ -127,11 +127,11 @@
     <script src="{{ asset('js/main.js') }}"></script>
     <script>
         $(function () {
-            let copyButtonTrans = "{{ trans('global.datatables.copy') }}";
-            let csvButtonTrans = "{{ trans('global.datatables.csv') }}";
-            let excelButtonTrans = "{{ trans('global.datatables.excel') }}";
-            let pdfButtonTrans = "{{ trans('global.datatables.pdf') }}";
-            let printButtonTrans = "{{ trans('global.datatables.print') }}";
+            let copyButtonTrans   = "{{ trans('global.datatables.copy') }}";
+            let csvButtonTrans    = "{{ trans('global.datatables.csv') }}";
+            let excelButtonTrans  = "{{ trans('global.datatables.excel') }}";
+            let pdfButtonTrans    = "{{ trans('global.datatables.pdf') }}";
+            let printButtonTrans  = "{{ trans('global.datatables.print') }}";
             let colvisButtonTrans = "{{ trans('global.datatables.colvis') }}";
 
             let languages = {
@@ -149,64 +149,64 @@
                 columnDefs: [{
                     orderable: false,
                     className: 'select-checkbox',
-                    targets: 0
+                    targets  : 0
                 }, {
-                    orderable: false,
+                    orderable : false,
                     searchable: false,
-                    targets: -1
+                    targets   : -1
                 }],
                 select: {
-                    style: 'multi+shift',
+                    style   : 'multi+shift',
                     selector: 'td:first-child'
                 },
-                order: [],
-                scrollX: true,
+                order     : [],
+                scrollX   : true,
                 pageLength: 100,
-                dom: 'lBfrtip<"actions">',
-                buttons: [{
-                        extend: 'copy',
-                        className: 'btn-default',
-                        text: copyButtonTrans,
+                dom       : 'lBfrtip<"actions">',
+                buttons   : [{
+                        extend       : 'copy',
+                        className    : 'btn-default',
+                        text         : copyButtonTrans,
                         exportOptions: {
                             columns: ':visible'
                         }
                     },
                     {
-                        extend: 'csv',
-                        className: 'btn-default',
-                        text: csvButtonTrans,
+                        extend       : 'csv',
+                        className    : 'btn-default',
+                        text         : csvButtonTrans,
                         exportOptions: {
                             columns: ':visible'
                         }
                     },
                     {
-                        extend: 'excel',
-                        className: 'btn-default',
-                        text: excelButtonTrans,
+                        extend       : 'excel',
+                        className    : 'btn-default',
+                        text         : excelButtonTrans,
                         exportOptions: {
                             columns: ':visible'
                         }
                     },
                     {
-                        extend: 'pdf',
-                        className: 'btn-default',
-                        text: pdfButtonTrans,
+                        extend       : 'pdf',
+                        className    : 'btn-default',
+                        text         : pdfButtonTrans,
                         exportOptions: {
                             columns: ':visible'
                         }
                     },
                     {
-                        extend: 'print',
-                        className: 'btn-default',
-                        text: printButtonTrans,
+                        extend       : 'print',
+                        className    : 'btn-default',
+                        text         : printButtonTrans,
                         exportOptions: {
                             columns: ':visible'
                         }
                     },
                     {
-                        extend: 'colvis',
-                        className: 'btn-default',
-                        text: colvisButtonTrans,
+                        extend       : 'colvis',
+                        className    : 'btn-default',
+                        text         : colvisButtonTrans,
                         exportOptions: {
                             columns: ':visible'
                         }

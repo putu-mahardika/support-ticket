@@ -306,10 +306,13 @@ class TicketsController extends Controller
                             ->first();
         $newNum = empty($lastCode) ? 1 : intval(explode('.', $lastCode->code)[2]) + 1;
         return $project->code . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
+    }
+
     public function showReport()
     {
         return view('admin.tickets.report');
     }
+
     public function getReport(Request $request)
     {
         $awal = $request->awal . " 00:00:00" ?? '';

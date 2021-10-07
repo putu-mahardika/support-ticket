@@ -19,18 +19,8 @@ class UsersController extends Controller
     public function index()
     {
         abort_if(Gate::denies('user_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        $users = User::all();
-        $users_project = DB::table('users')
-                ->join('user_project', 'user_project.user_id', '=', 'users.id')
-                ->join('projects', 'projects.id', '=', 'user_project.project_id')
-                ->select('users.id', 'projects.name as project_name')
-                ->where('user_project.is_pm', 0)
-                ->get();
-        
-        // dd($users);
-
-        return view('admin.users.index', compact('users', 'users_project'));
+        $users = User::with('projects', 'roles')->get();
+        return view('admin.users.index', compact('users'));
     }
 
     public function create()
@@ -46,7 +36,7 @@ class UsersController extends Controller
                 ->select('projects.id as id', 'projects.name as name')
                 ->where('user_project.is_pm', 1)
                 ->get();
-        
+
         // dd($projects);
 
         return view('admin.users.create', compact('roles', 'projects'));

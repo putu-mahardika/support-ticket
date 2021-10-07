@@ -98,7 +98,7 @@ class User extends Authenticatable
         return $roleNames->contains(Str::lower($roleName));
     }
 
-    public function project(){
+    public function projects(){
         return $this->belongsToMany(Project::class, 'user_project', 'user_id', 'project_id');
     }
 }
