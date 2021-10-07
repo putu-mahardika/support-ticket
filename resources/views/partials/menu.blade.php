@@ -5,7 +5,7 @@
 			<div class="sidebar-brand-icon rotate-n-15">
 				<i class="fas fa-headset"></i>
 			</div>
-			<div class="sidebar-brand-text mx-3">Help Desk</sup></div>
+			<div class="sidebar-brand-text mx-3">Help Desk</div>
 		</a>
 		<!-- Divider -->
 		<hr class="sidebar-divider my-0">
@@ -27,13 +27,13 @@
 		</div>
 		<!-- Nav Item - User Management -->
 		<li class="nav-item">
-			<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+			<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUser"
 			aria-expanded="true" aria-controls="collapseTwo">
 				<i class="fas fa-users"></i>
 				<span>{{ trans('cruds.userManagement.title') }}</span>
 			</a>
 
-			<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+			<div id="collapseUser" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 				<div class="bg-white py-2 collapse-inner rounded">
 					@can('permission_access')
 					<a class="collapse-item" href="{{ route("admin.permissions.index") }}">{{ trans('cruds.permission.title') }}</a>
@@ -82,7 +82,7 @@
 		</div>
 	 
 	 <!-- Nav Item - Ticket -->
-	@can('dashboard_access')
+	@can('ticket_access')
 		<li class="nav-item">
 			<a class="nav-link" href="{{ route("admin.tickets.index") }}">
 			    <i class="fas fa-ticket-alt"></i>

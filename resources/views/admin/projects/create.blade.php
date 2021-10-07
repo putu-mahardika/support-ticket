@@ -7,7 +7,7 @@
     </div>
 
     <div class="card-body">
-        <form action="{{ route("admin.projects.store") }}" method="POST" enctype="multipart/form-data">
+        <form id="add-project" action="{{ route("admin.projects.store") }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
                 <label for="code">{{ trans('cruds.project.fields.code') }}*</label>
@@ -51,6 +51,9 @@
             <div>
                 <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
             </div>
+            <div class="col-md-4">
+                <p class="btn" id="loading"></p>
+            </div>
         </form>
 
 
@@ -70,6 +73,10 @@
             $(this).val(
                 $(this).val().toUpperCase()
             );
+        });
+        $('#add-project').on('submit', function() {
+            $(this).find('input[type="submit"]').attr('disabled','disabled');
+            $('#loading').html('Tunggu sebentar...');
         });
     </script>
 @endsection

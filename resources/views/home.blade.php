@@ -19,10 +19,11 @@
                     {{-- Status --}}
                     <div  class="col-lg-12" id="accordion">
                         <div class="card">
+
                           <div class="card-header" id="headingOne">
                             <h5 class="mb-0">
                               <button class="btn btn-primary" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                <i class="fas fa-chevron-down fa-2x text-200"></i><p class="text-lg font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Status</p>
+                                <i class="fas fa-chevron-down"></i><p class="text-sm font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Status</p>
                               </button>
                             </h5>
                           </div>
@@ -105,7 +106,7 @@
                             <div class="card-header" id="headingTwo">
                                 <h5 class="mb-0">
                                 <button class="btn btn-success" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                                    <i class="fas fa-chevron-down fa-2x text-200"></i><p class="text-lg font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Kategori</p>
+                                    <i class="fas fa-chevron-down"></i><p class="text-sm font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Kategori</p>
                                 </button>
                                 </h5>
                             </div>
@@ -153,7 +154,7 @@
                         <div class="card-header" id="headingThree">
                             <h5 class="mb-0">
                             <button class="btn btn-danger" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-                                <i class="fas fa-chevron-down fa-2x text-200"></i><p class="text-lg font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Prioritas</p>
+                                <i class="fas fa-chevron-down"></i><p class="text-sm font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Prioritas</p>
                             </button>
                             </h5>
                         </div>
@@ -208,7 +209,9 @@
                             </div>
                         </div>
                     </div>
-<br><br>
+                    <br><br>
+
+                    {{-- Table Last Comment  --}}
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
@@ -248,7 +251,7 @@
                 }
             },
             series: [
-                { valueField: "value", name: "Tiket", color: "#80b3ff" }
+                { valueField: "value", name: "Tiket", color: "#4e44db" }
             ],
             legend: {
                 visible: false

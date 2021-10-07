@@ -68,7 +68,7 @@ class ProjectsController extends Controller
     public function store(StoreProjectRequest $request)
     {
         $project = Project::create($request->all());
-        $project->user()->attach($request->assign_user_id, ['is_pm' => true]);
+        $project->users()->attach($request->assign_user_id, ['is_pm' => true]);
 
         return redirect()->route('admin.projects.index');
     }
