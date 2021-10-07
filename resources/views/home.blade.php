@@ -106,7 +106,7 @@
                             <div class="card-header" id="headingTwo">
                                 <h5 class="mb-0">
                                 <button class="btn btn-success" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                                    <i class="fas fa-chevron-down fa-2x text-200"></i><p class="text-lg font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Kategori</p>
+                                    <i class="fas fa-chevron-down"></i><p class="text-sm font-weight-bold text-white text-uppercase mb-3" style="display: inline">  Kategori</p>
                                 </button>
                                 </h5>
                             </div>
