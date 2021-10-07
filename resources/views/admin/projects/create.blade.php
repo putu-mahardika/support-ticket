@@ -38,7 +38,7 @@
                     <label for="assigned_to_user">{{ trans('cruds.ticket.fields.assigned_to_user') }}</label>
                     <select name="assign_user_id" id="assigned_to_user" class="form-control select2">
                         @foreach($assigned_to_users as $id => $assigned_to_user)
-                            <option value="{{ $id }}" {{ (isset($project) && $project->user->first()->pivot->user_id ? $ticket->assigned_to_user->id : old('assigned_to_user_id')) == $id ? 'selected' : '' }}>{{ $assigned_to_user }}</option>
+                            <option value="{{ $id }}" {{ (isset($project) && $project->users->first()->pivot->user_id ? $ticket->assigned_to_user->id : old('assigned_to_user_id')) == $id ? 'selected' : '' }}>{{ $assigned_to_user }}</option>
                         @endforeach
                     </select>
                     @if($errors->has('assign_to_user_id'))

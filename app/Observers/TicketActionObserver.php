@@ -13,11 +13,11 @@ class TicketActionObserver
     {
         // dd($model);
         $data  = ['action' => 'New ticket has been created!', 'model_name' => 'Ticket', 'ticket' => $model];
-        $users = $model->project->user()
+        $users = $model->project->users()
                        ->whereDoesntHave('roles', function ($q) {
                            return $q->where('title', 'client');
                         })->get();
-        
+
         $users_admin = \App\User::whereHas('roles', function ($q) {
             return $q->where('title', 'Admin');
         })->get();
