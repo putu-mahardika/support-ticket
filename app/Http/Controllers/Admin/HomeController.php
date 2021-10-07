@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
+use App\Priority;
+use App\Project;
+use App\Status;
 use Gate;
 use Symfony\Component\HttpFoundation\Response;
 use App\Ticket;
@@ -15,31 +19,43 @@ class HomeController
     {
         abort_if(Gate::denies('dashboard_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        // dd(date('d/m/Y'));
+        $date = now();
+        $tickets = Ticket::with('project', 'status', 'category', 'priority')
+                         ->whereMonth('created_at', $date->month)
+                         ->when(!auth()->user()->isAdmin(), function ($query) {
+                             return $query->whereHas('project', function ($q) {
+                                        $q->where('id', auth()->user()->projects->first()->id ?? 0);
+                            });
+                         })
+                         ->get();
+        $statuses = Status::all();
+        $categories = Category::all();
+        $priorities = Priority::all();
+        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date'));
 
-        $monthNum  = date('m');
-        $dateObj   = DateTime::createFromFormat('!m', $monthNum);
-        $monthName = $dateObj->format('F'); // March
-        // dd($monthName);
 
-        $totalTickets = Ticket::count();
-        $openTickets = Ticket::whereHas('status', function($query) {
-            $query->whereName('Open');
-        })->count();
-        $closedTickets = Ticket::whereHas('status', function($query) {
-            $query->whereName('Closed');
-        })->count();
-        $workingTickets = Ticket::whereHas('status', function($query){
-            $query->whereName('Working');
-        })->count();
-        $pendingTickets = Ticket::whereHas('status', function($query){
-            $query->whereName('Pending');
-        })->count();
-        $confirmTickets = Ticket::whereHas('status', function($query){
-            $query->whereName('Confirm Client');
-        })->count();
+        // $monthNum  = date('m');
+        // $dateObj   = DateTime::createFromFormat('!m', $monthNum);
+        // $monthName = $dateObj->format('F'); // March
 
-        return view('home', compact('totalTickets', 'openTickets', 'workingTickets', 'pendingTickets', 'confirmTickets', 'closedTickets', 'monthName'));
+        // $totalTickets = Ticket::count();
+        // $openTickets = Ticket::whereHas('status', function($query) {
+        //     $query->whereName('Open');
+        // })->count();
+        // $closedTickets = Ticket::whereHas('status', function($query) {
+        //     $query->whereName('Closed');
+        // })->count();
+        // $workingTickets = Ticket::whereHas('status', function($query){
+        //     $query->whereName('Working');
+        // })->count();
+        // $pendingTickets = Ticket::whereHas('status', function($query){
+        //     $query->whereName('Pending');
+        // })->count();
+        // $confirmTickets = Ticket::whereHas('status', function($query){
+        //     $query->whereName('Confirm Client');
+        // })->count();
+
+        // return view('home', compact('totalTickets', 'openTickets', 'workingTickets', 'pendingTickets', 'confirmTickets', 'closedTickets', 'monthName'));
     }
 
     public function getJumlahTiketHarian(){
@@ -69,7 +85,7 @@ class HomeController
                     ->where('project_id', $project)
                     ->groupByRaw('DAY(created_at)')
                     ->orderByRaw('DAY(created_at)', 'asc')
-                    ->get(); 
+                    ->get();
             }
         }
         foreach($datas as $data)
@@ -82,7 +98,7 @@ class HomeController
                 $jumlah[] = null;
                 break;
             }
-            
+
         }
         $data = [];
         for($i=1;$i<=$alltgl;$i++)
@@ -98,7 +114,7 @@ class HomeController
                 }
             } else {
                 array_push($data, array('tgl'=>(int)$i, 'value'=>0));
-            } 
+            }
         }
         return collect($data);
     }

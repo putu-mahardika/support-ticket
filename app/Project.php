@@ -28,11 +28,11 @@ class Project extends Model
         // 'pm_email',
     ];
 
-    public function user(){
+    public function users(){
         return $this->belongsToMany(User::class, 'user_project', 'project_id', 'user_id');
     }
 
-    public function ticket(){
+    public function tickets(){
         return $this->hasMany(Ticket::class, 'project_id', 'id');
     }
 }
