@@ -30,7 +30,7 @@ class MassDestroyProjectRequest extends FormRequest
     {
         return [
             'ids'   => 'required|array',
-            'ids.*' => 'exists:project,id',
+            'ids.*' => 'exists:projects,id',
         ];
     }
 }
