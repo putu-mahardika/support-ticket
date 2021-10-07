@@ -33,7 +33,7 @@
       <div class="card-header">
           {{ trans('cruds.ticket.title_singular') }} {{ trans('global.list') }}
           <span id="show_range"></span>
-          
+
       </div>
       @if(session('status'))
           <div class="alert alert-success" role="alert">
@@ -97,14 +97,15 @@
         dataSource: `{{ url('admin/tickets/getReport') }}?awal=${awal}&akhir=${akhir}`,
         data: {awal: awal, akhir: akhir},
         columns: [
-          "tgl", 
+          "tgl",
           "proyek",
           "author",
           "kategori",
-          "prioritas", 
-          "judul", 
+          "prioritas",
+          "judul",
           "deskripsi",
-          "status"
+          "status",
+          "work_duration"
         ],
         showBorders: true,
         filterRow: { visible: true },
@@ -127,7 +128,7 @@
         onExporting: function(e) {
           var workbook = new ExcelJS.Workbook();
           var worksheet = workbook.addWorksheet(awal+' - '+akhir);
-          
+
           DevExpress.excelExporter.exportDataGrid({
             component: e.component,
             worksheet: worksheet,

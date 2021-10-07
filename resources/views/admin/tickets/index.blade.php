@@ -38,6 +38,9 @@
                         {{ trans('cruds.ticket.fields.title') }}
                     </th>
                     <th>
+                        Last Comment
+                    </th>
+                    <th>
                         {{ trans('cruds.ticket.fields.status') }}
                     </th>
                     <th>
@@ -57,6 +60,9 @@
                     </th>
                     <th>
                         {{ trans('cruds.ticket.fields.assigned_to_user') }}
+                    </th>
+                    <th>
+                        Work Duration
                     </th>
                     <th>
                         &nbsp;
@@ -100,10 +106,11 @@
                 </select>
             </div>
             </form>`;
+
         $('.card-body').on('change', 'select', function() {
             $('#filtersForm').submit();
         });
-        let dtButtons = []
+        let dtButtons = [];
         @can('ticket_delete')
             let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
             let deleteButton = {
@@ -111,24 +118,33 @@
                 url: "{{ route('admin.tickets.massDestroy') }}",
                 className: 'btn-danger',
                 action: function (e, dt, node, config) {
-                var ids = $.map(dt.rows({ selected: true }).data(), function (entry) {
-                    return entry.id
-                });
+                    var ids = $.map(dt.rows({
+                        selected: true
+                    }).data(), function (entry) {
+                        return entry.id
+                    });
 
-                if (ids.length === 0) {
-                    alert('{{ trans('global.datatables.zero_selected') }}')
+                    if (ids.length === 0) {
+                        alert('{{ trans('global.datatables.zero_selected ') }}');
+                        return
+                    }
 
-                    return
-                }
-
-                if (confirm('{{ trans('global.areYouSure') }}')) {
-                    $.ajax({
-                    headers: {'x-csrf-token': _token},
-                    method: 'POST',
-                    url: config.url,
-                    data: { ids: ids, _method: 'DELETE' }})
-                    .done(function () { location.reload() })
-                }
+                    if (confirm('{{ trans('global.areYouSure ') }}')) {
+                        $.ajax({
+                                headers: {
+                                    'x-csrf-token': _token
+                                },
+                                method: 'POST',
+                                url: config.url,
+                                data: {
+                                    ids: ids,
+                                    _method: 'DELETE'
+                                }
+                            })
+                            .done(function () {
+                                location.reload()
+                            })
+                    }
                 }
             }
             dtButtons.push(deleteButton)
@@ -141,62 +157,95 @@
             retrieve: true,
             aaSorting: [],
             ajax: {
-            url: "{{ route('admin.tickets.index') }}",
-            data: {
-                'status': searchParams.get('status'),
-                'priority': searchParams.get('priority'),
-                'category': searchParams.get('category')
-            }
-            },
-            columns: [
-            { data: 'placeholder', name: 'placeholder' },
-            { data: 'created_at', name: 'created_at' },
-            { data: 'code', name: 'code' },
-            {
-                data: 'title',
-                name: 'title',
-                render: function ( data, type, row) {
-                    return '<a href="'+row.view_link+'">'+data+' ('+row.comments_count+')</a>';
+                url: "{{ route('admin.tickets.index') }}",
+                data: {
+                    'status': searchParams.get('status'),
+                    'priority': searchParams.get('priority'),
+                    'category': searchParams.get('category')
                 }
             },
-            {
-                data: 'status_name',
-                name: 'status.name',
-                render: function ( data, type, row) {
-                    return '<span style="color:'+row.status_color+'">'+data+'</span>';
+            columns: [{
+                    data: 'placeholder',
+                    name: 'placeholder'
+                },
+                {
+                    data: 'created_at',
+                    name: 'created_at'
+                },
+                {
+                    data: 'code',
+                    name: 'code'
+                },
+                {
+                    data: 'title',
+                    name: 'title',
+                    render: function (data, type, row) {
+                        return '<a href="' + row.view_link + '">' + data + ' (' + row.comments_count + ')</a>';
+                    }
+                },
+                {
+                    data: 'last_comment',
+                    name: 'last_comment'
+                },
+                {
+                    data: 'status_name',
+                    name: 'status.name',
+                    render: function (data, type, row) {
+                        return '<span style="color:' + row.status_color + '">' + data + '</span>';
+                    }
+                },
+                {
+                    data: 'priority_name',
+                    name: 'priority.name',
+                    render: function (data, type, row) {
+                        return '<span style="color:' + row.priority_color + '">' + data + '</span>';
+                    }
+                },
+                {
+                    data: 'category_name',
+                    name: 'category.name',
+                    render: function (data, type, row) {
+                        return '<span style="color:' + row.category_color + '">' + data + '</span>';
+                    }
+                },
+                {
+                    data: 'author_name',
+                    name: 'author_name'
+                },
+                {
+                    data: 'author_email',
+                    name: 'author_email'
+                },
+                {
+                    data: 'project_name',
+                    name: 'project.name'
+                },
+                {
+                    data: 'assigned_to_user_name',
+                    name: 'assigned_to_user.name'
+                },
+                {
+                    data: 'work_duration',
+                    name: 'work_duration'
+                },
+                {
+                    data: 'actions',
+                    name: '{{ trans('global.actions ') }}'
                 }
-            },
-            {
-                data: 'priority_name',
-                name: 'priority.name',
-                render: function ( data, type, row) {
-                    return '<span style="color:'+row.priority_color+'">'+data+'</span>';
-                }
-            },
-            {
-                data: 'category_name',
-                name: 'category.name',
-                render: function ( data, type, row) {
-                    return '<span style="color:'+row.category_color+'">'+data+'</span>';
-                }
-            },
-            { data: 'author_name', name: 'author_name' },
-            { data: 'author_email', name: 'author_email' },
-            { data: 'project_name', name: 'project.name' },
-            { data: 'assigned_to_user_name', name: 'assigned_to_user.name' },
-            { data: 'actions', name: '{{ trans('global.actions') }}' }
             ],
-            order: [[ 1, 'desc' ]],
+            order: [
+                [1, 'desc']
+            ],
             pageLength: 100,
         };
         $(".datatable-Ticket").one("preInit.dt", function () {
-        $(".dataTables_filter").after(filters);
+            $(".dataTables_filter").after(filters);
         });
-            $('.datatable-Ticket').DataTable(dtOverrideGlobals);
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
-                $($.fn.dataTable.tables(true)).DataTable()
-                    .columns.adjust();
-            });
+        $('.datatable-Ticket').DataTable(dtOverrideGlobals);
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $($.fn.dataTable.tables(true)).DataTable()
+            .columns.adjust();
+        });
         });
 
         </script>

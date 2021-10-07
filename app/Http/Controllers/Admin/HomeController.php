@@ -41,12 +41,7 @@ class HomeController
         return gmdate(
             'H \j\a\m i \m\e\n\i\t',
             $tickets->map(function ($ticket, $key) {
-                return !empty($ticket->work_duration) ?
-                        Carbon::create($ticket->work_end)
-                              ->diffInSeconds(
-                                  Carbon::create($ticket->work_start)
-                              )
-                        : 0;
+                return !empty($ticket->work_duration) ? $ticket->work_duration : 0;
             })->avg()
         );
     }

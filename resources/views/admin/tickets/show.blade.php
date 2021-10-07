@@ -221,7 +221,7 @@
                                     Work Duration
                                 </th>
                                 <td>
-                                    {{ $ticket->work_duration }} minutes
+                                    {{ gmdate('H \j\a\m i \m\e\n\i\t', $ticket->work_duration) }}
                                 </td>
                             </tr>
                         @endif
