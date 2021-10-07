@@ -38,24 +38,29 @@ class HomeController
         // $dateObj   = DateTime::createFromFormat('!m', $monthNum);
         // $monthName = $dateObj->format('F'); // March
 
-        // $totalTickets = Ticket::count();
-        // $openTickets = Ticket::whereHas('status', function($query) {
-        //     $query->whereName('Open');
-        // })->count();
-        // $closedTickets = Ticket::whereHas('status', function($query) {
-        //     $query->whereName('Closed');
-        // })->count();
-        // $workingTickets = Ticket::whereHas('status', function($query){
-        //     $query->whereName('Working');
-        // })->count();
-        // $pendingTickets = Ticket::whereHas('status', function($query){
-        //     $query->whereName('Pending');
-        // })->count();
-        // $confirmTickets = Ticket::whereHas('status', function($query){
-        //     $query->whereName('Confirm Client');
-        // })->count();
+        $avgTime = $this->getAvgTime($user_role, $project);
 
-        // return view('home', compact('totalTickets', 'openTickets', 'workingTickets', 'pendingTickets', 'confirmTickets', 'closedTickets', 'monthName'));
+
+        return view('home', compact('totalTickets', 'openTickets', 'closedTickets', 'monthName', 'avgTime'));
+    }
+
+    public function getAvgTime($user_role, $project){
+        $user_role = $user_role;
+        $id_project = $project;
+        if($user_role == 1){
+            $time_temp = Ticket::avg('work_duration');
+        } else {
+            if(!is_null($id_project)){
+                $time_temp = Ticket::avg('work_duration')->where('project_id', $id_project);
+            } else {
+                $time_temp = 0;
+            }
+        }
+        $hours = floor($time_temp/60);
+        $minutes = floor($time_temp%60);
+        $avgTime = $hours . ' jam ' . $minutes . ' menit';
+        // dd($avgTime);
+        return $avgTime;
     }
 
     public function getJumlahTiketHarian(){
@@ -125,21 +130,35 @@ class HomeController
 
     public function getLastComment(){
         $user_role = Auth::user()->roles()->first()->id;
+
+        // $max = DB::table('comments')
+        //     ->max('id')
+        //     ->groupBy('ticket_id');
+        //     // ->get();
+
+        //     dd($max);
+
         if($user_role == 1){
-            $data = DB::table('comments')
-                ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
-                ->join('projects', 'tickets.project_id', '=', 'projects.id')
-                ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
-                ->get();
+            // $data = DB::table('comments')
+            //     ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
+            //     ->join('projects', 'tickets.project_id', '=', 'projects.id')
+            //     ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
+            //     ->whereIn('comments.id', function($query){
+            //         $query->max('comments.id')->groupBy('comments.ticket_id');
+            //     })
+            //     ->get();
+            $data = DB::select(DB::raw('SELECT a.created_at as tgl, c.name as proyek, b.title as judul_tiket, a.author_name as author, a.comment_text as deskripsi from comments a, tickets b, projects c where a.id in (select max(id) from comments group by ticket_id) and a.ticket_id = b.id and b.project_id = c.id'));
+            // dd($data);
         } else {
             $project = Auth::user()->project->first()->id ?? null;
             if (!is_null($project)) {
-                $data = DB::table('comments')
-                ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
-                ->join('projects', 'tickets.project_id', '=', 'projects.id')
-                ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
-                ->where('projects.id', $project)
-                ->get();
+                // $data = DB::table('comments')
+                // ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
+                // ->join('projects', 'tickets.project_id', '=', 'projects.id')
+                // ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
+                // ->where('projects.id', $project)
+                // ->get();
+                $data = DB::select(DB::raw('SELECT a.created_at as tgl, c.name as proyek, b.title as judul_tiket, a.author_name as author, a.comment_text as deskripsi from comments a, tickets b, projects c where a.id in (select max(id) from comments group by ticket_id) and a.ticket_id = b.id and b.project_id = c.id and b.project_id = ?',[$project]));
                 // dd($data);
             }
         }

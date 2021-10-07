@@ -108,7 +108,7 @@
                                         @endforeach
                                     </select>
                                 @else
-                                    {{ $ticket->ref->code ?? '' }}
+                                    {{ $ticket->ref->code ?? '-' }}
                                 @endcan
                             </td>
                         </tr>
