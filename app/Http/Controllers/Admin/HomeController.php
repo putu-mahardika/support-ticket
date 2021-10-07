@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
+use App\Priority;
+use App\Project;
+use App\Status;
 use Gate;
 use Symfony\Component\HttpFoundation\Response;
 use App\Ticket;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,64 +20,35 @@ class HomeController
     {
         abort_if(Gate::denies('dashboard_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        // dd(date('d/m/Y'));
+        $date = now();
+        $tickets = Ticket::with('project', 'status', 'category', 'priority')
+                         ->whereMonth('created_at', $date->month)
+                         ->when(!auth()->user()->isAdmin(), function ($query) {
+                             return $query->whereHas('project', function ($q) {
+                                        $q->where('id', auth()->user()->projects->first()->id ?? 0);
+                            });
+                         })
+                         ->get();
+        $statuses = Status::all();
+        $categories = Category::all();
+        $priorities = Priority::all();
 
-        $monthNum  = date('m');
-        $dateObj   = DateTime::createFromFormat('!m', $monthNum);
-        $monthName = $dateObj->format('F'); // March
-        // dd($monthName);
+        $avgTime = $this->getAvgTime($tickets);
+        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime'));
+    }
 
-        // Ticket
-        $totalTickets = Ticket::count();
-        $openTickets = Ticket::whereHas('status', function($query) {
-            $query->whereName('Open');
-        })->count();
-        $closedTickets = Ticket::whereHas('status', function($query) {
-            $query->whereName('Closed');
-        })->count();
-        $workingTickets = Ticket::whereHas('status', function($query){
-            $query->whereName('Working');
-        })->count();
-        $pendingTickets = Ticket::whereHas('status', function($query){
-            $query->whereName('Pending');
-        })->count();
-        $confirmTickets = Ticket::whereHas('status', function($query){
-            $query->whereName('Confirm Client');
-        })->count();
-
-        // Kategori
-        
-        $totalBug = Ticket::whereHas('category', function($query){
-            $query->whereName('Bug');
-        })->count();
-
-        $totalUpdate = Ticket::whereHas('category', function($query){
-            $query->whereName('Update');
-        })->count();
-
-        $totalNewFeature = Ticket::whereHas('category', function($query){
-            $query->whereName('New Feature');
-        })->count();
-
-        $totalReport = Ticket::whereHas('category', function($query){
-            $query->whereName('Report');
-        })->count();
-
-        //Prioritas
-        $totalLow = Ticket::whereHas('priority', function($query){
-            $query->whereName('Low');
-        })->count();
-
-        $totalMedium = Ticket::whereHas('priority', function($query){
-            $query->whereName('Medium');
-        })->count();
-
-        $totalHigh = Ticket::whereHas('priority', function($query){
-            $query->whereName('High');
-        })->count();
-
-        
-        return view('home', compact('totalTickets', 'openTickets', 'workingTickets', 'pendingTickets', 'confirmTickets', 'closedTickets', 'totalBug', 'totalUpdate', 'totalNewFeature', 'totalReport', 'totalLow', 'totalMedium', 'totalHigh', 'monthName'));
+    public function getAvgTime($tickets){
+        return gmdate(
+            'H \j\a\m i \m\e\n\i\t',
+            $tickets->map(function ($ticket, $key) {
+                return !empty($ticket->work_duration) ?
+                        Carbon::create($ticket->work_end)
+                              ->diffInSeconds(
+                                  Carbon::create($ticket->work_start)
+                              )
+                        : 0;
+            })->avg()
+        );
     }
 
     public function getJumlahTiketHarian(){
@@ -102,7 +78,7 @@ class HomeController
                     ->where('project_id', $project)
                     ->groupByRaw('DAY(created_at)')
                     ->orderByRaw('DAY(created_at)', 'asc')
-                    ->get(); 
+                    ->get();
             }
         }
         foreach($datas as $data)
@@ -115,7 +91,7 @@ class HomeController
                 $jumlah[] = null;
                 break;
             }
-            
+
         }
         $data = [];
         for($i=1;$i<=$alltgl;$i++)
@@ -131,7 +107,7 @@ class HomeController
                 }
             } else {
                 array_push($data, array('tgl'=>(int)$i, 'value'=>0));
-            } 
+            }
         }
         return collect($data);
     }
@@ -142,21 +118,35 @@ class HomeController
 
     public function getLastComment(){
         $user_role = Auth::user()->roles()->first()->id;
+
+        // $max = DB::table('comments')
+        //     ->max('id')
+        //     ->groupBy('ticket_id');
+        //     // ->get();
+
+        //     dd($max);
+
         if($user_role == 1){
-            $data = DB::table('comments')
-                ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
-                ->join('projects', 'tickets.project_id', '=', 'projects.id')
-                ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
-                ->get();
+            // $data = DB::table('comments')
+            //     ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
+            //     ->join('projects', 'tickets.project_id', '=', 'projects.id')
+            //     ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
+            //     ->whereIn('comments.id', function($query){
+            //         $query->max('comments.id')->groupBy('comments.ticket_id');
+            //     })
+            //     ->get();
+            $data = DB::select(DB::raw('SELECT a.created_at as tgl, c.name as proyek, b.title as judul_tiket, a.author_name as author, a.comment_text as deskripsi from comments a, tickets b, projects c where a.id in (select max(id) from comments group by ticket_id) and a.ticket_id = b.id and b.project_id = c.id'));
+            // dd($data);
         } else {
             $project = Auth::user()->project->first()->id ?? null;
             if (!is_null($project)) {
-                $data = DB::table('comments')
-                ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
-                ->join('projects', 'tickets.project_id', '=', 'projects.id')
-                ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
-                ->where('projects.id', $project)
-                ->get();
+                // $data = DB::table('comments')
+                // ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
+                // ->join('projects', 'tickets.project_id', '=', 'projects.id')
+                // ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
+                // ->where('projects.id', $project)
+                // ->get();
+                $data = DB::select(DB::raw('SELECT a.created_at as tgl, c.name as proyek, b.title as judul_tiket, a.author_name as author, a.comment_text as deskripsi from comments a, tickets b, projects c where a.id in (select max(id) from comments group by ticket_id) and a.ticket_id = b.id and b.project_id = c.id and b.project_id = ?',[$project]));
                 // dd($data);
             }
         }

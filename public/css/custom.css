@@ -106,3 +106,8 @@ table.dataTable thead .sorting_desc {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+table.datatable tr td a.btn, table.datatable tr td input[type=submit] {
+    font-size: 9pt !important;
+    padding: .25rem .5rem .25rem .5rem;
+}
