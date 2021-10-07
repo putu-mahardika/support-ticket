@@ -16,7 +16,10 @@ class PermissionRoleTableSeeder extends Seeder
         Role::findOrFail(2)->permissions()->sync($agent_permissions);
 
         $client_permissions = $admin_permissions->filter(function ($permission) {
-            return substr($permission->title, 0, 7) == 'ticket_' && $permission->title != 'ticket_delete' && $permission->title != 'ticket_edit';
+            return substr($permission->title, 0, 7) == 'ticket_' 
+                    && $permission->title != 'ticket_delete' 
+                    && $permission->title != 'ticket_edit'
+                    || $permission->title == 'dashboard_access';
         });
         Role::findOrFail(3)->permissions()->sync($client_permissions);
     }
