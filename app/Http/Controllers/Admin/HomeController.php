@@ -9,6 +9,7 @@ use App\Status;
 use Gate;
 use Symfony\Component\HttpFoundation\Response;
 use App\Ticket;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -31,36 +32,23 @@ class HomeController
         $statuses = Status::all();
         $categories = Category::all();
         $priorities = Priority::all();
-        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date'));
 
-
-        // $monthNum  = date('m');
-        // $dateObj   = DateTime::createFromFormat('!m', $monthNum);
-        // $monthName = $dateObj->format('F'); // March
-
-        $avgTime = $this->getAvgTime($user_role, $project);
-
-
-        return view('home', compact('totalTickets', 'openTickets', 'closedTickets', 'monthName', 'avgTime'));
+        $avgTime = $this->getAvgTime($tickets);
+        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime'));
     }
 
-    public function getAvgTime($user_role, $project){
-        $user_role = $user_role;
-        $id_project = $project;
-        if($user_role == 1){
-            $time_temp = Ticket::avg('work_duration');
-        } else {
-            if(!is_null($id_project)){
-                $time_temp = Ticket::avg('work_duration')->where('project_id', $id_project);
-            } else {
-                $time_temp = 0;
-            }
-        }
-        $hours = floor($time_temp/60);
-        $minutes = floor($time_temp%60);
-        $avgTime = $hours . ' jam ' . $minutes . ' menit';
-        // dd($avgTime);
-        return $avgTime;
+    public function getAvgTime($tickets){
+        return gmdate(
+            'H \j\a\m i \m\e\n\i\t',
+            $tickets->map(function ($ticket, $key) {
+                return !empty($ticket->work_duration) ?
+                        Carbon::create($ticket->work_end)
+                              ->diffInSeconds(
+                                  Carbon::create($ticket->work_start)
+                              )
+                        : 0;
+            })->avg()
+        );
     }
 
     public function getJumlahTiketHarian(){
