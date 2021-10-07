@@ -151,7 +151,7 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
-        $project = Auth::user()->project->first() ?? null;
+        $project = Auth::user()->projects->first() ?? null;
 
         if ($project != null) {
             $code = $this->getCode($project);
