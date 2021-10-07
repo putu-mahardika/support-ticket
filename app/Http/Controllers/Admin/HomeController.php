@@ -22,6 +22,7 @@ class HomeController
         $monthName = $dateObj->format('F'); // March
         // dd($monthName);
 
+        // Ticket
         $totalTickets = Ticket::count();
         $openTickets = Ticket::whereHas('status', function($query) {
             $query->whereName('Open');
@@ -39,7 +40,39 @@ class HomeController
             $query->whereName('Confirm Client');
         })->count();
 
-        return view('home', compact('totalTickets', 'openTickets', 'workingTickets', 'pendingTickets', 'confirmTickets', 'closedTickets', 'monthName'));
+        // Kategori
+        
+        $totalBug = Ticket::whereHas('category', function($query){
+            $query->whereName('Bug');
+        })->count();
+
+        $totalUpdate = Ticket::whereHas('category', function($query){
+            $query->whereName('Update');
+        })->count();
+
+        $totalNewFeature = Ticket::whereHas('category', function($query){
+            $query->whereName('New Feature');
+        })->count();
+
+        $totalReport = Ticket::whereHas('category', function($query){
+            $query->whereName('Report');
+        })->count();
+
+        //Prioritas
+        $totalLow = Ticket::whereHas('priority', function($query){
+            $query->whereName('Low');
+        })->count();
+
+        $totalMedium = Ticket::whereHas('priority', function($query){
+            $query->whereName('Medium');
+        })->count();
+
+        $totalHigh = Ticket::whereHas('priority', function($query){
+            $query->whereName('High');
+        })->count();
+
+        
+        return view('home', compact('totalTickets', 'openTickets', 'workingTickets', 'pendingTickets', 'confirmTickets', 'closedTickets', 'totalBug', 'totalUpdate', 'totalNewFeature', 'totalReport', 'totalLow', 'totalMedium', 'totalHigh', 'monthName'));
     }
 
     public function getJumlahTiketHarian(){

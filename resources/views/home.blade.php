@@ -164,6 +164,24 @@
                             
                                 @can('ticket_show')
                                 <div class="row">
+                                    <!-- Feature -->
+                                    <div class="col-xl-3 col-md-6 mb-4">
+                                        <div class="card border-left-success shadow h-100 py-2">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col mr-2">
+                                                        <div class="text-md font-weight-bold text-success text-uppercase mb-1">
+                                                        Feature</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalNewFeature) }}</div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="fas fa-money fa-4x text-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Bug -->
                                     <div class="col-xl-3 col-md-6 mb-4">
                                         <div class="card border-left-primary shadow h-100 py-2">
@@ -172,7 +190,7 @@
                                                     <div class="col mr-2">
                                                         <div class="text-md font-weight-bold text-primary text-uppercase mb-3">
                                                         Bug </div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalTickets) }}</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalBug) }}</div>
                                                     </div>
                                                     <div class="col-auto">
                                                         <i class="fas fa-bug fa-4x text-300"></i>
@@ -190,7 +208,7 @@
                                                     <div class="col mr-2">
                                                         <div class="text-md font-weight-bold text-danger text-uppercase mb-1">
                                                         Update </div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($openTickets) }}</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalUpdate) }}</div>
                                                     </div>
                                                     <div class="col-auto">
                                                         <i class="fas fa-envelope-open  fa-4x text-300"></i>
@@ -200,24 +218,6 @@
                                         </div>
                                     </div>
                 
-                                    <!-- Feature -->
-                                    <div class="col-xl-3 col-md-6 mb-4">
-                                        <div class="card border-left-success shadow h-100 py-2">
-                                            <div class="card-body">
-                                                <div class="row no-gutters align-items-center">
-                                                    <div class="col mr-2">
-                                                        <div class="text-md font-weight-bold text-success text-uppercase mb-1">
-                                                        Feature</div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($pendingTickets) }}</div>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <i class="fas fa-money fa-4x text-300"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <!-- Report -->
                                     <div class="col-xl-3 col-md-6 mb-4">
                                         <div class="card border-left-warning shadow h-100 py-2">
@@ -226,7 +226,7 @@
                                                     <div class="col mr-2">
                                                         <div class="text-md font-weight-bold text-warning text-uppercase mb-1">
                                                         Report</div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($pendingTickets) }}</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalReport, 0) }}</div>
                                                     </div>
                                                     <div class="col-auto">
                                                         <i class="fas fa-file fa-4x text-300"></i>
@@ -261,7 +261,7 @@
                             
                                 @can('ticket_show')
                                 <div class="row">
-                                    <!-- Total Ticket -->
+                                    <!-- Total High -->
                                     <div class="col-xl-3 col-md-6 mb-4">
                                         <div class="card border-left-danger shadow h-100 py-2">
                                             <div class="card-body">
@@ -269,7 +269,7 @@
                                                     <div class="col mr-2">
                                                         <div class="text-md font-weight-bold text-danger text-uppercase mb-3">
                                                         High </div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalTickets) }}</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalHigh) }}</div>
                                                     </div>
                                                     <div class="col-auto">
                                                         <i class="fas fa-battery-full fa-4x text-300"></i>
@@ -279,7 +279,7 @@
                                         </div>
                                     </div>
                 
-                                    <!-- Open Ticket -->
+                                    <!-- Total Medium -->
                                     <div class="col-xl-3 col-md-6 mb-4">
                                         <div class="card border-left-warning shadow h-100 py-2">
                                             <div class="card-body">
@@ -287,7 +287,7 @@
                                                     <div class="col mr-2">
                                                         <div class="text-md font-weight-bold text-warning text-uppercase mb-1">
                                                         Medium </div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($openTickets) }}</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalMedium) }}</div>
                                                     </div>
                                                     <div class="col-auto">
                                                         <i class="fas fa-battery-half  fa-4x text-300"></i>
@@ -297,7 +297,7 @@
                                         </div>
                                     </div>
                 
-                                    <!-- Pending -->
+                                    <!-- Total Low -->
                                     <div class="col-xl-3 col-md-6 mb-4">
                                         <div class="card border-left-success shadow h-100 py-2">
                                             <div class="card-body">
@@ -305,7 +305,7 @@
                                                     <div class="col mr-2">
                                                         <div class="text-md font-weight-bold text-success text-uppercase mb-1">
                                                         Low </div>
-                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($pendingTickets) }}</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($totalLow) }}</div>
                                                     </div>
                                                     <div class="col-auto">
                                                         <i class="fas fa-battery-quarter fa-4x text-300"></i>
