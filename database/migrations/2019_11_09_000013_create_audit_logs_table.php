@@ -19,4 +19,9 @@ class CreateAuditLogsTable extends Migration
             $table->timestamps();
         });
     }
+
+    public function down()
+    {
+        Schema::dropIfExists('audit_logs');
+    }
 }

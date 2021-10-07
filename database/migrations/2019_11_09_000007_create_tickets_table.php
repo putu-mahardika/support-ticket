@@ -10,18 +10,17 @@ class CreateTicketsTable extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->increments('id');
-
             $table->string('title');
-
             $table->longText('content')->nullable();
-
             $table->string('author_name')->nullable();
-
             $table->string('author_email')->nullable();
-
             $table->timestamps();
-
             $table->softDeletes();
         });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('tickets');
     }
 }

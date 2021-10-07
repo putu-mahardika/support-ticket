@@ -13,10 +13,12 @@ use App\Project;
 use App\Status;
 use App\Ticket;
 use App\User;
+use Carbon\Carbon;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -147,10 +149,13 @@ class TicketsController extends Controller
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
         $project = Auth::user()->project->first() ?? null;
+
         if ($project != null) {
+            $code = $this->getCode($project);
             $assign_pm = Project::find($project->id)->user()->where('is_pm',true)->first()->pivot->user_id ?? 0;
             $ticket = Ticket::create([
                 'title' => $request->title,
+                'code' => $code,
                 'content' => $request->content,
                 'author_name' => Auth::user()->name,
                 'author_email' => Auth::user()->email,
@@ -169,7 +174,7 @@ class TicketsController extends Controller
         } else {
             return redirect()->back()->withStatus('Tiket anda gagal ditambahkan. Silahkan hubungi Admin kami untuk info lebih lanjut');
         }
-        
+
         return redirect()->route('admin.tickets.index')->withStatus('Tiket anda telah berhasil ditambahkan. Silahkan tunggu hingga mendapatkan balasan melalui email dari kami');
     }
 
@@ -214,17 +219,19 @@ class TicketsController extends Controller
             }
         }
 
-        return redirect()->route('admin.tickets.index');
+        return redirect()->route('admin.tickets.index')->with('status', 'Perubahan berhasil ditambahkan.');
     }
 
     public function show(Ticket $ticket)
     {
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments');
-        // dd($ticket);
-
-        return view('admin.tickets.show', compact('ticket'));
+        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments', 'ref');
+        $statuses = Status::all();
+        $priorities = Priority::all();
+        $categories = Category::all();
+        $ticketRef = Ticket::whereNotIn('id', [$ticket->id])->get();
+        return view('admin.tickets.show', compact('ticket', 'statuses', 'priorities', 'categories', 'ticketRef'));
     }
 
     public function destroy(Ticket $ticket)
@@ -256,11 +263,36 @@ class TicketsController extends Controller
             'comment_text'  => $request->comment_text
         ]);
 
+        if (!empty($request->status_comment)) {
+            $ticket->status_id = $request->status_comment;
+
+            if ($request->status_comment == 3 && empty($ticket->work_start)) {
+                $ticket->work_start = now();
+            }
+
+            if ($request->status_comment == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
+                $ticket->work_end = now();
+            }
+
+            $ticket->save();
+            $ticket->refresh();
+        }
+
+        if (!empty($ticket->work_start) && !empty($ticket->work_end) && empty($ticket->work_duration)) {
+            $ticket->work_duration = Carbon::create($ticket->work_end)
+                                           ->diffInMinutes(
+                                               Carbon::create($ticket->work_start)
+                                           );
+            $ticket->save();
+            $ticket->refresh();
+        }
+
         $ticket->sendCommentNotification($comment);
 
         return redirect()->back()->withStatus('Komentar anda berhasil ditambahkan');
     }
 
+<<<<<<< HEAD
     public function showReport()
     {
         return view('admin.tickets.report');
@@ -317,5 +349,21 @@ class TicketsController extends Controller
         }
         // dd($data);
         return collect($data);
+=======
+    /**
+     * Generate New Ticket Code
+     *
+     * @param \App\Project $project Project
+     * @return string
+     **/
+    private function getCode($project)
+    {
+        $lastCode = $project->ticket()
+                            ->whereYear('created_at', now()->year)
+                            ->latest()
+                            ->first();
+        $newNum = empty($lastCode) ? 1 : intval(explode('.', $lastCode->code)[2]) + 1;
+        return $project->code . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
+>>>>>>> origin/agung
     }
 }

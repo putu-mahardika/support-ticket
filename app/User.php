@@ -9,9 +9,9 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 // use Laravel\Passport\HasApiTokens;
 use Laravel\Sanctum\HasApiTokens;
-
 
 class User extends Authenticatable
 {
@@ -83,6 +83,19 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->roles->contains(1);
+    }
+
+    public function getRoleNamesAttribute()
+    {
+        return $this->roles()->pluck('title');
+    }
+
+    public function hasRole($roleName)
+    {
+        $roleNames = $this->role_names->transform(function ($item, $key) {
+            return Str::lower($item);
+        });
+        return $roleNames->contains(Str::lower($roleName));
     }
 
     public function project(){

@@ -26,7 +26,7 @@ class ProjectsController extends Controller
     {
         {
             abort_if(Gate::denies('project_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-    
+
             $projects = Project::all();
 
             $projects_pm = DB::table('projects')
@@ -36,7 +36,7 @@ class ProjectsController extends Controller
                 ->where('user_project.is_pm', 1)
                 ->get();
             // dd($projects_pm);
-    
+
             return view('admin.projects.index', compact('projects', 'projects_pm'));
         }
     }
