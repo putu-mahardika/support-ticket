@@ -19,6 +19,7 @@
                     {{-- Status --}}
                     <div  class="col-lg-12" id="accordion">
                         <div class="card">
+
                           <div class="card-header" id="headingOne">
                             <h5 class="mb-0">
                               <button class="btn btn-primary" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -378,7 +379,7 @@
                 }
             },
             series: [
-                { valueField: "value", name: "Tiket", color: "#80b3ff" }
+                { valueField: "value", name: "Tiket", color: "#4e44db" }
             ],
             legend: {
                 visible: false
