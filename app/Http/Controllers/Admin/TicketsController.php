@@ -292,7 +292,6 @@ class TicketsController extends Controller
         return redirect()->back()->withStatus('Komentar anda berhasil ditambahkan');
     }
 
-<<<<<<< HEAD
     public function showReport()
     {
         return view('admin.tickets.report');
@@ -349,7 +348,7 @@ class TicketsController extends Controller
         }
         // dd($data);
         return collect($data);
-=======
+    }
     /**
      * Generate New Ticket Code
      *
@@ -364,6 +363,5 @@ class TicketsController extends Controller
                             ->first();
         $newNum = empty($lastCode) ? 1 : intval(explode('.', $lastCode->code)[2]) + 1;
         return $project->code . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
->>>>>>> origin/agung
     }
 }
