@@ -56,6 +56,13 @@
 
                             <!-- Topbar Navbar -->
                             <ul class="navbar-nav ml-auto">
+
+                                <li class="nav-item dropdown no-arrow">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">Project name :  {{ auth()->user()->projects()->first()->name ?? '(null)' }}</span>
+                                    </a>
+                                </li>
                                 <div class="topbar-divider d-none d-sm-block"></div>
 
                                 <!-- Nav Item - User Information -->
@@ -64,21 +71,20 @@
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="mr-2 d-none d-lg-inline text-gray-600 small">Hallo {{ auth()->user()->name ?? '(null)' }}</span>
                                         <img class="img-profile rounded-circle" src="{{ asset('theme/img/undraw_profile.svg') }}">
-                                        </a>
-
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
                          <!-- End of Topbar -->
-                    {{-- Konten disini --}}
-                    <div class="container-fluid">
-                     <!-- Content Row -->
+                        {{-- Konten disini --}}
+                        <div class="container-fluid">
+                        <!-- Content Row -->
 
 
-                        @yield('content')
+                            @yield('content')
 
 
-                    </div>
+                        </div>
             <!-- End Main Content -->
             </div>
             <!-- End Content Wrapper -->

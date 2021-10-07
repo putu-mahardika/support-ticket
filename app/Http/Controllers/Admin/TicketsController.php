@@ -339,7 +339,6 @@ class TicketsController extends Controller
     {
         return view('admin.tickets.report');
     }
-
     public function getReport(Request $request)
     {
         $awal = Carbon::create($request->awal);
