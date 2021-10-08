@@ -36,13 +36,11 @@
 
                                 <div class="form-group">
                                     <div class="input-group">
-                                        <input type="password" class="form-control form-control-user" style="border-radius:10rem;"
-                                    id="password" name="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" required placeholder="{{ trans('global.login_password') }}">
-                                    
-                                    <span class="input-group-text" onclick="password_show_hide();" style="cursor: pointer; background-color:transparent;border:none;margin-left:-45px;z-index:10;">
+                                        <input type="password" class="form-control form-control-user" style="border-radius:10rem;" id="password" name="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" required placeholder="{{ trans('global.login_password') }}">
+                                        <span class="input-group-text" onclick="password_show_hide();" style="cursor: pointer; background-color:transparent;border:none;margin-left:-45px;z-index:10;">
                                         <i class="fas fa-eye-slash" id="btn-eye"></i>
                                         {{-- <i class="fas fa-eye-slash d-none" id="hide_eye"></i> --}}
-                                    </span>
+                                        </span>
                                     </div>
                                     
                                     @if($errors->has('password'))
@@ -64,13 +62,19 @@
                                     {{ trans('global.forgot_password') }}
                                 </a><br>
                                 @endif
-                                
                             </div>
+                        </div>
+                        <div class="d-flex align-items-end pl-5">
+                            <br><br><br><br><br>
+                            <small>V.1.(081021)</small>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <img src="{{ asset('theme/img/bg-login.jpg') }}" style="width: auto; height:  600px; position: left;" >
                     </div>
+                </div>
+                <div class="row">
+
                 </div>
             </div>
 
