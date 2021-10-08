@@ -130,7 +130,19 @@ class HomeController
             //         $query->max('comments.id')->groupBy('comments.ticket_id');
             //     })
             //     ->get();
-            $data = DB::select(DB::raw('SELECT a.created_at as tgl, c.name as proyek, b.title as judul_tiket, a.author_name as author, a.comment_text as deskripsi from comments a, tickets b, projects c where a.id in (select max(id) from comments group by ticket_id) and a.ticket_id = b.id and b.project_id = c.id'));
+            $data = DB::select(
+                        DB::raw('SELECT a.created_at as tgl,
+                                        c.name as proyek, 
+                                        b.title as judul_tiket, 
+                                        a.author_name as author, 
+                                        a.comment_text as deskripsi 
+                                        from comments a, 
+                                        tickets b, 
+                                        projects c 
+                                        where a.id in (select max(id) from comments group by ticket_id) 
+                                        and a.ticket_id = b.id 
+                                        and b.project_id = c.id limit 10'
+                                ));
             // dd($data);
         } else {
             $project = Auth::user()->projects->first()->id ?? null;
@@ -141,7 +153,18 @@ class HomeController
                 // ->select('comments.created_at as tgl', 'projects.name as proyek', 'tickets.title as judul_tiket', 'comments.author_name as author', 'comments.comment_text as deskripsi')
                 // ->where('projects.id', $project)
                 // ->get();
-                $data = DB::select(DB::raw('SELECT a.created_at as tgl, c.name as proyek, b.title as judul_tiket, a.author_name as author, a.comment_text as deskripsi from comments a, tickets b, projects c where a.id in (select max(id) from comments group by ticket_id) and a.ticket_id = b.id and b.project_id = c.id and b.project_id = ' . $project));
+                $data = DB::select(
+                            DB::raw('SELECT a.created_at as tgl,
+                                            c.name as proyek, 
+                                            b.title as judul_tiket, 
+                                            a.author_name as author, 
+                                            a.comment_text as deskripsi from comments a, 
+                                            tickets b, projects c 
+                                            where a.id in (select max(id) from comments group by ticket_id) 
+                                            and a.ticket_id = b.id and b.project_id = c.id 
+                                            and b.project_id = ' . $project . '
+                                            limit 10'
+                                            ));
                 // dd($data);
             }
         }
