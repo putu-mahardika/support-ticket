@@ -15,7 +15,7 @@ class CategoriesTableSeeder extends Seeder
         // $faker = Faker\Factory::create();
         $categories = [
             [
-                'name'  =>  '',
+                'name'  =>  'Uncategorized',
                 'color' =>  '#ffffff',
             ],
             [
