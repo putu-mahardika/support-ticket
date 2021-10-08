@@ -15,8 +15,8 @@ class PrioritiesTableSeeder extends Seeder
         // $faker = Faker\Factory::create();
         $priorities = [
             [
-                'name'  =>  'no priority',
-                'color' =>  '#ffffff',
+                'name'  =>  'No Priority',
+                'color' =>  '#000000',
             ],
             [
                 'name'   =>  'Low',
