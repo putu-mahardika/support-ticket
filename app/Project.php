@@ -14,7 +14,7 @@ class Project extends Model
     protected $dates = [
         'created_at',
         'updated_at',
-        // 'deleted_at',
+        'deleted_at',
     ];
 
     protected $fillable = [
@@ -22,7 +22,7 @@ class Project extends Model
         'name',
         'created_at',
         'updated_at',
-        // 'deleted_at',
+        'deleted_at',
         // 'assign_user_id',
         // 'pm_name',
         // 'pm_email',
