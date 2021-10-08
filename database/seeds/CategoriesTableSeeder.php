@@ -16,7 +16,7 @@ class CategoriesTableSeeder extends Seeder
         $categories = [
             [
                 'name'  =>  'Uncategorized',
-                'color' =>  '#ffffff',
+                'color' =>  '#000000',
             ],
             [
                 'name'  =>  'Bug',
