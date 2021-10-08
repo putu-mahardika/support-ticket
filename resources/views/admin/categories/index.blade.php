@@ -32,6 +32,9 @@
                             {{ trans('cruds.category.fields.color') }}
                         </th>
                         <th>
+                            icon
+                        </th>
+                        <th>
                             &nbsp;
                         </th>
                     </tr>
@@ -49,6 +52,9 @@
                                 {{ $category->name ?? '' }}
                             </td>
                             <td style="background-color:{{ $category->color ?? '#FFFFFF' }}"></td>
+                            <td>
+                                {{ $category->icon ?? '' }}
+                            </td>
                             <td>
                                 @can('category_show')
                                     <a class="btn btn-xs btn-primary" href="{{ route('admin.categories.show', $category->id) }}">
