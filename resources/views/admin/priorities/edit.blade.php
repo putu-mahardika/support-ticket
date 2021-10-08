@@ -34,6 +34,8 @@
                     {{ trans('cruds.priority.fields.color_helper') }}
                 </p>
             </div>
+            <label for="icon">Icon</label>
+            <input type="text" id="icon" name="icon" class="form-control" value="{{ old('icon', isset($priority) ? $priority->icon : '') }}">
             <div>
                 <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
             </div>
