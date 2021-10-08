@@ -347,7 +347,7 @@ class TicketsController extends Controller
         //                  ->whereBetween('created_at', [$awal, $akhir])
         //                  ->when(!auth()->user()->isAdmin(), function ($query) {
         //                      return $query->whereHas('project', function ($q) {
-        //                                 $q->where('id', auth()->user()->projects->first()->id ?? 0);
+        //                                 $q->where('project_id', auth()->user()->projects->first()->id ?? 0);
         //                     });
         //                  })
         //                  ->get([
@@ -355,7 +355,7 @@ class TicketsController extends Controller
         //                     'tickets.title as judul',
         //                     'tickets.content as deskripsi',
         //                     'tickets.author_name as author',
-        //                     'projects.id as proyek',
+        //                     'projects.name as proyek',
         //                     'users.name as PIC',
         //                     'categories.name as kategori',
         //                     'priorities.name as prioritas',
@@ -391,8 +391,13 @@ class TicketsController extends Controller
                 )
                 ->whereBetween('tickets.created_at', [$awal, $akhir])
                 ->get();
+
+                $result = collect($data)->map(function ($item) {
+                    $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
+                    return $item;
+                });
         } else {
-            $project = Auth::user()->project->first()->id ?? null;
+            $project = Auth::user()->projects->first()->id ?? null;
             if (!is_null($project)) {
                 $data = DB::table('tickets')
                 ->join('projects', 'tickets.project_id', '=', 'projects.id')
@@ -415,13 +420,17 @@ class TicketsController extends Controller
                 ->where('tickets.project_id', $project)
                 ->whereBetween('tickets.created_at', [$awal, $akhir])
                 ->get();
+
+                $result = collect($data)->map(function ($item) {
+                    $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
+                    return $item;
+                });
+            } else {
+                $result = [];
             }
         }
-        $result = collect($data)->map(function ($item) {
-            $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
-            return $item;
-        });
-        // dd($data);
+        
+        // dd($project);
         return collect($result);
     }
 }
