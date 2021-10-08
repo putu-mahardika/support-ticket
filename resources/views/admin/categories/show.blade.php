@@ -32,6 +32,14 @@
                         </th>
                         <td style="background-color:{{ $category->color ?? '#FFFFFF' }}"></td>
                     </tr>
+                    <tr>
+                        <th>
+                           Icon
+                        </th>
+                        <td>
+                            {{ $category->icon }}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <a style="margin-top:20px;" class="btn btn-default" href="{{ url()->previous() }}">

@@ -49,7 +49,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-auto">
-                                                                    <i class="fas fa-envelope-open  fa-2x "></i>
+                                                                    <i class="{{ $category->icon }}  fa-2x "></i>
                                                                 </div>
                                                             </div>
                                                         </div>
