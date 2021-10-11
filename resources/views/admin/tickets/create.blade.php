@@ -97,6 +97,21 @@
             </div>
             @endcan
             @if(auth()->user()->isAdmin())
+                <div class="form-group {{ $errors->has('project_id') ? 'has-error' : '' }}">
+                    <label for="project_id">{{ trans('cruds.ticket.fields.project') }}</label>
+                    <select name="project_id" id="project_id" class="form-control select2">
+                        @foreach($projects as $id => $project)
+                            <option value="{{ $id }}" {{ (isset($ticket) && $ticket->project ? $ticket->project->id : old('project_id')) == $id ? 'selected' : '' }}>{{ $project }}</option>
+                        @endforeach
+                    </select>
+                    @if($errors->has('project_id'))
+                        <em class="invalid-feedback">
+                            {{ $errors->first('project_id') }}
+                        </em>
+                    @endif
+                </div>
+            @endif
+            @if(auth()->user()->isAdmin())
                 <div class="form-group {{ $errors->has('assigned_to_user_id') ? 'has-error' : '' }}">
                     <label for="assigned_to_user">{{ trans('cruds.ticket.fields.assigned_to_user') }}</label>
                     <select name="assigned_to_user_id" id="assigned_to_user" class="form-control select2">
