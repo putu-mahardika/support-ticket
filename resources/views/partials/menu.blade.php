@@ -116,7 +116,7 @@
 	<!-- Nav Item - Logout -->
 	<li class="nav-item">
 	    <a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
-	        <button class="btn btn-md btn-danger btn-block"> <i class="fas fa-sign-out-alt"></i>{{ trans('global.logout') }}</button>
+	        <button class="btn btn-md btn-danger btn-block rounded-pill"> <i class="fas fa-sign-out-alt"></i>{{ trans('global.logout') }}</button>
 	   	 </a> 
 	</li>
 
