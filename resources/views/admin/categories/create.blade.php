@@ -33,7 +33,7 @@
                     {{ trans('cruds.category.fields.color_helper') }}
                 </p>
                 <label for="icon">Icon</label>
-                <input type="text" id="icon" name="icon" class="form-control" placeholder="">
+                <input type="text" id="icon" name="icon" class="form-control" placeholder="contoh : fas fa-envelope">
             </div>
             <div>
                 <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
