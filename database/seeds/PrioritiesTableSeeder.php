@@ -21,7 +21,7 @@ class PrioritiesTableSeeder extends Seeder
             ],
             [
                 'name'   =>  'Low',
-                'color'  =>  '#009933'
+                'color'  =>  '#009933',
                 'icon'  =>   'fas fa-battery-quarter',
             ],
             [
