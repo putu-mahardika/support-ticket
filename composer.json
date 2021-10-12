@@ -18,6 +18,8 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
+        "php-mqtt/client": "^1.1",
+        "php-mqtt/laravel-client": "^1.0",
         "spatie/laravel-medialibrary": "^8.7",
         "yajra/laravel-datatables-oracle": "^9.6"
     },
