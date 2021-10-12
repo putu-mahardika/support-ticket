@@ -17,22 +17,27 @@ class CategoriesTableSeeder extends Seeder
             [
                 'name'  =>  '',
                 'color' =>  '#ffffff',
+                'icon'  => ''
             ],
             [
                 'name'  =>  'Bug',
                 'color' =>  '#ff0000',
+                'icon'  =>  'fas fa-bug',
             ],
             [
                 'name'  =>  'Update',
                 'color' =>  '#cc5200',
+                'icon'  =>  'fa fa-file',
             ],
             [
                 'name'  =>  'New Feature',
                 'color' =>  '#009933',
+                'icon'  =>  'fas fa-money',
             ],
             [
                 'name'  =>  'Report',
                 'color' =>  '#0000ff',
+                'icon'  =>  'fas fa-tasks',
             ],
         ];
 

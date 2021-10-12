@@ -25,6 +25,8 @@
             <div class="form-group {{ $errors->has('color') ? 'has-error' : '' }}">
                 <label for="color">{{ trans('cruds.category.fields.color') }}</label>
                 <input type="text" id="color" name="color" class="form-control colorpicker" value="{{ old('color', isset($category) ? $category->color : '') }}">
+                <label for="icon">Icon</label>
+                <input type="text" id="icon" name="icon" class="form-control" value="{{ old('icon', isset($category) ? $category->icon : '') }}">
                 @if($errors->has('color'))
                     <em class="invalid-feedback">
                         {{ $errors->first('color') }}

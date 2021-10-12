@@ -32,6 +32,9 @@
                             {{ trans('cruds.priority.fields.color') }}
                         </th>
                         <th>
+                           Icon
+                        </th>
+                        <th>
                             &nbsp;
                         </th>
                     </tr>
@@ -49,6 +52,9 @@
                                 {{ $priority->name ?? '' }}
                             </td>
                             <td style="background-color:{{ $priority->color ?? '#FFFFFF' }}"></td>
+                            <td>
+                                {{ $priority->icon ?? '' }}
+                            </td>
                             <td>
                                 @can('priority_show')
                                     <a class="btn btn-xs btn-primary" href="{{ route('admin.priorities.show', $priority->id) }}">
