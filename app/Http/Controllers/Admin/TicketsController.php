@@ -93,8 +93,8 @@ class TicketsController extends Controller
             $table->editColumn('author_email', function ($row) {
                 return $row->author_email ? $row->author_email : "";
             });
-            $table->editColumn('project_name', function ($row) {
-                return $row->projects ? $row->projects->first()->name : '';
+            $table->addColumn('project_name', function ($row) {
+                return $row->project ? $row->project->name : '';
             });
             $table->addColumn('assigned_to_user_name', function ($row) {
                 return $row->assigned_to_user ? $row->assigned_to_user->name : '';
@@ -125,6 +125,7 @@ class TicketsController extends Controller
         $statuses = Status::all();
         $categories = Category::all();
 
+        // dd(Auth::user()->projects->first());
         return view('admin.tickets.index', compact('priorities', 'statuses', 'categories'));
     }
 
@@ -144,36 +145,57 @@ class TicketsController extends Controller
             ->pluck('name', 'id')
             ->prepend(trans('global.pleaseSelect'), '');
 
-        $projects = Project::all()->pluck('name', 'id');
+        $projects = Project::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');;
 
         return view('admin.tickets.create', compact('statuses', 'priorities', 'categories', 'assigned_to_users', 'projects'));
     }
 
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
+        // dd($request);
+        $user_role = Auth::user()->roles()->first()->id;
         $project = Auth::user()->projects->first() ?? null;
-
-        if ($project != null) {
-            $code = $this->getCode($project);
-            $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
-            $ticket = Ticket::create([
-                'title' => $request->title,
-                'code' => $code,
-                'content' => $request->content,
-                'author_name' => Auth::user()->name,
-                'author_email' => Auth::user()->email,
-                'status_id' => $request->status_id ?? 1,
-                'priority_id' => $request->priority_id ?? 1,
-                'category_id' => $request->category_id ?? 1,
-                'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
-                'project_id' => $project->id
-            ]);
-            $ticket->project()->associate($project);
-            $ticket->save();
+        
+        if(!is_null($project) || $user_role == 1){
+            if ($user_role == 1) {
+                $code = $this->getCodeWithId($request->project_id);
+                $ticket = Ticket::create([
+                    'title' => $request->title,
+                    'code' => $code,
+                    'content' => $request->content,
+                    'author_name' => Auth::user()->name,
+                    'author_email' => Auth::user()->email,
+                    'status_id' => $request->status_id ?? 1,
+                    'priority_id' => $request->priority_id ?? 1,
+                    'category_id' => $request->category_id ?? 1,
+                    'assigned_to_user_id' => $request->assigned_to_user_id,
+                    'project_id' => $request->project_id
+                ]);
+                $ticket->project()->associate($request->project_id);
+                $ticket->save();
+            } else {
+                $code = $this->getCode($project);
+                $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+                $ticket = Ticket::create([
+                    'title' => $request->title,
+                    'code' => $code,
+                    'content' => $request->content,
+                    'author_name' => Auth::user()->name,
+                    'author_email' => Auth::user()->email,
+                    'status_id' => $request->status_id ?? 1,
+                    'priority_id' => $request->priority_id ?? 1,
+                    'category_id' => $request->category_id ?? 1,
+                    'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
+                    'project_id' => $request->project_id ?? $project->id
+                ]);
+                $ticket->project()->associate($project);
+                $ticket->save();
+            }
 
             foreach ($request->input('attachments', []) as $file) {
                 $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
             }
+
         } else {
             return redirect()->back()->withStatus('Tiket anda gagal ditambahkan. Silahkan hubungi Admin kami untuk info lebih lanjut');
         }
@@ -254,6 +276,7 @@ class TicketsController extends Controller
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments', 'ref');
+        // dd($ticket->attachments);
         $statuses = Status::all();
         $priorities = Priority::all();
         $categories = Category::all();
@@ -334,6 +357,19 @@ class TicketsController extends Controller
         $newNum = empty($lastCode) ? 1 : intval(explode('.', $lastCode->code)[2]) + 1;
         return $project->code . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
     }
+
+    private function getCodeWithId($project)
+    {
+        $lastCode = Ticket::where('project_id', $project)
+                            ->whereYear('created_at', now()->year)
+                            ->latest()
+                            ->first();
+        $project_code = explode('.', $lastCode->code);
+        $newNum = empty($lastCode) ? 1 : intval($project_code[2]) + 1;
+        return $project_code[0] . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
+    }
+
+
 
     public function showReport()
     {

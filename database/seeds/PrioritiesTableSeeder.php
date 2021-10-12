@@ -15,13 +15,13 @@ class PrioritiesTableSeeder extends Seeder
         // $faker = Faker\Factory::create();
         $priorities = [
             [
-                'name'  =>  '',
-                'color' =>  '#ffffff',
+                'name'  =>  'No Priority',
+                'color' =>  '#000000',
                 'icon'  =>  '',
             ],
             [
                 'name'   =>  'Low',
-                'color'  =>  '#009933'
+                'color'  =>  '#009933',
                 'icon'  =>   'fas fa-battery-quarter',
             ],
             [
@@ -33,7 +33,7 @@ class PrioritiesTableSeeder extends Seeder
                 'name'   =>  'High',
                 'color'  =>  '#ff0000',
                 'icon'  =>    'fas fa-battery-full',
-            ],
+            ]
         ];
 
         Priority::insert($priorities);

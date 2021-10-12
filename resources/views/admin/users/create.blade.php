@@ -47,27 +47,6 @@
                 </p>
             </div>
 
-            <div class="form-group {{ $errors->has('project') ? 'has-error' : '' }}">
-                <label for="project">{{ trans('cruds.user.fields.project') }}*
-                    <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
-                    <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
-                <select name="project" id="project" class="form-control select2">
-                        <option value=""></option>
-                    @foreach($projects as $project)
-                        <option value="{{ $project->id }}" {{ (in_array($project->id, old('roles', [])) || isset($user) && $user->projects->contains($project->id)) ? 'selected' : '' }}>{{ $project->name }}</option>
-                    @endforeach
-                </select>
-                @if($errors->has('project'))
-                    <em class="invalid-feedback">
-                        {{ $errors->first('project') }}
-                    </em>
-                @endif
-                <p class="helper-block">
-                    {{ trans('cruds.user.fields.project_helper') }}
-                </p>
-            </div>
-
-
             <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
                 <label for="password">{{ trans('cruds.user.fields.password') }}</label>
                 <input type="password" id="password" name="password" class="form-control" required>
@@ -81,10 +60,8 @@
                 </p>
             </div>
             <div class="form-group {{ $errors->has('roles') ? 'has-error' : '' }}">
-                <label for="roles">{{ trans('cruds.user.fields.roles') }}*
-                    <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
-                    <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
-                <select name="roles[]" id="roles" class="form-control select2" multiple="multiple" required>
+                <label for="roles">{{ trans('cruds.user.fields.roles') }}*</label>
+                <select name="roles[]" id="roles" class="form-control select2" required>
                     @foreach($roles as $id => $roles)
                         <option value="{{ $id }}" {{ (in_array($id, old('roles', [])) || isset($user) && $user->roles->contains($id)) ? 'selected' : '' }}>{{ $roles }}</option>
                     @endforeach
@@ -98,6 +75,21 @@
                     {{ trans('cruds.user.fields.roles_helper') }}
                 </p>
             </div>
+
+            <div class="form-group {{ $errors->has('project') ? 'has-error' : '' }}">
+                <div id="project-container">
+
+                </div>
+                @if($errors->has('project'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('project') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.user.fields.project_helper') }}
+                </p>
+            </div>
+
             <div>
                 <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
             </div>
@@ -106,4 +98,43 @@
 
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    $('#roles').on('select2:select', function (e) {
+        var id = $(this).attr('id');
+            // var val = $(this).val();
+        var val = e.params.data.id;
+        let input_project = "";
+
+        if(val != 1){
+            if(val == 2){
+            input_project += '<label for="project">Proyek* ';
+            input_project += '<span class="btn btn-info btn-xs select-all mx-2">Select All</span>';
+            input_project += '<span class="btn btn-info btn-xs deselect-all">Deselect All</span></label>';
+            input_project += '<select name="project[]" id="project" class="form-control select2" multiple="multiple" >';   
+            } else {
+                input_project += '<label for="project">Proyek*</label>';
+                input_project += '<select name="project[]" id="project" class="form-control select2"><option></option>';   
+            }
+            input_project += '@foreach($projects as $project)';
+            input_project += '<option value="{{ $project->id }}">{{ $project->name }}</option>';
+            input_project += '@endforeach';
+            input_project += '</select>';
+
+            $("#project-container").html(input_project);
+            select2();
+        }else{
+            $("#project-container").html(input_project);
+        }
+
+    });
+    function select2(){
+        $('select').select2({
+            placeholder: "Pilih",
+            allowClear: true
+        });
+    };
+</script>
 @endsection
