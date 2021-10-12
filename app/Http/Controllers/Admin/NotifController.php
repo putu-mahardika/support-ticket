@@ -8,6 +8,7 @@ class NotifController extends Controller
 {
     public function index()
     {
-        return view('admin.notif.notifpage');
+        $notifications = auth()->user()->unreadNotifications;
+        return view('admin.notif.notifpage', compact('notifications'));
     }
 }

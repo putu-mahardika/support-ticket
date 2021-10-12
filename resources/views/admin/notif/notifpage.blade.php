@@ -1,8 +1,20 @@
 @extends('layouts.admin')
 @section('content')
-<h3>Notifikasi</h3>
-<div class="list-group">
-    <a href="id_tiket" class="list-group-item list-group-item-action"><img style="width: 40px; height:auto" src="{{ asset('theme/img/headset.png') }}"><span class="">         Ticket baru #deskripsi tiket dari database</span></a>
-    <a href="id_tiket" class="list-group-item list-group-item-action"><img style="width: 40px; height:auto" src="{{ asset('theme/img/headset.png') }}"><span class="">         Ticket baru #deskripsi tiket dari database</span></a>
-</div>
+@if(auth()->user()->is_admin)
+    @forelse($notifications as $notification)
+        <div class="alert alert-success" role="alert">
+            [{{ $notification->created_at }}] User {{ $notification->data['name'] }} ({{ $notification->data['email'] }}) has just registered.
+            <a href="#" class="float-right mark-as-read" data-id="{{ $notification->id }}">
+                Mark as read
+            </a>
+        </div>
+
+        @if($loop->last)
+            <a href="#" id="mark-all">
+                Mark all as read
+            </a>
+        @endif
+    @empty
+        There are no new notifications
+    @end
 @endsection

@@ -21,6 +21,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TicketNotificaticon;
 
 class TicketsController extends Controller
 {
@@ -28,6 +30,14 @@ class TicketsController extends Controller
 
     public function index(Request $request)
     {
+        $ticket = Ticket::find(1);
+        dd(
+            $ticket->project->users->map(function ($user) {
+                return $user->id != auth()->id()? $user:null;
+            })->filter()
+        );
+
+
         $user_role = Auth::user()->roles()->first()->id;
         if ($request->ajax()) {
             if($user_role == 1 || $user_role == 2){
@@ -174,6 +184,17 @@ class TicketsController extends Controller
             foreach ($request->input('attachments', []) as $file) {
                 $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
             }
+
+            $users = $ticket->project->users->map(function ($user) {
+                        return $user->id != auth()->id()? $user:null;
+                     })->filter();
+            Notification::send($users, new TicketNotification($ticket));
+               
+        
+            $admin = User::whereHas('roles', function ($query){
+                        $query->where('id', 1);
+                     })->get();
+            Notification::send($admin, new TicketNotification($ticket));
         } else {
             return redirect()->back()->withStatus('Tiket anda gagal ditambahkan. Silahkan hubungi Admin kami untuk info lebih lanjut');
         }
