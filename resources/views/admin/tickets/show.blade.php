@@ -340,22 +340,22 @@
                                             @if (!in_array($file_ext, FunctionHelper::IMAGES_EXT))
                                             <div class="col-auto mb-3 text-center">
                                                 @if (in_array($file_ext, FunctionHelper::WORDS_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
                                                         <img src="{{ asset('images/word.png') }}" alt="thumbnail" width="50">
                                                         <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
                                                     </a>
                                                 @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
                                                         <img src="{{ asset('images/excel.png') }}" alt="thumbnail" width="50">
                                                         <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
                                                     </a>
                                                 @elseif (in_array($file_ext, FunctionHelper::PDF_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
                                                         <img src="{{ asset('images/pdf.png') }}" alt="thumbnail" width="50">
                                                         <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
                                                     </a>
                                                 @elseif (in_array($file_ext, FunctionHelper::COMPRESSES_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
                                                         <img src="{{ asset('images/zip.png') }}" alt="thumbnail" width="50">
                                                         <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
                                                     </a>
