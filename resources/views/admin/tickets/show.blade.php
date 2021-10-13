@@ -376,6 +376,9 @@
                                 @endif
                             </div>
                         @empty
+                            @php
+                                $key=null;
+                            @endphp
                             <p>Tidak ada balasan</p>
                         @endforelse
                     </div>
@@ -566,9 +569,12 @@ Dropzone.options.attachmentsDropzone = {
     gallery();
 
     let index = {{$key}}
-    for(let i = 0; i <= index; i++){
-        gallery_comment(i);
+    if(index != null){
+        for(let i = 0; i <= index; i++){
+            gallery_comment(i);
+        }
     }
+    
     
 
 </script>
