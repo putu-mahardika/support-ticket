@@ -155,7 +155,7 @@ class TicketsController extends Controller
         // dd($request);
         $user_role = Auth::user()->roles()->first()->id;
         $project = Auth::user()->projects->first() ?? null;
-        
+
         if(!is_null($project) || $user_role == 1){
             if ($user_role == 1) {
                 $code = $this->getCodeWithId($request->project_id);
@@ -275,7 +275,7 @@ class TicketsController extends Controller
     {
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments', 'ref');
+        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'comments.user', 'ref');
         // dd($ticket->attachments);
         $statuses = Status::all();
         $priorities = Priority::all();
@@ -312,6 +312,10 @@ class TicketsController extends Controller
             'user_id'       => $user->id,
             'comment_text'  => $request->comment_text
         ]);
+
+        foreach ($request->input('attachments', []) as $file) {
+            $comment->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
+        }
 
         if (!empty($request->status_comment)) {
             $ticket->status_id = $request->status_comment;
@@ -399,7 +403,7 @@ class TicketsController extends Controller
         //                     'tickets.work_duration as work_duration'
         //                  ]);
         //     dd($tickets);
-        
+
 
 
 
@@ -465,7 +469,7 @@ class TicketsController extends Controller
                 $result = [];
             }
         }
-        
+
         // dd($project);
         return collect($result);
     }
