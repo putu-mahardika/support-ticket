@@ -296,7 +296,7 @@
                                             @php
                                                 $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
                                             @endphp
-                                            <div class="col-auto mb-3 text-center border">
+                                            <div class="col-auto mb-3 text-center">
                                                 @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
                                                     <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
                                                         <img src="{{ $attachment->geturl('thumb') }}" alt="thumbnail" width="50" height="50">

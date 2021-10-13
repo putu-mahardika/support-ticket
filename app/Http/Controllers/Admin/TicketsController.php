@@ -21,6 +21,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TicketNotification;
 
 class TicketsController extends Controller
 {
@@ -152,7 +154,6 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
-        // dd($request);
         $user_role = Auth::user()->roles()->first()->id;
         $project = Auth::user()->projects->first() ?? null;
 
@@ -196,6 +197,15 @@ class TicketsController extends Controller
                 $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
             }
 
+            $users = $ticket->project->users->map(function ($user) {
+                        return $user->id != auth()->id()? $user:null;
+                     })->filter();
+            Notification::send($users, new TicketNotification($ticket));
+
+            $admin = User::whereHas('roles', function ($query){
+                        $query->where('id', 1);
+                     })->get();
+            Notification::send($admin, new TicketNotification($ticket));
         } else {
             return redirect()->back()->withStatus('Tiket anda gagal ditambahkan. Silahkan hubungi Admin kami untuk info lebih lanjut');
         }

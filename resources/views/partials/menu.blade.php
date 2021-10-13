@@ -109,14 +109,20 @@
 	      </a>
 	  	</li>
 	@endcan
+
+	<!-- Divider -->
+	<hr class="sidebar-divider my-0">
+
 	<!-- Nav Item - Logout -->
 	<li class="nav-item">
 	    <a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
-	      	<i class="fas fa-sign-out-alt"></i>
-	        <span>{{ trans('global.logout') }}</span>
+	        <button class="btn btn-md btn-danger btn-block rounded-pill"> <i class="fas fa-sign-out-alt"></i>{{ trans('global.logout') }}</button>
 	   	 </a> 
 	</li>
 
+	<!-- Divider -->
+	<hr class="sidebar-divider my-0">
+	<br>
 	   <!-- Sidebar Toggler (Sidebar) -->
 	<div class="text-center d-none d-md-inline">
 		<button class="rounded-circle border-0" id="sidebarToggle"></button>
