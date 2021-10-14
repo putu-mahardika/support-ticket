@@ -42,7 +42,7 @@
       @endif
       <div class="card-body">
         <div class="demo-container">
-            <div id="exportButton"></div>
+            <!-- <div id="exportButton"></div> -->
             <div id="gridContainer"></div>
         </div>
       </div>
@@ -98,14 +98,15 @@
         data: {awal: awal, akhir: akhir},
         columns: [
           "tgl",
-          "proyek",
+          // "proyek",
           "author",
           "kategori",
           "prioritas",
           "judul",
           "deskripsi",
           "status",
-          "work_duration"
+          "work_duration",
+          "menit"
         ],
         showBorders: true,
         filterRow: { visible: true },
@@ -142,23 +143,5 @@
         },
     }).dxDataGrid('instance');
   };
-
-
-
-  // $(function(){
-  //   $('#exportButton').dxButton({
-  //       icon: 'exportpdf',
-  //       text: 'Export to PDF',
-  //       onClick: function() {
-  //         const doc = new jsPDF();
-  //         DevExpress.pdfExporter.exportDataGrid({
-  //           jsPDFDocument: doc,
-  //           component: grid
-  //         }).then(function() {
-  //           doc.save('Report Help Desk ('+awal+' - '+akhir+').pdf');
-  //         });
-  //       }
-  //   });
-  // });
 </script>
 @endsection
