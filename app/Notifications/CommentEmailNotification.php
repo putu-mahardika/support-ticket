@@ -48,7 +48,8 @@ class CommentEmailNotification extends Notification
                     ->line('Anda mendapat balasan komentar untuk tiket '.$this->comment->ticket->title.':')
                     ->line('')
                     ->line(Str::limit($this->comment->comment_text, 500))
-                    ->action('Lihat Tiket', route(optional($notifiable)->id ? 'admin.tickets.show' : 'tickets.show', $this->comment->ticket->id))
+                    // ->action('Lihat Tiket', route(optional($notifiable)->id ? 'admin.tickets.show' : 'tickets.show', $this->comment->ticket->id))
+                    ->action('Lihat Tiket', route('admin.tickets.show', $this->comment->ticket->id))
                     ->line('Terimakasih')
                     ->line(config('Monster Group - Surabaya'))
                     ->salutation('Salam');

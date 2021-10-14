@@ -129,23 +129,47 @@
                                 {{ trans('cruds.ticket.fields.attachments') }}
                             </th>
                             <td>
-                                <div class="row ">
+                                <div class="col-12 row">
+                                    <ul id="lightgallery" class="list-unstyled row mx-0">    
                                     @foreach($ticket->attachments as $attachment)
                                         @php
                                             $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
                                         @endphp
-                                        <div class="col-lg-4 mb-3">
-                                            @if (in_array($file_ext, ['jpg', 'JPG', 'jpeg', 'JPEG', 'gif', 'GIF']))
-                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ $attachment->geturl() }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
-                                            @elseif (in_array($file_ext, ['doc', 'DOC', 'docx', 'docx']))
-                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ asset('images/word.png') }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
-                                            @elseif (in_array($file_ext, ['xls', 'XLS', 'xlsx', 'XLSX']))
-                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ asset('images/excel.png') }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
-                                            @else
-                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ asset('images/paper.png') }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
-                                            @endif
-                                        </div>
+                                        @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                        <li class="col-auto" data-src="{{ $attachment->geturl() }}" data-sub-html="{{ $attachment->file_name }}">
+                                            <a href="">
+                                                <img class="img-responsive" src="{{ $attachment->geturl() }}" height="70" width="70">
+                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                            </a>
+                                        </li>
+                                        @endif
                                     @endforeach
+                                    </ul>
+                                    <ul class="list-unstyled row mx-0">    
+                                    @foreach($ticket->attachments as $attachment)
+                                        @php
+                                            $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
+                                        @endphp
+                                        @if (!in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                        <li class="col-auto">
+                                            <a href="{{ $attachment->geturl() }}" download>
+                                            @if (in_array($file_ext, FunctionHelper::WORDS_EXT))
+                                                <img class="img-responsive" src="{{ asset('images/word.png') }}" height="70" width="70">
+                                            @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
+                                                <img class="img-responsive" src="{{ asset('images/excel.png') }}" height="70" width="70">
+                                            @elseif (in_array($file_ext, FunctionHelper::PDF_EXT))
+                                                <img class="img-responsive" src="{{ asset('images/pdf.png') }}" height="70" width="70">
+                                            @elseif (in_array($file_ext, FunctionHelper::COMPRESSES_EXT))
+                                                <img class="img-responsive" src="{{ asset('images/zip.png') }}" height="70" width="70">
+                                            @else
+                                                <img class="img-responsive" src="{{ asset('images/paper.png') }}" height="70" width="70">
+                                            @endif
+                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                            </a>
+                                        </li>
+                                        @endif
+                                    @endforeach
+                                    </ul>
                                 </div>
                             </td>
                         </tr>
@@ -281,7 +305,7 @@
                 </th>
                 <td>
                     <div class="mx-3">
-                        @forelse ($ticket->comments as $comment)
+                        @forelse ($ticket->comments as $key=>$comment)
                             <div class="row mb-3">
                                 @if (auth()->id() == $comment->user->id)
                                     <div class="col"></div>
@@ -292,24 +316,47 @@
                                     </p>
                                     <p>{{ $comment->comment_text }}</p>
                                     <div class="row @if (auth()->id() == $comment->user->id) justify-content-end @endif">
+                                        <div id="att-comment-{{$key}}" class="row mx-0">
+                                            @foreach($comment->attachments as $attachment)
+                                                @php
+                                                    $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
+                                                @endphp
+                                                @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                                <div class="col-auto mb-3 text-center" data-src="{{ $attachment->geturl() }}" data-sub-html="{{ $attachment->file_name }}">
+                                                    <a href="" target="_blank" title="{{ $attachment->file_name }}">
+                                                        <img src="{{ $attachment->geturl('thumb') }}" alt="thumbnail" width="50" height="50">
+                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                    </a>
+                                                </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        
+                                        <div class="row mx-0">
                                         @foreach($comment->attachments as $attachment)
                                             @php
                                                 $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
                                             @endphp
-                                            <div class="col-auto mb-3 text-center border">
-                                                @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
-                                                        <img src="{{ $attachment->geturl('thumb') }}" alt="thumbnail" width="50" height="50">
-                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                                    </a>
-                                                @elseif (in_array($file_ext, FunctionHelper::WORDS_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                            @if (!in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                            <div class="col-auto mb-3 text-center">
+                                                @if (in_array($file_ext, FunctionHelper::WORDS_EXT))
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
                                                         <img src="{{ asset('images/word.png') }}" alt="thumbnail" width="50">
                                                         <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
                                                     </a>
                                                 @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
                                                         <img src="{{ asset('images/excel.png') }}" alt="thumbnail" width="50">
+                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                    </a>
+                                                @elseif (in_array($file_ext, FunctionHelper::PDF_EXT))
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
+                                                        <img src="{{ asset('images/pdf.png') }}" alt="thumbnail" width="50">
+                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                    </a>
+                                                @elseif (in_array($file_ext, FunctionHelper::COMPRESSES_EXT))
+                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
+                                                        <img src="{{ asset('images/zip.png') }}" alt="thumbnail" width="50">
                                                         <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
                                                     </a>
                                                 @else
@@ -319,7 +366,9 @@
                                                     </a>
                                                 @endif
                                             </div>
+                                            @endif
                                         @endforeach
+                                        </div>
                                     </div>
                                 </div>
                                 @if (auth()->id() != $comment->user->id)
@@ -327,6 +376,9 @@
                                 @endif
                             </div>
                         @empty
+                            @php
+                                $key=null;
+                            @endphp
                             <p>Tidak ada balasan</p>
                         @endforelse
                     </div>
@@ -492,4 +544,39 @@ Dropzone.options.attachmentsDropzone = {
      }
 }
 </script>
+<!-- <script>
+    lightGallery(document.getElementById('lightgallery'), {
+        plugins: [lgZoom, lgThumbnail],
+        speed: 500,
+    });
+</script> -->
+<script>
+    function gallery(){
+        lightGallery(document.getElementById('lightgallery'), {
+            plugins: [lgZoom, lgThumbnail],
+            speed: 500,
+        });
+    }
+    function gallery_comment(index){
+        var i = index;
+        lightGallery(document.getElementById('att-comment-'+i), {
+            plugins: [lgZoom, lgThumbnail],
+            speed: 500,
+        }); 
+    }
+
+
+    gallery();
+
+    let index = {{$key}}
+    if(index != null){
+        for(let i = 0; i <= index; i++){
+            gallery_comment(i);
+        }
+    }
+    
+    
+
+</script>
+
 @endsection
