@@ -27,7 +27,7 @@ class UsersController extends Controller
     {
         abort_if(Gate::denies('user_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $roles = Role::all()->pluck('title', 'id');
+        $roles = Role::all()->pluck('title', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         // $projects = Project::all()->pluck('name', 'id');
         $projects = DB::table('projects')

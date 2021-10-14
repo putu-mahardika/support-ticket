@@ -185,8 +185,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const Toast = Swal.mixin({
+            toast            : true,
+            timer            : 5000,
+            position         : 'top-end',
+            timerProgressBar : true,
+            showConfirmButton: false,
+            didOpen          : (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/sub.js') }}"></script>
+    <script>
+        $(document).ready(() => {
+            MQTTconnect(`{{ md5(auth()->user()->email) }}`);
+        });
         $(function () {
             let copyButtonTrans   = "{{ trans('global.datatables.copy') }}";
             let csvButtonTrans    = "{{ trans('global.datatables.csv') }}";

@@ -103,8 +103,8 @@ class TicketsController extends Controller
             $table->editColumn('author_email', function ($row) {
                 return $row->author_email ? $row->author_email : "";
             });
-            $table->editColumn('project_name', function ($row) {
-                return $row->projects ? $row->projects->first()->name : '';
+            $table->addColumn('project_name', function ($row) {
+                return $row->project ? $row->project->name : '';
             });
             $table->addColumn('assigned_to_user_name', function ($row) {
                 return $row->assigned_to_user ? $row->assigned_to_user->name : '';
@@ -135,6 +135,7 @@ class TicketsController extends Controller
         $statuses = Status::all();
         $categories = Category::all();
 
+        // dd(Auth::user()->projects->first());
         return view('admin.tickets.index', compact('priorities', 'statuses', 'categories'));
     }
 
@@ -154,32 +155,52 @@ class TicketsController extends Controller
             ->pluck('name', 'id')
             ->prepend(trans('global.pleaseSelect'), '');
 
-        $projects = Project::all()->pluck('name', 'id');
+        $projects = Project::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');;
 
         return view('admin.tickets.create', compact('statuses', 'priorities', 'categories', 'assigned_to_users', 'projects'));
     }
 
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
+        // dd($request);
+        $user_role = Auth::user()->roles()->first()->id;
         $project = Auth::user()->projects->first() ?? null;
 
-        if ($project != null) {
-            $code = $this->getCode($project);
-            $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
-            $ticket = Ticket::create([
-                'title' => $request->title,
-                'code' => $code,
-                'content' => $request->content,
-                'author_name' => Auth::user()->name,
-                'author_email' => Auth::user()->email,
-                'status_id' => $request->status_id ?? 1,
-                'priority_id' => $request->priority_id ?? 1,
-                'category_id' => $request->category_id ?? 1,
-                'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
-                'project_id' => $project->id
-            ]);
-            $ticket->project()->associate($project);
-            $ticket->save();
+        if(!is_null($project) || $user_role == 1){
+            if ($user_role == 1) {
+                $code = $this->getCodeWithId($request->project_id);
+                $ticket = Ticket::create([
+                    'title' => $request->title,
+                    'code' => $code,
+                    'content' => $request->content,
+                    'author_name' => Auth::user()->name,
+                    'author_email' => Auth::user()->email,
+                    'status_id' => $request->status_id ?? 1,
+                    'priority_id' => $request->priority_id ?? 1,
+                    'category_id' => $request->category_id ?? 1,
+                    'assigned_to_user_id' => $request->assigned_to_user_id,
+                    'project_id' => $request->project_id
+                ]);
+                $ticket->project()->associate($request->project_id);
+                $ticket->save();
+            } else {
+                $code = $this->getCode($project);
+                $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+                $ticket = Ticket::create([
+                    'title' => $request->title,
+                    'code' => $code,
+                    'content' => $request->content,
+                    'author_name' => Auth::user()->name,
+                    'author_email' => Auth::user()->email,
+                    'status_id' => $request->status_id ?? 1,
+                    'priority_id' => $request->priority_id ?? 1,
+                    'category_id' => $request->category_id ?? 1,
+                    'assigned_to_user_id' => $request->assigned_to_user_id ?? $assign_pm,
+                    'project_id' => $request->project_id ?? $project->id
+                ]);
+                $ticket->project()->associate($project);
+                $ticket->save();
+            }
 
             foreach ($request->input('attachments', []) as $file) {
                 $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
@@ -189,8 +210,8 @@ class TicketsController extends Controller
                         return $user->id != auth()->id()? $user:null;
                      })->filter();
             Notification::send($users, new TicketNotification($ticket));
-               
-        
+
+
             $admin = User::whereHas('roles', function ($query){
                         $query->where('id', 1);
                      })->get();
@@ -274,7 +295,8 @@ class TicketsController extends Controller
     {
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments', 'ref');
+        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'comments.user', 'ref');
+        // dd($ticket->attachments);
         $statuses = Status::all();
         $priorities = Priority::all();
         $categories = Category::all();
@@ -310,6 +332,10 @@ class TicketsController extends Controller
             'user_id'       => $user->id,
             'comment_text'  => $request->comment_text
         ]);
+
+        foreach ($request->input('attachments', []) as $file) {
+            $comment->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
+        }
 
         if (!empty($request->status_comment)) {
             $ticket->status_id = $request->status_comment;
@@ -356,98 +382,115 @@ class TicketsController extends Controller
         return $project->code . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
     }
 
+    private function getCodeWithId($project)
+    {
+        $lastCode = Ticket::where('project_id', $project)
+                            ->whereYear('created_at', now()->year)
+                            ->latest()
+                            ->first();
+        $project_code = explode('.', $lastCode->code);
+        $newNum = empty($lastCode) ? 1 : intval($project_code[2]) + 1;
+        return $project_code[0] . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
+    }
+
+
+
     public function showReport()
     {
         return view('admin.tickets.report');
     }
     public function getReport(Request $request)
     {
-        $awal = Carbon::create($request->awal);
-        $akhir = Carbon::create($request->akhir)->addDay();
-        $tickets = Ticket::with('project', 'status', 'category', 'priority')
-                         ->whereBetween('created_at', [$awal, $akhir])
-                         ->when(!auth()->user()->isAdmin(), function ($query) {
-                             return $query->whereHas('project', function ($q) {
-                                        $q->where('id', auth()->user()->projects->first()->id ?? 0);
-                            });
-                         })
-                         ->get([
-                            'tickets.created_at as tgl',
-                            'tickets.title as judul',
-                            'tickets.content as deskripsi',
-                            'tickets.author_name as author',
-                            'project.name as proyek',
-                            'users.name as PIC',
-                            'categories.name as kategori',
-                            'priorities.name as prioritas',
-                            'statuses.name as status',
-                            'tickets.work_duration as work_duration'
-                         ]);
-            // dd($tickets->toJson());
+        // $awal = Carbon::create($request->awal);
+        // $akhir = Carbon::create($request->akhir)->addDay();
+        // $tickets = Ticket::with('project', 'status', 'category', 'priority')
+        //                  ->whereBetween('created_at', [$awal, $akhir])
+        //                  ->when(!auth()->user()->isAdmin(), function ($query) {
+        //                      return $query->whereHas('project', function ($q) {
+        //                                 $q->where('project_id', auth()->user()->projects->first()->id ?? 0);
+        //                     });
+        //                  })
+        //                  ->get([
+        //                     'tickets.created_at as tgl',
+        //                     'tickets.title as judul',
+        //                     'tickets.content as deskripsi',
+        //                     'tickets.author_name as author',
+        //                     'projects.name as proyek',
+        //                     'users.name as PIC',
+        //                     'categories.name as kategori',
+        //                     'priorities.name as prioritas',
+        //                     'statuses.name as status',
+        //                     'tickets.work_duration as work_duration'
+        //                  ]);
+        //     dd($tickets);
 
 
 
 
+        $awal = $request->awal . " 00:00:00" ?? '';
+        $akhir = $request->akhir . " 23:59:59" ?? '';
+        $user_role = Auth::user()->roles()->first()->id;
+        if($user_role == 1){
+            $data = DB::table('tickets')
+                ->join('projects', 'tickets.project_id', '=', 'projects.id')
+                ->join('users', 'tickets.assigned_to_user_id', '=', 'users.id')
+                ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
+                ->join('categories', 'tickets.category_id', '=', 'categories.id')
+                ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
+                ->select(
+                    'tickets.created_at as tgl',
+                    'tickets.title as judul',
+                    'tickets.content as deskripsi',
+                    'tickets.author_name as author',
+                    'projects.name as proyek',
+                    'users.name as PIC',
+                    'categories.name as kategori',
+                    'priorities.name as prioritas',
+                    'statuses.name as status',
+                    'tickets.work_duration as work_duration'
+                )
+                ->whereBetween('tickets.created_at', [$awal, $akhir])
+                ->get();
 
+                $result = collect($data)->map(function ($item) {
+                    $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
+                    return $item;
+                });
+        } else {
+            $project = Auth::user()->projects->first()->id ?? null;
+            if (!is_null($project)) {
+                $data = DB::table('tickets')
+                ->join('projects', 'tickets.project_id', '=', 'projects.id')
+                ->join('users', 'tickets.assigned_to_user_id', '=', 'users.id')
+                ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
+                ->join('categories', 'tickets.category_id', '=', 'categories.id')
+                ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
+                ->select(
+                    'tickets.created_at as tgl',
+                    'tickets.title as judul',
+                    'tickets.content as deskripsi',
+                    'tickets.author_name as author',
+                    'projects.name as proyek',
+                    'users.name as PIC',
+                    'categories.name as kategori',
+                    'priorities.name as prioritas',
+                    'statuses.name as status',
+                    'tickets.work_duration as work_duration'
+                )
+                ->where('tickets.project_id', $project)
+                ->whereBetween('tickets.created_at', [$awal, $akhir])
+                ->get();
 
+                $result = collect($data)->map(function ($item) {
+                    $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
+                    return $item;
+                });
+            } else {
+                $result = [];
+            }
+        }
 
-
-
-        // $awal = $request->awal . " 00:00:00" ?? '';
-        // $akhir = $request->akhir . " 23:59:59" ?? '';
-        // $user_role = Auth::user()->roles()->first()->id;
-        // if($user_role == 1){
-        //     $data = DB::table('tickets')
-        //         ->join('projects', 'tickets.project_id', '=', 'projects.id')
-        //         ->join('users', 'tickets.assigned_to_user_id', '=', 'users.id')
-        //         ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
-        //         ->join('categories', 'tickets.category_id', '=', 'categories.id')
-        //         ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
-        //         ->select(
-        //             'tickets.created_at as tgl',
-        //             'tickets.title as judul',
-        //             'tickets.content as deskripsi',
-        //             'tickets.author_name as author',
-        //             'projects.name as proyek',
-        //             'users.name as PIC',
-        //             'categories.name as kategori',
-        //             'priorities.name as prioritas',
-        //             'statuses.name as status',
-        //             'tickets.work_duration',
-        //         )
-        //         ->whereBetween('tickets.created_at', [$awal, $akhir])
-        //         ->get();
-        // } else {
-        //     $project = Auth::user()->project->first()->id ?? null;
-        //     if (!is_null($project)) {
-        //         $data = DB::table('tickets')
-        //         ->join('projects', 'tickets.project_id', '=', 'projects.id')
-        //         ->join('users', 'tickets.assigned_to_user_id', '=', 'users.id')
-        //         ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
-        //         ->join('categories', 'tickets.category_id', '=', 'categories.id')
-        //         ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
-        //         ->select(
-        //             'tickets.created_at as tgl',
-        //             'tickets.title as judul',
-        //             'tickets.content as deskripsi',
-        //             'tickets.author_name as author',
-        //             'projects.name as proyek',
-        //             'users.name as PIC',
-        //             'categories.name as kategori',
-        //             'priorities.name as prioritas',
-        //             'statuses.name as status',
-        //             'tickets.work_duration as work_duration'
-        //         )
-        //         ->where('tickets.project_id', $project)
-        //         ->whereBetween('tickets.created_at', [$awal, $akhir])
-        //         ->get();
-        //     }
-        // }
-
-        // $result = collect($data)->map(function ($item) {
-        //     $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
-        //     return $item;
-        // });
-        return $tickets;
+        // dd($project);
+        return collect($result);
     }
 }

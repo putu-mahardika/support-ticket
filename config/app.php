@@ -175,6 +175,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+        App\Providers\MqttHelperServiceProvider::class,
+        App\Providers\FunctionHelperServiceProvider::class,
     ],
 
     /*
@@ -226,7 +228,8 @@ return [
         'Validator'    => Illuminate\Support\Facades\Validator::class,
         'View'         => Illuminate\Support\Facades\View::class,
         'Bugsnag'      => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
-
+        'MqttHelper'   => App\Helpers\MqttHelper::class,
+        'FunctionHelper' => App\Helpers\FunctionHelper::class,
     ],
 
 ];

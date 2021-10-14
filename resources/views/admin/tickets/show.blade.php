@@ -26,13 +26,25 @@
         .reply {
             cursor: pointer;
         }
+
+        .comment-right {
+            border-radius: 2rem 2rem 0 2rem;
+            background: rgb(73,120,255);
+            background: linear-gradient(90deg, rgba(73,120,255,0.1) 0%, rgba(62,100,210,0.1) 100%);
+        }
+
+        .comment-left {
+            border-radius: 2rem 2rem 2rem 0;
+            background: rgb(250,250,250);
+            background: linear-gradient(270deg, rgba(250,250,250,1) 0%, rgba(242,242,242,1) 100%);
+        }
     </style>
 @endsection
 
 @section('content')
 
 {{-- Detail ticket --}}
-<div class="card">
+<div class="card mb-3">
     <div class="card-header d-flex justify-content-between">
         {{ trans('global.show') }} {{ trans('cruds.ticket.title_singular') }}
 
@@ -117,9 +129,24 @@
                                 {{ trans('cruds.ticket.fields.attachments') }}
                             </th>
                             <td>
-                                @foreach($ticket->attachments as $attachment)
-                                    <a href="{{ $attachment->geturl() }}" target="_blank">{{ $attachment->file_name }}</a>
-                                @endforeach
+                                <div class="row ">
+                                    @foreach($ticket->attachments as $attachment)
+                                        @php
+                                            $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
+                                        @endphp
+                                        <div class="col-lg-4 mb-3">
+                                            @if (in_array($file_ext, ['jpg', 'JPG', 'jpeg', 'JPEG', 'gif', 'GIF']))
+                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ $attachment->geturl() }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
+                                            @elseif (in_array($file_ext, ['doc', 'DOC', 'docx', 'docx']))
+                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ asset('images/word.png') }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
+                                            @elseif (in_array($file_ext, ['xls', 'XLS', 'xlsx', 'XLSX']))
+                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ asset('images/excel.png') }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
+                                            @else
+                                                <a href="{{ $attachment->geturl() }}" target="_blank"><img src="{{ asset('images/paper.png') }}" alt="thumbnail" width="100" height="100">{{ $attachment->file_name }}</a>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -231,7 +258,7 @@
         </div>
 
         <div class="d-flex justify-content-between">
-            <a class="btn btn-default my-2" href="{{ route('admin.tickets.index') }}">
+            <a class="btn btn-outline-secondary my-2" href="{{ route('admin.tickets.index') }}">
                 {{ trans('global.back_to_list') }}
             </a>
 
@@ -245,7 +272,7 @@
 </div>
 
 {{-- Comments --}}
-<div class="card">
+<div class="card mb-3">
     <div class="card-body">
         <table class="table table-bordered">
             <tr>
@@ -253,20 +280,58 @@
                     {{ trans('cruds.ticket.fields.comments') }}
                 </th>
                 <td>
-                    <div class="row">
-                        <div class="col">
-                            @forelse ($ticket->comments as $comment)
-                                <p class="font-weight-bold">
-                                    <a href="mailto:{{ $comment->author_email }}">{{ $comment->author_name }}</a> ({{ $comment->created_at }})
-                                </p>
-                                <p>{{ $comment->comment_text }}</p>
-                                <hr>
-                            @empty
-                                <p>Tidak ada balasan</p>
-                            @endforelse
-                        </div>
+                    <div class="mx-3">
+                        @forelse ($ticket->comments as $comment)
+                            <div class="row mb-3">
+                                @if (auth()->id() == $comment->user->id)
+                                    <div class="col"></div>
+                                @endif
+                                <div class="col-auto shadow-sm border py-3 px-5 @if (auth()->id() == $comment->user->id) text-right comment-right @else comment-left @endif">
+                                    <p class="font-weight-bold">
+                                        <a href="mailto:{{ $comment->author_email }}">{{ $comment->author_name }}</a> ({{ $comment->created_at }})
+                                    </p>
+                                    <p>{{ $comment->comment_text }}</p>
+                                    <div class="row @if (auth()->id() == $comment->user->id) justify-content-end @endif">
+                                        @foreach($comment->attachments as $attachment)
+                                            @php
+                                                $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
+                                            @endphp
+                                            <div class="col-auto mb-3 text-center border">
+                                                @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                        <img src="{{ $attachment->geturl('thumb') }}" alt="thumbnail" width="50" height="50">
+                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                    </a>
+                                                @elseif (in_array($file_ext, FunctionHelper::WORDS_EXT))
+                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                        <img src="{{ asset('images/word.png') }}" alt="thumbnail" width="50">
+                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                    </a>
+                                                @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
+                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                        <img src="{{ asset('images/excel.png') }}" alt="thumbnail" width="50">
+                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                    </a>
+                                                @else
+                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                        <img src="{{ asset('images/paper.png') }}" alt="thumbnail" width="50">
+                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @if (auth()->id() != $comment->user->id)
+                                    <div class="col"></div>
+                                @endif
+                            </div>
+                        @empty
+                            <p>Tidak ada balasan</p>
+                        @endforelse
                     </div>
-                    <form action="{{ route('admin.tickets.storeComment', $ticket->id) }}" method="POST" id="add-comment">
+                    <hr>
+                    <form action="{{ route('admin.tickets.storeComment', $ticket->id) }}" method="POST" id="add-comment" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group mt-3">
                             <label for="comment_text">Tinggalkan balasan</label>
@@ -298,7 +363,21 @@
                             @else
                                 <textarea class="form-control" style="resize: none;" id="comment_text" name="comment_text" rows="3" required></textarea>
                             @endif
-                        </div>
+
+                            <div class="form-group {{ $errors->has('attachments') ? 'has-error' : '' }}">
+                                <label for="attachments">{{ trans('cruds.ticket.fields.attachments') }}</label>
+                                <div class="needsclick dropzone" id="attachments-dropzone">
+
+                                </div>
+                                @if($errors->has('attachments'))
+                                    <em class="invalid-feedback">
+                                        {{ $errors->first('attachments') }}
+                                    </em>
+                                @endif
+                                <p class="helper-block">
+                                    {{ trans('cruds.ticket.fields.attachments_helper') }}
+                                </p>
+                            </div>
                         <div class="row">
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-primary btn-block">@lang('global.submit')</button>
@@ -362,5 +441,55 @@
         $(this).find('button[type="submit"]').attr('disabled','disabled');
         $('#loading').html('Tunggu sebentar...');
     });
+</script>
+<script>
+    var uploadedAttachmentsMap = {}
+Dropzone.options.attachmentsDropzone = {
+    url: '{{ route('admin.tickets.storeMedia') }}',
+    maxFilesize: 2, // MB
+    addRemoveLinks: true,
+    headers: {
+      'X-CSRF-TOKEN': "{{ csrf_token() }}"
+    },
+    params: {
+      size: 2
+    },
+    success: function (file, response) {
+      $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">')
+      uploadedAttachmentsMap[file.name] = response.name
+    },
+    removedfile: function (file) {
+      file.previewElement.remove()
+      var name = ''
+      if (typeof file.file_name !== 'undefined') {
+        name = file.file_name
+      } else {
+        name = uploadedAttachmentsMap[file.name]
+      }
+      $('form').find('input[name="attachments[]"][value="' + name + '"]').remove()
+    },
+    init: function () {
+        @if(isset($ticket) && $ticket->attachments)
+                var files = null;
+
+        @endif
+    },
+     error: function (file, response) {
+         if ($.type(response) === 'string') {
+             var message = response //dropzone sends it's own error messages in string
+         } else {
+             var message = response.errors.file
+         }
+         file.previewElement.classList.add('dz-error')
+         _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]')
+         _results = []
+         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+             node = _ref[_i]
+             _results.push(node.textContent = message)
+         }
+
+         return _results
+     }
+}
 </script>
 @endsection

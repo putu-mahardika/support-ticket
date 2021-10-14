@@ -63,14 +63,14 @@ class HomeController
                 ->orderByRaw('DAY(created_at)', 'asc')
                 ->get();
         } else {
-            $project = Auth::user()->projects->first() ?? null;
-            if(!is_null($project)){
+            $project_id = Auth::user()->projects->first()->id ?? null;
+            if(!is_null($project_id)){
                 $datas = DB::table('tickets')
                     ->selectRaw('DAY(created_at) as tgl')
                     ->selectRaw('COUNT(*) as jumlah')
                     ->whereMonth('created_at', $date[1])
                     ->whereYear('created_at', $date[2])
-                    ->where('project_id', $project)
+                    ->where('project_id', $project_id)
                     ->groupByRaw('DAY(created_at)')
                     ->orderByRaw('DAY(created_at)', 'asc')
                     ->get();
