@@ -18932,6 +18932,7 @@ var protocol = 'mqqt://';
 var fullHost = "".concat(protocol).concat(host, ":").concat(port);
 var client = null;
 window.mqttUserKey = '';
+window.tableToReload = null;
 var baseTopic = '/mchelpdesk/';
 var option = {
   username: 'monster_sby',
@@ -18957,11 +18958,17 @@ client.on('message', function (topic, message) {
     var data = JSON.parse(message.toString());
 
     if (topic == "".concat(baseTopic).concat(mqttUserKey, "/tickets")) {
+      playNotifSound();
+      reloadNotification();
       Toast.fire({
         icon: 'info',
         title: data.title,
         text: data.text
       });
+
+      if (tableToReload != null) {
+        tableToReload.ajax.reload();
+      }
     }
   }
 });

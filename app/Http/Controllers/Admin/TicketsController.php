@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use App\Helpers\FunctionHelper;
 
 class TicketsController extends Controller
 {
@@ -466,7 +467,7 @@ class TicketsController extends Controller
                 ->where('tickets.project_id', $project)
                 ->whereBetween('tickets.created_at', [$awal, $akhir])
                 ->get();
-                    
+
                 $result = collect($data)->map(function ($item) {
                     $item->menit = FunctionHelper::addMinuteColumn($item->work_duration);
                     $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
