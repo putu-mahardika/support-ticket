@@ -33,12 +33,14 @@ class TicketsController extends Controller
             if($user_role == 1 || $user_role == 2){
                 $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
                                ->filterTickets($request)
-                               ->select(sprintf('%s.*', (new Ticket)->table));
+                               ->select(sprintf('%s.*', (new Ticket)->table))
+                               ->orderBy('status_id', 'asc');
             } else {
                 $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
                                ->filterTickets($request)
                                ->select(sprintf('%s.*', (new Ticket)->table))
-                               ->where('author_name', Auth::user()->name);
+                               ->where('author_name', Auth::user()->name)
+                               ->orderBy('status_id', 'asc');
             }
             $table = Datatables::of($query);
 
@@ -114,6 +116,10 @@ class TicketsController extends Controller
 
             $table->editColumn('work_duration', function ($row) {
                 return gmdate('H \j\a\m i \m\e\n\i\t', $row->work_duration);
+            });
+
+            $table->addColumn('attachments', function ($row) {
+                return $row->attachments->count();
             });
 
             $table->rawColumns(['actions', 'placeholder', 'status', 'priority', 'category', 'assigned_to_user', 'project']);
@@ -275,7 +281,7 @@ class TicketsController extends Controller
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'comments.user', 'ref');
-        // dd($ticket->attachments);
+
         $statuses = Status::all();
         $priorities = Priority::all();
         $categories = Category::all();
@@ -431,10 +437,11 @@ class TicketsController extends Controller
                 ->whereBetween('tickets.created_at', [$awal, $akhir])
                 ->get();
 
-                $result = collect($data)->map(function ($item) {
-                    $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
-                    return $item;
-                });
+            $result = collect($data)->map(function ($item) {
+                $item->menit = FunctionHelper::addMinuteColumn($item->work_duration);
+                $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
+                return $item;
+            });
         } else {
             $project = Auth::user()->projects->first()->id ?? null;
             if (!is_null($project)) {
@@ -459,8 +466,9 @@ class TicketsController extends Controller
                 ->where('tickets.project_id', $project)
                 ->whereBetween('tickets.created_at', [$awal, $akhir])
                 ->get();
-
+                    
                 $result = collect($data)->map(function ($item) {
+                    $item->menit = FunctionHelper::addMinuteColumn($item->work_duration);
                     $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
                     return $item;
                 });
@@ -469,7 +477,8 @@ class TicketsController extends Controller
             }
         }
 
-        // dd($project);
+        // dd($request);
+        // dd(collect($result));
         return collect($result);
     }
 }

@@ -37,6 +37,51 @@ class HomeController
         return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime'));
     }
 
+    public function getCountStatuses(){
+        $data = DB::table('tickets')
+                    ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
+                    ->select('statuses.name as name',
+                        DB::raw('count(*) as total'))
+                    ->when(!auth()->user()->isAdmin(), function ($query) {
+                        return $query->whereHas('project', function ($q) {
+                                    $q->where('id', auth()->user()->projects->first()->id ?? 0);
+                        });
+                    })
+                    ->groupBy('statuses.name')
+                    ->get();
+        return $data;
+    }
+
+    public function getCountPriorities(){
+        $data = DB::table('tickets')
+                    ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
+                    ->select('priorities.name as name',
+                        DB::raw('count(*) as total'))
+                    ->when(!auth()->user()->isAdmin(), function ($query) {
+                        return $query->whereHas('project', function ($q) {
+                                    $q->where('id', auth()->user()->projects->first()->id ?? 0);
+                        });
+                    })
+                    ->groupBy('priorities.name')
+                    ->get();
+        return $data;
+    }
+
+    public function getCountCategories(){
+        $data = DB::table('tickets')
+                    ->join('categories', 'tickets.category_id', '=', 'categories.id')
+                    ->select('categories.name as name',
+                        DB::raw('count(*) as total'))
+                    ->when(!auth()->user()->isAdmin(), function ($query) {
+                        return $query->whereHas('project', function ($q) {
+                                    $q->where('id', auth()->user()->projects->first()->id ?? 0);
+                        });
+                    })
+                    ->groupBy('categories.name')
+                    ->get();
+        return $data;
+    }
+
     public function getAvgTime($tickets){
         return gmdate(
             'H \j\a\m i \m\e\n\i\t',
@@ -113,14 +158,6 @@ class HomeController
 
     public function getLastComment(){
         $user_role = Auth::user()->roles()->first()->id;
-
-        // $max = DB::table('comments')
-        //     ->max('id')
-        //     ->groupBy('ticket_id');
-        //     // ->get();
-
-        //     dd($max);
-
         if($user_role == 1){
             // $data = DB::table('comments')
             //     ->join('tickets', 'comments.ticket_id', '=', 'tickets.id')
@@ -143,7 +180,6 @@ class HomeController
                                         and a.ticket_id = b.id 
                                         and b.project_id = c.id limit 10'
                                 ));
-            // dd($data);
         } else {
             $project = Auth::user()->projects->first()->id ?? null;
             if (!is_null($project)) {
@@ -165,7 +201,6 @@ class HomeController
                                             and b.project_id = ' . $project . '
                                             limit 10'
                                             ));
-                // dd($data);
             }
         }
         return collect($data);
