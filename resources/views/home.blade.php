@@ -155,25 +155,6 @@
         });
     });
 
-
-    var data = [
-                {country: "kategori", commodity: "Bug", total: 9 },
-                {country: "kategori", commodity: "Update", total: 2 },
-                {country: "kategori", commodity: "Report", total: 3 },
-                {country: "kategori", commodity: "Bug", total: 1 },
-
-                { country: "prioritas", commodity: "Low", total: 5 },
-                { country: "prioritas", commodity: "High", total: 2 },
-                { country: "prioritas", commodity: "mediium", total:3  },
-
-
-                { country: "status", commodity: "Open", total:3  },
-                { country: "status", commodity: "Working", total: 5 },
-                { country: "status", commodity: "Pending", total:  0},
-                { country: "status", commodity: "Confirm", total: 7 },
-                { country: "status", commodity: "Closed", total: 7 },
-              ];
-
     $(function () {
         var formatNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format;
         var commonSettings = {
@@ -185,8 +166,8 @@
             },
             type: "doughnut",
             series: [{
-                argumentField: "commodity",
-                valueField: "total",
+                argumentField: "name",
+                valueField: "value",
                 label: {
                     visible: true,
                     connector: {
@@ -201,11 +182,11 @@
             }],
             centerTemplate: function(pieChart, container) {
                 var total = pieChart.getAllSeries()[0].getVisiblePoints().reduce(function(s, p) { return s + p.originalValue; }, 0),
-                    country = pieChart.getAllSeries()[0].getVisiblePoints()[0].data.country,
+                    // country = pieChart.getAllSeries()[0].getVisiblePoints()[0].data.country,
                     content = $('<svg><circle cx="100" cy="100" fill="#eee" r="' + (pieChart.getInnerRadius() - 6) + '"></circle>' +
                         '<image x="70" y="58" width="60" height="40" href="' + "{{ asset('images/help.png')}}" + '"/>' +
                         '<text text-anchor="middle" style="font-size: 18px" x="100" y="120" fill="#494949">' +
-                        '<tspan x="100" >' + country + '</tspan>' +
+                        // '<tspan x="100" >' + country + '</tspan>' +
                         '<tspan x="100" dy="20px" style="font-weight: 600">' +
                         formatNumber(total) +
                         '</tspan></text></svg>');
@@ -216,28 +197,22 @@
 
         $("#kategori")
             .dxPieChart($.extend({}, commonSettings, {
-                dataSource: {
-                    store: data,
-                    filter: ["country", "=", "Kategori"]
-                }
+                dataSource: `{{ url('admin/getDataDoughnut') }}?table=categories`
             }));
 
         $("#prioritas")
             .dxPieChart($.extend({}, commonSettings, {
-                dataSource: {
-                    store: data,
-                    filter: ["country", "=", "Prioritas"]
-                }
+                dataSource: `{{ url('admin/getDataDoughnut') }}?table=priorities`
             }));
-
+        
         $("#status")
             .dxPieChart($.extend({}, commonSettings, {
-                dataSource: {
-                    store: data,
-                    filter: ["country", "=", "Status"]
-                }
+                dataSource: `{{ url('admin/getDataDoughnut') }}?table=statuses`,
             }));
     });
+
+</script>
+<script>
 
 </script>
 @endsection
