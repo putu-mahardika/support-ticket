@@ -25,4 +25,10 @@ class FunctionHelper {
         $trunc =  strlen($text) - $maxlength;
         return substr_replace($text, $separator, $start, $trunc);
     }
+
+    public static function addMinuteColumn($seconds)
+    {
+        $minute = $seconds == null ? 0 : $seconds/60;
+        return $minute;
+    }
 }
