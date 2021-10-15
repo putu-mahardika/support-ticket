@@ -28,11 +28,15 @@ class MqttHelper {
 
     public static function publish($topic, $message, $qos = 0, $retainMessage = false)
     {
-        try {
-            $mqtt = MQTT::connection();
-            $mqtt->publish($topic, $message, $qos, $retainMessage);
-        } catch (MqttClientException $e) {
-            return $e->getMessage();
-        }
+        $mqtt = MQTT::connection();
+        $mqtt->publish($topic, $message, $qos, $retainMessage);
+        // try {
+        // } catch (MqttClientException $e) {
+        //     return $e->getMessage();
+        // } catch (ConnectionNotAvailableException $e) {
+        //     echo $e->getMessage();
+        // } catch (\Exception $e) {
+        //     echo $e->getMessage();
+        // }
     }
 }

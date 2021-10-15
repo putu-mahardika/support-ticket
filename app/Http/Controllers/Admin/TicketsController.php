@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use App\Helpers\FunctionHelper;
 
 class TicketsController extends Controller
 {
@@ -31,12 +32,12 @@ class TicketsController extends Controller
         $user_role = Auth::user()->roles()->first()->id;
         if ($request->ajax()) {
             if($user_role == 1 || $user_role == 2){
-                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
+                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
                                ->filterTickets($request)
                                ->select(sprintf('%s.*', (new Ticket)->table))
                                ->orderBy('status_id', 'asc');
             } else {
-                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
+                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
                                ->filterTickets($request)
                                ->select(sprintf('%s.*', (new Ticket)->table))
                                ->where('author_name', Auth::user()->name)
@@ -158,7 +159,6 @@ class TicketsController extends Controller
 
     public function store(StoreTicketRequest $request, Ticket $ticket)
     {
-        // dd($request);
         $user_role = Auth::user()->roles()->first()->id;
         $project = Auth::user()->projects->first() ?? null;
 
@@ -181,7 +181,7 @@ class TicketsController extends Controller
                 $ticket->save();
             } else {
                 $code = $this->getCode($project);
-                $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+                $assign_pm = Project::find($project->id)->users()->where('is_pm', true)->first()->pivot->user_id ?? 0;
                 $ticket = Ticket::create([
                     'title' => $request->title,
                     'code' => $code,
@@ -467,7 +467,7 @@ class TicketsController extends Controller
                 ->where('tickets.project_id', $project)
                 ->whereBetween('tickets.created_at', [$awal, $akhir])
                 ->get();
-                    
+
                 $result = collect($data)->map(function ($item) {
                     $item->menit = FunctionHelper::addMinuteColumn($item->work_duration);
                     $item->work_duration = gmdate('H \j\a\m i \m\e\n\i\t', $item->work_duration);
