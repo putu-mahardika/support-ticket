@@ -21,8 +21,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\TicketNotification;
 
 class TicketsController extends Controller
 {
@@ -33,11 +31,11 @@ class TicketsController extends Controller
         $user_role = Auth::user()->roles()->first()->id;
         if ($request->ajax()) {
             if($user_role == 1 || $user_role == 2){
-                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
+                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
                                ->filterTickets($request)
                                ->select(sprintf('%s.*', (new Ticket)->table));
             } else {
-                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments', 'project'])
+                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
                                ->filterTickets($request)
                                ->select(sprintf('%s.*', (new Ticket)->table))
                                ->where('author_name', Auth::user()->name);
@@ -176,7 +174,7 @@ class TicketsController extends Controller
                 $ticket->save();
             } else {
                 $code = $this->getCode($project);
-                $assign_pm = Project::find($project->id)->users()->where('is_pm',true)->first()->pivot->user_id ?? 0;
+                $assign_pm = Project::find($project->id)->users()->where('is_pm', true)->first()->pivot->user_id ?? 0;
                 $ticket = Ticket::create([
                     'title' => $request->title,
                     'code' => $code,
@@ -197,15 +195,6 @@ class TicketsController extends Controller
                 $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
             }
 
-            $users = $ticket->project->users->map(function ($user) {
-                        return $user->id != auth()->id()? $user:null;
-                     })->filter();
-            Notification::send($users, new TicketNotification($ticket));
-
-            $admin = User::whereHas('roles', function ($query){
-                        $query->where('id', 1);
-                     })->get();
-            Notification::send($admin, new TicketNotification($ticket));
         } else {
             return redirect()->back()->withStatus('Tiket anda gagal ditambahkan. Silahkan hubungi Admin kami untuk info lebih lanjut');
         }

@@ -1,7 +1,8 @@
 @php
 
-    $date = Carbon\Carbon::create('00:00:00')->addMinutes(90);
-    dd($date);
+    $user = App\User::find(2)->notifications->toArray();
+
+    dd($user);
 
 @endphp
 @extends('layouts.admin')

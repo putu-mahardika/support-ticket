@@ -1,47 +1,41 @@
-let mqtt,
-    reconnectTimeout = 2000,
-    host     = "103.31.39.42",   //broker mario
-    port     = 9001,
-    topicKey = '/mchelpdesk/';
-
-function onFailure(message) {
-    // console.error(`Connection Attempt to Host ${host} Failed`);
-    Toast.fire({
-        icon: 'error',
-        title: 'Connection Failed to Socket Host',
-    });
-    setTimeout(MQTTconnect(), reconnectTimeout);
-}
-
-function onMessageArrived(msg) {
-    let content = JSON.parse(msg.payloadString);
-    Toast.fire({
-        icon: 'info',
-        title: content.title ?? '',
-        text: content.text ?? ''
-    });
-    if (msg.destinationName == `${topicKey}/tickets` && window.location.pathname == '/admin/tickets') {
-        // Reload
-    }
-    else if (msg.destinationName == `${topicKey}/tickets` && window.location.pathname == '/admin/comments') {
-        // Reload
-    }
-}
+var mqtt;
+var reconnectTimeout = 2000;
+var host = "192.168.100.143";
+var port = 9001;
+var userKey = "agung";
+var baseTopic = "/mchelpdesk/";
 
 function onConnect() {
-    // console.log("Connected");
-    mqtt.subscribe(`${topicKey}#`);
+    console.log("Connected");
+    mqtt.subscribe(baseTopic + "#");
 }
 
-function MQTTconnect(key) {
-    topicKey += `${key}/`;
-    // console.info(`Connecting to ${host}:${port}`);
-    let clientName = `mchelpdesk-${Math.floor(Math.random() * 10000)}`;
-    mqtt = new Paho.MQTT.Client(host, port, clientName);
-    mqtt.onMessageArrived = onMessageArrived;
-    mqtt.connect({
+function onMessageArrived(msg){
+    // if (msg.destinationName == (`${baseTopic}putu`)) {
+    //     console.log(msg.destinationName);
+    //     let message = JSON.parse(msg.payloadString);
+    //     console.log(message);
+    // }
+    // else {
+    //     console.log('WOW');
+    // }
+    console.log('MQTT : ' + msg.destinationName);
+    console.log(`String : ${baseTopic}putu`);
+    console.log(JSON.parse(msg.payloadString));
+    console.log("-----------------------------");
+}
+
+function MQTTconnect() {
+    console.log("connecting to " + host + " " + port);
+    var x = Math.floor(Math.random() * 10000);
+    var cname = "orderform-" + x;
+    mqtt = new Paho.MQTT.Client(host, port, cname);
+    mqtt.onMessageArrived = onMessageArrived
+    var options = {
         timeout: 3,
         onSuccess: onConnect,
-        onFailure: onFailure,
-    });
+        userName: 'monster_sby',
+        password: 'P@ssw0rd'
+    };
+    mqtt.connect(options);
 }
