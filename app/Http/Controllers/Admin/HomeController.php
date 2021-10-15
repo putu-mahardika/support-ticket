@@ -20,6 +20,8 @@ class HomeController
     {
         abort_if(Gate::denies('dashboard_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        // dd(auth()->check());
+
         $date = now();
         $tickets = Ticket::with('project', 'status', 'category', 'priority')
                          ->whereMonth('created_at', $date->month)
@@ -34,7 +36,66 @@ class HomeController
         $priorities = Priority::all();
 
         $avgTime = $this->getAvgTime($tickets);
-        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime'));
+
+        $weekNow = Carbon::now()->week;
+
+        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime', 'weekNow'));
+    }
+
+    public function getTicketsThisWeek(){
+        $datas = DB::table('tickets')
+                    // ->select(DB::raw(
+                    //     "(case
+                    //         when date_format(created_at, '%w') = 0 then 'MINGGU'
+                    //         when date_format(created_at, '%w') = 1 then 'SENIN'
+                    //         when date_format(created_at, '%w') = 2 then 'SELASA'
+                    //         when date_format(created_at, '%w') = 3 then 'RABU'
+                    //         when date_format(created_at, '%w') = 4 then 'KAMIS'
+                    //         when date_format(created_at, '%w') = 5 then 'JUMAT'
+                    //         when date_format(created_at, '%w') = 6 then 'SABTU'
+                    //     end) as hari"),
+                    //     DB::raw('count(*) as total')
+                    // )
+                    ->select(DB::raw('dayname(created_at) as hari, count(*) as total'))
+                    ->where('created_at', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 7 WEEK)'))
+                    ->groupBy(DB::raw('dayname(created_at)'))
+                    ->get();
+        // dd($datas);
+        foreach($datas as $data1)
+        {
+            if(isset($data1)){
+                $date_name[] = $data1->hari;
+                $jumlah[] = $data1->total;
+            } else {
+                $date_name[] = null;
+                $jumlah[] = null;
+                break;
+            }
+
+        }
+        // dd($jumlah);
+        $array_dateName = Carbon::getDays();
+        $data = [];
+        for($i=0;$i<=6;$i++)
+        {
+            if(isset($date_name))
+            {
+                $temp_index = array_search($array_dateName[$i], $date_name);
+                if($temp_index === false)
+                {
+                    // dd($temp_index);
+                    array_push($data, array('hari'=>$array_dateName[$i], 'value'=>0));
+                } else {
+                    // dd($temp_index);
+                    array_push($data, array('hari'=>$array_dateName[$i], 'value'=>(int)$jumlah[$temp_index]));
+                }
+            } else {
+                array_push($data, array('hari'=>$array_dateName[$i], 'value'=>0));
+            }
+            // dd($data);
+        }
+        // dd($data);
+        return collect($data);
     }
 
     public function getCountStatuses(){
