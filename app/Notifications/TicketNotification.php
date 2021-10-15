@@ -23,7 +23,7 @@ class TicketNotification extends Notification
     {
         $this->ticket = $ticket;
     }
-    
+
 
     /**
      * Get the notification's delivery channels.
@@ -59,9 +59,13 @@ class TicketNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'ticket_code' => $this->ticket->code,
-            'author_email' => $this->ticket->users->email,
-            'tickte_title'=>$this->ticket->title,
+            'title' => 'New Ticket!',
+            'text' => sprintf('%s menambahkan tiket baru pada %s', $this->ticket->author_name, $this->ticket->project->name),
+            'ticket_code'        => $this->ticket->code,
+            'ticket_title'       => $this->ticket->title,
+            'ticket_description' => $this->ticket->title,
+            'author_email'       => $this->ticket->author_email,
+            'author_name'        => $this->ticket->author_name,
         ];
     }
 }

@@ -130,7 +130,7 @@
                             </th>
                             <td>
                                 <div class="col-12 row">
-                                    <ul id="lightgallery" class="list-unstyled row mx-0">    
+                                    <ul id="lightgallery" class="list-unstyled row mx-0">
                                     @foreach($ticket->attachments as $attachment)
                                         @php
                                             $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
@@ -145,7 +145,7 @@
                                         @endif
                                     @endforeach
                                     </ul>
-                                    <ul class="list-unstyled row mx-0">    
+                                    <ul class="list-unstyled row mx-0">
                                     @foreach($ticket->attachments as $attachment)
                                         @php
                                             $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
@@ -331,7 +331,7 @@
                                                 @endif
                                             @endforeach
                                         </div>
-                                        
+
                                         <div class="row mx-0">
                                         @foreach($comment->attachments as $attachment)
                                             @php
@@ -562,7 +562,7 @@ Dropzone.options.attachmentsDropzone = {
         lightGallery(document.getElementById('att-comment-'+i), {
             plugins: [lgZoom, lgThumbnail],
             speed: 500,
-        }); 
+        });
     }
 
 
@@ -574,8 +574,8 @@ Dropzone.options.attachmentsDropzone = {
             gallery_comment(i);
         }
     }
-    
-    
+
+
 
 </script>
 
