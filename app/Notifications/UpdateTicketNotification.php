@@ -7,8 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-
-class TicketNotification extends Notification
+class UpdateTicketNotification extends Notification
 {
     use Queueable;
 
@@ -23,7 +22,6 @@ class TicketNotification extends Notification
     {
         $this->ticket = $ticket;
     }
-
 
     /**
      * Get the notification's delivery channels.
@@ -59,8 +57,8 @@ class TicketNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'title' => 'New Ticket!',
-            'text' => sprintf('%s menambahkan tiket baru pada %s', $this->ticket->author_name, $this->ticket->project->name),
+            'title' => 'Ticket Updated!',
+            'text' => sprintf('%s melakukan perubahan pada tiket %s', auth()->user()->name, $this->ticket->title),
             'ticket_code'        => $this->ticket->code,
             'ticket_title'       => $this->ticket->title,
             'ticket_description' => $this->ticket->title,

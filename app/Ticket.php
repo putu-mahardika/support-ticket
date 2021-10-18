@@ -119,9 +119,9 @@ class Ticket extends Model implements HasMedia
                             ->whereDoesntHave('roles', function ($q) {
                                 return $q->where('title', 'client');
                             })
-                            ->orWhere('name','=', $this->author_name)               
+                            ->orWhere('name','=', $this->author_name)
                             ->get();
-        // $client = \App\User::where('name','=', $this->author_name)              
+        // $client = \App\User::where('name','=', $this->author_name)
         //                     ->get();
         // dd($users);
         try {

@@ -35,6 +35,13 @@ class Comment extends Model implements HasMedia
         'comment_text',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        Comment::observe(new \App\Observers\CommentActionObserver);
+    }
+
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('thumb')->width(50)->height(50);
