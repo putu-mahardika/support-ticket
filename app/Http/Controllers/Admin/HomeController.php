@@ -39,51 +39,49 @@ class HomeController
         $avgTime = $this->getAvgTime($tickets);
 
         $weekNow = Carbon::now()->week;
-
+        
         return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime', 'weekNow'));
     }
 
     public function getTicketsThisWeek(){
-        $datas = DB::table('tickets')
-                    ->select(DB::raw('dayname(created_at) as hari, count(*) as total'))
-                    ->where('created_at', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 7 WEEK)'))
-                    ->groupBy(DB::raw('dayname(created_at)'))
+        $tickets = Ticket::
+                    select(DB::raw('date(created_at) as date, count(*) as total'))
+                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                    ->groupBy(DB::raw('date(created_at)'))
                     ->get();
-        // dd($datas);
-        foreach($datas as $data1)
+        
+        // dd($tickets);
+
+        $tickets->map(function($ticket){
+            $ticket->day = Carbon::create($ticket->date)->locale('en')->dayName;
+            $ticket->hari = Carbon::create($ticket->date)->locale('id')->dayName;
+            return $ticket;
+        })->toArray();
+        // dd($tickets);
+
+        // dd($tickets->first()->date);
+        foreach($tickets as $ticket)
         {
-            if(isset($data1)){
-                $date_name[] = $data1->hari;
-                $jumlah[] = $data1->total;
+            if(isset($ticket)){
+                $ticketKeys[] = $ticket->day;
+                $ticketDay[$ticket->day] = $ticket->hari;
+                $ticketCount[$ticket->day] = $ticket->total;
             } else {
-                $date_name[] = null;
-                $jumlah[] = null;
+                $ticketKeys[] = null;
                 break;
             }
-
         }
-        // dd($jumlah);
-        $array_dateName = Carbon::getDays();
-        // dd($array_dateName);
+        $names = Carbon::getDays();
+        // $name1 = [];
+        // foreach ($names as $name) {
+        //     $name1 = Carbon::create($names->locale('id')->dayName);
+        // }
+        // dd($name1);
         $data = [];
-        foreach($array_dateName as $dateName)
-        {
-            // dd($dateName);
-            if(isset($date_name))
-            {
-                $temp_index = array_search($dateName, $date_name);
-                if($temp_index === false)
-                {
-                    // dd($temp_index);
-                    array_push($data, array('hari'=>$dateName, 'value'=>0));
-                } else {
-                    // dd($temp_index);
-                    array_push($data, array('hari'=>$dateName, 'value'=>(int)$jumlah[$temp_index]));
-                }
-            } else {
-                array_push($data, array('hari'=>$dateName, 'value'=>0));
-            }
-            // dd($data);
+        foreach ($names as $name) {
+            array_push($data, array('name'=>$name, 
+                        'value'=>in_array($name, $ticketKeys) ? $ticketCount[$name] : 0
+            ));
         }
         // dd($data);
         return collect($data);
