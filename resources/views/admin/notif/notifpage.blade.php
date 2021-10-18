@@ -94,6 +94,7 @@
                             $(`#badge_${id}`).addClass('d-none');
                         }
                     });
+                    reloadNotification();
                 },
                 error: function(response) {
                     console.log(response);
