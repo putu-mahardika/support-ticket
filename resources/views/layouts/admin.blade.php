@@ -187,8 +187,12 @@
             });
         }
         window.playNotifSound = () => {
-            const audio = new Audio("{{ asset('sound/notif-sound-2.mp3') }}");
+            let audio = new Audio("{{ asset('sound/notif-sound-2.mp3') }}");
             audio.play();
+            let promise = audio.play();
+            if (promise !== undefined) {
+                promise.then().catch();
+            }
         }
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
@@ -213,7 +217,7 @@
 
             let languages = {
                 // 'en': 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/English.json'
-                'en': 'https://cdn.datatables.net/plug-ins/1.11.3/i18n/id.json'
+                'en': '{{ asset('dt.json') }}'
             };
 
             $.extend(true, $.fn.dataTable.Buttons.defaults.dom.button, {

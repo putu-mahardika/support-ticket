@@ -6,6 +6,8 @@ let fullHost = `${protocol}${host}:${port}`;
 let client = null;
 window.mqttUserKey = '';
 window.tableToReload = null;
+window.viewToReload = null;
+window.customFunctionReload = null;
 let baseTopic = '/mchelpdesk/';
 const option = {
     username: 'monster_sby',
@@ -36,7 +38,7 @@ client.on('error', (params) => {
 client.on('message', function (topic, message) {
     if (isValidJson(message.toString())) {
         let data = JSON.parse(message.toString());
-        if (topic == `${baseTopic}${mqttUserKey}/tickets`) {
+        if (topic == `${baseTopic}${mqttUserKey}/tickets` || topic == `${baseTopic}${mqttUserKey}/comments`) {
             playNotifSound();
             reloadNotification();
             Toast.fire({
@@ -46,6 +48,12 @@ client.on('message', function (topic, message) {
             });
             if (tableToReload != null) {
                 tableToReload.ajax.reload();
+            }
+            if (typeof viewToReload === "function") {
+                viewToReload();
+            }
+            if (typeof customFunctionReload === "function") {
+                customFunctionReload();
             }
         }
     }

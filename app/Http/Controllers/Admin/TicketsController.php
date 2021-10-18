@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Category;
+use App\Comment;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\MediaUploadingTrait;
 use App\Http\Requests\MassDestroyTicketRequest;
@@ -286,7 +287,7 @@ class TicketsController extends Controller
     {
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'comments.user', 'ref');
+        $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'ref');
 
         $statuses = Status::all();
         $priorities = Priority::all();
@@ -384,12 +385,19 @@ class TicketsController extends Controller
         return $project_code[0] . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
     }
 
-
+    public function getComments(Request $request)
+    {
+        $comments = Comment::with(['media', 'user'])
+                           ->where('ticket_id', $request->id)
+                           ->get();
+        return view('partials.commentTicketList', compact('comments'))->render();
+    }
 
     public function showReport()
     {
         return view('admin.tickets.report');
     }
+
     public function getReport(Request $request)
     {
         // $awal = Carbon::create($request->awal);

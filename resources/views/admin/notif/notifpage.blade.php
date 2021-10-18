@@ -20,10 +20,10 @@
                     <div class="d-flex px-3 py-2">
                         <div class="mr-3">
                             <div class="icon-circle bg-primary position-relative">
-                                @if ($notification->type == 'App\Notifications\TicketNotification')
+                                @if (Str::contains($notification->type, 'Ticket'))
                                     <i class="fas fa-ticket-alt text-white"></i>
-                                @elseif ($notification->type == 'App\Notifications\CommentNotification')
-                                    <i class="fas fa-comment-dots"></i>
+                                @elseif (Str::contains($notification->type, 'Comment'))
+                                    <i class="fas fa-comment-dots text-white"></i>
                                 @endif
                                 @if(empty($notification->read_at))
                                     <span id="badge_{{ $notification->id }}" class="badge badge-danger position-absolute" style="top: 0; left: -1rem;">
@@ -32,13 +32,25 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col text-truncate">
                             <div class="font-weight-bold">
-                                {{ $notification->data['title'] . ' - ' . $notification->data['text'] }}
+                                @if (Str::contains($notification->type, 'Ticket'))
+                                    {{ $notification->data['title'] . ' - ' . $notification->data['text'] }}
+                                @elseif (Str::contains($notification->type, 'Comment'))
+                                    {{ $notification->data['title'] }}
+                                @endif
                             </div>
-                            <span class="small text-muted">
-                                {{ $notification->data['ticket_code'] . ' - ' . $notification->data['ticket_title'] }}
-                            </span>
+                            @if (Str::contains($notification->type, 'Ticket'))
+                                @if (isset($notification->data['ticket_code']) && isset($notification->data['ticket_title']))
+                                    <span class="small text-muted">
+                                        {{ $notification->data['ticket_code'] . ' - ' . $notification->data['ticket_title'] }}
+                                    </span>
+                                @endif
+                            @elseif (Str::contains($notification->type, 'Comment'))
+                                <span class="small text-muted">
+                                    {{ $notification->data['comment_text'] }}
+                                </span>
+                            @endif
                         </div>
                         <div>
                             <span class="small text-muted d-block text-right">

@@ -25,7 +25,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/getLastComment', 'HomeController@getLastComment')->name('getLastComment');
 
     Route::get('/getDataDoughnut', 'HomeController@getDataDoughnut')->name('getDataDoughnut');
-    
+
     Route::get('/getTicketsThisWeek', 'HomeController@getTicketsThisWeek')->name('getTicketsThisWeek');
 
     // Permissions
@@ -58,6 +58,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::post('tickets/comment/{ticket}', 'TicketsController@storeComment')->name('tickets.storeComment');
     Route::get('tickets/report', 'TicketsController@showReport')->name('tickets.showReport');
     Route::get('tickets/getReport', 'TicketsController@getReport')->name('tickets.getReport');
+    Route::get('tickets/getComments', 'TicketsController@getComments')->name('tickets.getComments');
     Route::resource('tickets', 'TicketsController');
 
     // Comments
