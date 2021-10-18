@@ -5,10 +5,11 @@ namespace App\Observers;
 use App\User;
 use App\Ticket;
 use App\Helpers\MqttHelper;
-use App\Notifications\TicketNotification;
+use App\Notifications\NewTicketNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\AssignedTicketNotification;
 use App\Notifications\DataChangeEmailNotification;
+use App\Notifications\UpdateTicketNotification;
 
 class TicketActionObserver
 {
@@ -42,8 +43,9 @@ class TicketActionObserver
         // }
     }
 
-    public function updated(Ticket $model)
+    public function updated(Ticket $ticket)
     {
+        $this->sendDatabaseNotification($ticket, 'edit');
         // if($model->isDirty('assigned_to_user_id'))
         // {
         //     $user = $model->assigned_to_user;
@@ -59,7 +61,7 @@ class TicketActionObserver
         # code...
     }
 
-    private function sendDatabaseNotification($ticket)
+    private function sendDatabaseNotification($ticket, $mode = 'new')
     {
         $admins = User::whereHas('roles', function ($query) {
             $query->where('id', 1);
@@ -69,7 +71,13 @@ class TicketActionObserver
                             return $user->id != auth()->id() ? $user : null;
                        })->filter();
 
-        Notification::send($users, new TicketNotification($ticket));
+        if ($mode == 'new') {
+            Notification::send($users, new NewTicketNotification($ticket));
+        }
+        else {
+            Notification::send($users, new UpdateTicketNotification($ticket));
+        }
+
         foreach ($users as $user) {
             $user->refresh();
             $topic = '/mchelpdesk/' . md5($user->email) . '/tickets';

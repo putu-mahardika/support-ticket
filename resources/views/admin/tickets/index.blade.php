@@ -248,7 +248,7 @@
             // $(".datatable-Ticket").one("preInit.dt", function () {
             //     $(".dataTables_filter").after(filters);
             // });
-            $('.datatable-Ticket').DataTable(dtOverrideGlobals);
+            tableToReload = $('.datatable-Ticket').DataTable(dtOverrideGlobals);
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             $($.fn.dataTable.tables(true)).DataTable()
                 .columns.adjust();

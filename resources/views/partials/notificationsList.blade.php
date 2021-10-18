@@ -2,10 +2,10 @@
     <a class="dropdown-item d-flex align-items-center notification" href="#">
         <div class="mr-3">
             <div class="icon-circle bg-primary position-relative">
-                @if ($notification->type == 'App\Notifications\TicketNotification')
+                @if (Str::contains($notification->type, 'Ticket'))
                     <i class="fas fa-ticket-alt text-white"></i>
-                @elseif ($notification->type == 'App\Notifications\CommentNotification')
-                    <i class="fas fa-comment-dots"></i>
+                @elseif (Str::contains($notification->type, 'Comment'))
+                    <i class="fas fa-comment-dots text-white"></i>
                 @endif
                 @if(empty($notification->read_at))
                     <span class="badge badge-danger position-absolute" style="top: 0; left: -1rem;">

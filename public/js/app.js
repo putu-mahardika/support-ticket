@@ -18933,6 +18933,7 @@ var fullHost = "".concat(protocol).concat(host, ":").concat(port);
 var client = null;
 window.mqttUserKey = '';
 window.tableToReload = null;
+window.viewToReload = null;
 var baseTopic = '/mchelpdesk/';
 var option = {
   username: 'monster_sby',
@@ -18957,7 +18958,7 @@ client.on('message', function (topic, message) {
   if (isValidJson(message.toString())) {
     var data = JSON.parse(message.toString());
 
-    if (topic == "".concat(baseTopic).concat(mqttUserKey, "/tickets")) {
+    if (topic == "".concat(baseTopic).concat(mqttUserKey, "/tickets") || topic == "".concat(baseTopic).concat(mqttUserKey, "/comments")) {
       playNotifSound();
       reloadNotification();
       Toast.fire({
@@ -18968,6 +18969,10 @@ client.on('message', function (topic, message) {
 
       if (tableToReload != null) {
         tableToReload.ajax.reload();
+      }
+
+      if (typeof viewToReload === "function") {
+        viewToReload();
       }
     }
   }
