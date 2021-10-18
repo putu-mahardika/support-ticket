@@ -14,6 +14,8 @@ use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Helpers\FunctionHelper;
+
 
 class HomeController
 {
@@ -49,34 +51,22 @@ class HomeController
                     ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
                     ->groupBy(DB::raw('date(created_at)'))
                     ->get();
-        
-        // dd($tickets);
 
         $tickets->map(function($ticket){
-            $ticket->day = Carbon::create($ticket->date)->locale('en')->dayName;
             $ticket->hari = Carbon::create($ticket->date)->locale('id')->dayName;
             return $ticket;
         })->toArray();
-        // dd($tickets);
-
-        // dd($tickets->first()->date);
         foreach($tickets as $ticket)
         {
             if(isset($ticket)){
-                $ticketKeys[] = $ticket->day;
-                $ticketDay[$ticket->day] = $ticket->hari;
-                $ticketCount[$ticket->day] = $ticket->total;
+                $ticketKeys[] = $ticket->hari;
+                $ticketCount[$ticket->hari] = $ticket->total;
             } else {
                 $ticketKeys[] = null;
                 break;
             }
         }
-        $names = Carbon::getDays();
-        // $name1 = [];
-        // foreach ($names as $name) {
-        //     $name1 = Carbon::create($names->locale('id')->dayName);
-        // }
-        // dd($name1);
+        $names = FunctionHelper::getDayName(Carbon::getDays());
         $data = [];
         foreach ($names as $name) {
             array_push($data, array('name'=>$name, 
