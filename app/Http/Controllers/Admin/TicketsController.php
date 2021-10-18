@@ -108,6 +108,10 @@ class TicketsController extends Controller
                 return $row->comments->count();
             });
 
+            $table->addColumn('attachment_count', function ($row) {
+                return $row->attachments->count();
+            });
+
             $table->addColumn('last_comment', function ($row) {
                 return $row->comments->last()->comment_text ?? '-';
             });

@@ -186,7 +186,12 @@
                         data: 'title',
                         name: 'title',
                         render: function (data, type, row) {
-                            return '<a href="' + row.view_link + '">' + data + ' (' + row.comments_count + ')</a>';
+                            if(row.attachment_count > 0){
+                                return '<a href="' + row.view_link + '">' + data + ' (' + row.comments_count + ') <i class="fas fa-file-image"></i></a>';
+                            } else {
+                                return '<a href="' + row.view_link + '">' + data + ' (' + row.comments_count + ') </a>';
+                            }
+                            
                         }
                     },
                     {
