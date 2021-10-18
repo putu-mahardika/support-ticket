@@ -144,6 +144,26 @@
                             </div>
                         </div>
 
+
+
+                        <!-- WEEKLY CHART -->
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="text-center card-header">
+                                            Jumlah Tiket Harian (Minggu : {{ $weekNow }})
+                                        </div>
+                                        <div class="card-body" style="overflow-x: scroll;">
+                                            <div class="demo-container">
+                                                <div id="chart1"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     @can('user_comment')
                         {{-- Table Last Comment  --}}
                         <div class="col-xl-12 col-lg-12">
@@ -198,6 +218,49 @@
             size: {
                 height: 400,
                 width: 1200
+            },
+            argumentAxis: {
+                allowDecimals: false,
+                title: 'Tanggal',
+                label: {
+                    wordWrap: "none",
+                    overlappingBehavior: "stagger",
+                }
+            },
+            valueAxis: {
+                title: 'Jumlah',
+                allowDecimals: false,
+            },
+        });
+    });
+
+    $(function(){
+        $("#chart1").dxChart({
+            dataSource: "{{ url('admin/getTicketsThisWeek') }}",
+
+            commonSeriesSettings: {
+                argumentField: "name",
+                valueField: "value",
+                type: "bar",
+                hoverMode: "allArgumentPoints",
+                selectionMode: "allArgumentPoints",
+                label: {
+                    visible: true,
+                    format: {
+                        type: "fixedPoint",
+                        precision: 0
+                    }
+                }
+            },
+            series: [
+                { valueField: "value", name: "Tiket", color: "#f6c23e" }
+            ],
+            legend: {
+                visible: false
+            },
+            size: {
+                height: 400,
+                width: 1000
             },
             argumentAxis: {
                 allowDecimals: false,
