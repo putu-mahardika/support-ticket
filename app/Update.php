@@ -22,10 +22,10 @@ class Update
     public function local(Runner $run)
     {
         $run->external('composer', 'update')
-            // ->external('npm', 'install')
-            // ->external('npm', 'run', 'development')
-            // ->artisan('version:')
+            ->external('npm', 'install')
+            ->external('npm', 'run', 'development')
             ->artisan('migrate')
+            ->artisan('version:absorb')
             ->artisan('optimize:clear');
     }
 }

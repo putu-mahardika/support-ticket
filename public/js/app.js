@@ -18934,6 +18934,7 @@ var client = null;
 window.mqttUserKey = '';
 window.tableToReload = null;
 window.viewToReload = null;
+window.customFunctionReload = null;
 var baseTopic = '/mchelpdesk/';
 var option = {
   username: 'monster_sby',
@@ -18973,6 +18974,10 @@ client.on('message', function (topic, message) {
 
       if (typeof viewToReload === "function") {
         viewToReload();
+      }
+
+      if (typeof customFunctionReload === "function") {
+        customFunctionReload();
       }
     }
   }
