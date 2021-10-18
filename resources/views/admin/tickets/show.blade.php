@@ -43,540 +43,527 @@
 
 @section('content')
 
-{{-- Detail ticket --}}
-<div class="card mb-3">
-    <div class="card-header d-flex justify-content-between">
-        {{ trans('global.show') }} {{ trans('cruds.ticket.title_singular') }}
-
-        @can('ticket_edit')
-            <a href="{{ route('admin.tickets.edit', $ticket->id) }}" class="btn btn-primary btn-sm">
-                @lang('global.edit') @lang('cruds.ticket.title_singular')
-            </a>
-        @endcan
-    </div>
-
-    <div class="card-body">
-        @if(session('status'))
-            <div class="alert alert-success" role="alert">
-                {{ session('status') }}
-            </div>
-        @endif
-        <div class="mb-2">
-            <table class="table table-bordered table-striped">
-                <tbody>
-                    <form id="formQuickEditTicket" action="{{ route("admin.tickets.update", [$ticket->id]) }}" method="post">
-                        @csrf
-                        @method('PUT')
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.created_at') }}
-                            </th>
-                            <td>
-                                {{ $ticket->created_at }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.code') }}
-                            </th>
-                            <td>
-                                {{ $ticket->code }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.title') }}
-                            </th>
-                            <td>
-                                @can ('ticket_edit')
-                                    <input type="text" name="title" id="title" value="{{ $ticket->title }}" class="form-control">
-                                @else
-                                    {{ $ticket->title }}
-                                @endcan
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.content') }}
-                            </th>
-                            <td>
-                                @can ('ticket_edit')
-                                    <textarea name="content" id="content" cols="30" rows="5" class="form-control" style="resize: none;">{!! $ticket->content !!}</textarea>
-                                @else
-                                    {!! $ticket->content !!}
-                                @endcan
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                Ticket Ref
-                            </th>
-                            <td>
-                                @can ('ticket_edit')
-                                    <select name="ref_id" id="ref_id" class="form-control select2">
-                                        <option value="">-- None --</option>
-                                        @foreach ($ticketRef as $item)
-                                            <option value="{{ $item->id }}" @if($ticket->ref_id == $item->id) selected @endif>{{ $item->code }}</option>
-                                        @endforeach
-                                    </select>
-                                @else
-                                    {{ $ticket->ref->code ?? '-' }}
-                                @endcan
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.attachments') }}
-                            </th>
-                            <td>
-                                <div class="col-12 row">
-                                    <ul id="lightgallery" class="list-unstyled row mx-0">
-                                    @foreach($ticket->attachments as $attachment)
-                                        @php
-                                            $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
-                                        @endphp
-                                        @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
-                                        <li class="col-auto" data-src="{{ $attachment->geturl() }}" data-sub-html="{{ $attachment->file_name }}">
-                                            <a href="">
-                                                <img class="img-responsive" src="{{ $attachment->geturl() }}" height="70" width="70">
-                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                            </a>
-                                        </li>
-                                        @endif
-                                    @endforeach
-                                    </ul>
-                                    <ul class="list-unstyled row mx-0">
-                                    @foreach($ticket->attachments as $attachment)
-                                        @php
-                                            $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
-                                        @endphp
-                                        @if (!in_array($file_ext, FunctionHelper::IMAGES_EXT))
-                                        <li class="col-auto">
-                                            <a href="{{ $attachment->geturl() }}" download>
-                                            @if (in_array($file_ext, FunctionHelper::WORDS_EXT))
-                                                <img class="img-responsive" src="{{ asset('images/word.png') }}" height="70" width="70">
-                                            @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
-                                                <img class="img-responsive" src="{{ asset('images/excel.png') }}" height="70" width="70">
-                                            @elseif (in_array($file_ext, FunctionHelper::PDF_EXT))
-                                                <img class="img-responsive" src="{{ asset('images/pdf.png') }}" height="70" width="70">
-                                            @elseif (in_array($file_ext, FunctionHelper::COMPRESSES_EXT))
-                                                <img class="img-responsive" src="{{ asset('images/zip.png') }}" height="70" width="70">
-                                            @else
-                                                <img class="img-responsive" src="{{ asset('images/paper.png') }}" height="70" width="70">
-                                            @endif
-                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                            </a>
-                                        </li>
-                                        @endif
-                                    @endforeach
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.status') }}
-                            </th>
-                            <td>
-                                @can ('ticket_edit')
-                                    <select class="form-control" name="status_id" id="status" style="width: max-content;">
-                                        @foreach ($statuses as $status)
-                                            <option value="{{ $status->id }}" @if($ticket->status->id == $status->id) selected @endif>{{ $status->name }}</option>
-                                        @endforeach
-                                    </select>
-                                @else
-                                    {{ $ticket->status->name ?? '' }}
-                                @endcan
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.priority') }}
-                            </th>
-                            <td>
-                                @can ('ticket_edit')
-                                    <select class="form-control" name="priority_id" id="priority" style="width: max-content;">
-                                        @foreach ($priorities as $priority)
-                                            <option value="{{ $priority->id }}" @if($ticket->priority_id == $priority->id) selected @endif>{{ $priority->name }}</option>
-                                        @endforeach
-                                    </select>
-                                @else
-                                    {{ $ticket->priority->name ?? '' }}
-                                @endcan
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.category') }}
-                            </th>
-                            <td>
-                                @can ('ticket_edit')
-                                    <select class="form-control" name="category_id" id="category" style="width: max-content;">
-                                        <option value="">-- None --</option>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}" @if($ticket->category_id == $category->id) selected @endif>{{ $category->name }}</option>
-                                        @endforeach
-                                    </select>
-                                @else
-                                    {{ $ticket->category->name ?? '-' }}
-                                @endcan
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.author_name') }}
-                            </th>
-                            <td>
-                                {{ $ticket->author_name }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.author_email') }}
-                            </th>
-                            <td>
-                                {{ $ticket->author_email }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {{ trans('cruds.ticket.fields.assigned_to_user') }}
-                            </th>
-                            <td>
-                                {{ $ticket->assigned_to_user->name ?? '' }}
-                            </td>
-                        </tr>
-                        @if (!empty($ticket->work_start))
-                            <tr>
-                                <th>
-                                    Work Start
-                                </th>
-                                <td>
-                                    {{ $ticket->work_start }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if (!empty($ticket->work_end))
-                            <tr>
-                                <th>
-                                    Work End
-                                </th>
-                                <td>
-                                    {{ $ticket->work_end }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if (!empty($ticket->work_duration))
-                            <tr>
-                                <th>
-                                    Work Duration
-                                </th>
-                                <td>
-                                    {{ gmdate('H \j\a\m i \m\e\n\i\t', $ticket->work_duration) }}
-                                </td>
-                            </tr>
-                        @endif
-                    </form>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="d-flex justify-content-between">
-            <a class="btn btn-outline-secondary my-2" href="{{ route('admin.tickets.index') }}">
-                {{ trans('global.back_to_list') }}
-            </a>
+    {{-- Detail ticket --}}
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between">
+            {{ trans('global.show') }} {{ trans('cruds.ticket.title_singular') }}
 
             @can('ticket_edit')
-                <button type="submit" id="btnSaveTicket" form="formQuickEditTicket" class="btn btn-primary my-2 px-5 d-none">
-                    Save
-                </button>
+                <a href="{{ route('admin.tickets.edit', $ticket->id) }}" class="btn btn-primary btn-sm">
+                    @lang('global.edit') @lang('cruds.ticket.title_singular')
+                </a>
             @endcan
         </div>
-    </div>
-</div>
 
-{{-- Comments --}}
-<div class="card mb-3">
-    <div class="card-body">
-        <table class="table table-bordered">
-            <tr>
-                <th>
-                    {{ trans('cruds.ticket.fields.comments') }}
-                </th>
-                <td>
-                    <div class="mx-3">
-                        @forelse ($ticket->comments as $key=>$comment)
-                            <div class="row mb-3">
-                                @if (auth()->id() == $comment->user->id)
-                                    <div class="col"></div>
-                                @endif
-                                <div class="col-auto shadow-sm border py-3 px-5 @if (auth()->id() == $comment->user->id) text-right comment-right @else comment-left @endif">
-                                    <p class="font-weight-bold">
-                                        <a href="mailto:{{ $comment->author_email }}">{{ $comment->author_name }}</a> ({{ $comment->created_at }})
-                                    </p>
-                                    <p>{{ $comment->comment_text }}</p>
-                                    <div class="row @if (auth()->id() == $comment->user->id) justify-content-end @endif">
-                                        <div id="att-comment-{{$key}}" class="row mx-0">
-                                            @foreach($comment->attachments as $attachment)
+        <div class="card-body">
+            @if(session('status'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('status') }}
+                </div>
+            @endif
+            <div class="mb-2">
+                <table class="table table-bordered table-striped">
+                    <tbody>
+                        <form id="formQuickEditTicket" action="{{ route("admin.tickets.update", [$ticket->id]) }}" method="post">
+                            @csrf
+                            @method('PUT')
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.created_at') }}
+                                </th>
+                                <td>
+                                    {{ $ticket->created_at }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.code') }}
+                                </th>
+                                <td>
+                                    {{ $ticket->code }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.title') }}
+                                </th>
+                                <td>
+                                    @can ('ticket_edit')
+                                        <input type="text" name="title" id="title" value="{{ $ticket->title }}" class="form-control">
+                                    @else
+                                        {{ $ticket->title }}
+                                    @endcan
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.content') }}
+                                </th>
+                                <td>
+                                    @can ('ticket_edit')
+                                        <textarea name="content" id="content" cols="30" rows="5" class="form-control" style="resize: none;">{!! $ticket->content !!}</textarea>
+                                    @else
+                                        {!! $ticket->content !!}
+                                    @endcan
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    Ticket Ref
+                                </th>
+                                <td>
+                                    @can ('ticket_edit')
+                                        <select name="ref_id" id="ref_id" class="form-control select2">
+                                            <option value="">-- None --</option>
+                                            @foreach ($ticketRef as $item)
+                                                <option value="{{ $item->id }}" @if($ticket->ref_id == $item->id) selected @endif>{{ $item->code }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{ $ticket->ref->code ?? '-' }}
+                                    @endcan
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.attachments') }}
+                                </th>
+                                <td>
+                                    <div class="col-12 row">
+                                        <ul id="lightgallery" class="list-unstyled row mx-0">
+                                            @foreach($ticket->attachments as $attachment)
                                                 @php
                                                     $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
                                                 @endphp
                                                 @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
-                                                <div class="col-auto mb-3 text-center" data-src="{{ $attachment->geturl() }}" data-sub-html="{{ $attachment->file_name }}">
-                                                    <a href="" target="_blank" title="{{ $attachment->file_name }}">
-                                                        <img src="{{ $attachment->geturl('thumb') }}" alt="thumbnail" width="50" height="50">
-                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                                    </a>
-                                                </div>
+                                                    <li class="col-auto" data-src="{{ $attachment->geturl() }}" data-sub-html="{{ $attachment->file_name }}">
+                                                        <a href="">
+                                                            <img class="img-responsive" src="{{ $attachment->geturl() }}" height="70" width="70">
+                                                            <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                        </a>
+                                                    </li>
                                                 @endif
                                             @endforeach
-                                        </div>
-
-                                        <div class="row mx-0">
-                                        @foreach($comment->attachments as $attachment)
-                                            @php
-                                                $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
-                                            @endphp
-                                            @if (!in_array($file_ext, FunctionHelper::IMAGES_EXT))
-                                            <div class="col-auto mb-3 text-center">
-                                                @if (in_array($file_ext, FunctionHelper::WORDS_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
-                                                        <img src="{{ asset('images/word.png') }}" alt="thumbnail" width="50">
-                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                                    </a>
-                                                @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
-                                                        <img src="{{ asset('images/excel.png') }}" alt="thumbnail" width="50">
-                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                                    </a>
-                                                @elseif (in_array($file_ext, FunctionHelper::PDF_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
-                                                        <img src="{{ asset('images/pdf.png') }}" alt="thumbnail" width="50">
-                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                                    </a>
-                                                @elseif (in_array($file_ext, FunctionHelper::COMPRESSES_EXT))
-                                                    <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
-                                                        <img src="{{ asset('images/zip.png') }}" alt="thumbnail" width="50">
-                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                                    </a>
-                                                @else
-                                                    <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
-                                                        <img src="{{ asset('images/paper.png') }}" alt="thumbnail" width="50">
-                                                        <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
-                                                    </a>
+                                        </ul>
+                                        <ul class="list-unstyled row mx-0">
+                                            @foreach($ticket->attachments as $attachment)
+                                                @php
+                                                    $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
+                                                @endphp
+                                                @if (!in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                                    <li class="col-auto">
+                                                        <a href="{{ $attachment->geturl() }}" download>
+                                                        @if (in_array($file_ext, FunctionHelper::WORDS_EXT))
+                                                            <img class="img-responsive" src="{{ asset('images/word.png') }}" height="70" width="70">
+                                                        @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
+                                                            <img class="img-responsive" src="{{ asset('images/excel.png') }}" height="70" width="70">
+                                                        @elseif (in_array($file_ext, FunctionHelper::PDF_EXT))
+                                                            <img class="img-responsive" src="{{ asset('images/pdf.png') }}" height="70" width="70">
+                                                        @elseif (in_array($file_ext, FunctionHelper::COMPRESSES_EXT))
+                                                            <img class="img-responsive" src="{{ asset('images/zip.png') }}" height="70" width="70">
+                                                        @else
+                                                            <img class="img-responsive" src="{{ asset('images/paper.png') }}" height="70" width="70">
+                                                        @endif
+                                                            <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                        </a>
+                                                    </li>
                                                 @endif
-                                            </div>
-                                            @endif
-                                        @endforeach
-                                        </div>
+                                            @endforeach
+                                        </ul>
                                     </div>
-                                </div>
-                                @if (auth()->id() != $comment->user->id)
-                                    <div class="col"></div>
-                                @endif
-                            </div>
-                        @empty
-                            @php
-                                $key=null;
-                            @endphp
-                            <p>Tidak ada balasan</p>
-                        @endforelse
-                    </div>
-                    <hr>
-                    <form action="{{ route('admin.tickets.storeComment', $ticket->id) }}" method="POST" id="add-comment" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group mt-3">
-                            <label for="comment_text">Tinggalkan balasan</label>
-                            @if (!auth()->user()->hasRole('client'))
-                                <div class="bg-white border rounded" style="min-height: 10rem">
-                                    <div class="card mb-0 border-right-0 border-left-0 border-top-0 rounded-0">
-                                        <div class="card-body p-0">
-                                            <div class="row">
-                                                <div class="col-auto">
-                                                    <select class="form-control rounded-0 border-0" name="status_comment" id="status_comment" style="width: max-content;">
-                                                        <option value="">-- None --</option>
-                                                        @foreach ($statuses as $status)
-                                                            <option value="{{ $status->id }}" @if($ticket->status->id == 1 && $status->id == 3) selected @endif>{{ $status->name }}</option>
-                                                        @endforeach
-                                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.status') }}
+                                </th>
+                                <td>
+                                    @can ('ticket_edit')
+                                        <select class="form-control" name="status_id" id="status" style="width: max-content;">
+                                            @foreach ($statuses as $status)
+                                                <option value="{{ $status->id }}" @if($ticket->status->id == $status->id) selected @endif>{{ $status->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{ $ticket->status->name ?? '' }}
+                                    @endcan
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.priority') }}
+                                </th>
+                                <td>
+                                    @can ('ticket_edit')
+                                        <select class="form-control" name="priority_id" id="priority" style="width: max-content;">
+                                            @foreach ($priorities as $priority)
+                                                <option value="{{ $priority->id }}" @if($ticket->priority_id == $priority->id) selected @endif>{{ $priority->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{ $ticket->priority->name ?? '' }}
+                                    @endcan
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.category') }}
+                                </th>
+                                <td>
+                                    @can ('ticket_edit')
+                                        <select class="form-control" name="category_id" id="category" style="width: max-content;">
+                                            <option value="">-- None --</option>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}" @if($ticket->category_id == $category->id) selected @endif>{{ $category->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        {{ $ticket->category->name ?? '-' }}
+                                    @endcan
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.author_name') }}
+                                </th>
+                                <td>
+                                    {{ $ticket->author_name }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.author_email') }}
+                                </th>
+                                <td>
+                                    {{ $ticket->author_email }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    {{ trans('cruds.ticket.fields.assigned_to_user') }}
+                                </th>
+                                <td>
+                                    {{ $ticket->assigned_to_user->name ?? '' }}
+                                </td>
+                            </tr>
+                            @if (!empty($ticket->work_start))
+                                <tr>
+                                    <th>
+                                        Work Start
+                                    </th>
+                                    <td>
+                                        {{ $ticket->work_start }}
+                                    </td>
+                                </tr>
+                            @endif
+                            @if (!empty($ticket->work_end))
+                                <tr>
+                                    <th>
+                                        Work End
+                                    </th>
+                                    <td>
+                                        {{ $ticket->work_end }}
+                                    </td>
+                                </tr>
+                            @endif
+                            @if (!empty($ticket->work_duration))
+                                <tr>
+                                    <th>
+                                        Work Duration
+                                    </th>
+                                    <td>
+                                        {{ floor($ticket->work_duration/3600) . ' jam ' . floor(($ticket->work_duration/60)%60) . ' menit' }}
+                                    </td>
+                                </tr>
+                            @endif
+                        </form>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a class="btn btn-default my-2" href="{{ route('admin.tickets.index') }}">
+                    {{ trans('global.back_to_list') }}
+                </a>
+
+                @can('ticket_edit')
+                    <button type="submit" id="btnSaveTicket" form="formQuickEditTicket" class="btn btn-primary my-2 px-5 d-none">
+                        Save
+                    </button>
+                @endcan
+            </div>
+        </div>
+    </div>
+    @php
+        $index = $ticket->comments->count();
+    @endphp
+
+    @can('comment_show')
+        {{-- Comments --}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>
+                            {{ trans('cruds.ticket.fields.comments') }}
+                        </th>
+                        <td>
+                            <div class="mx-3">
+                                @forelse ($ticket->comments as $key => $comment)
+                                    <div class="row mb-3">
+                                        @if (auth()->id() == $comment->user->id)
+                                            <div class="col"></div>
+                                        @endif
+                                        <div class="col-auto shadow-sm border py-3 px-5 @if (auth()->id() == $comment->user->id) text-right comment-right @else comment-left @endif">
+                                            <p class="font-weight-bold">
+                                                <a href="mailto:{{ $comment->author_email }}">{{ $comment->author_name }}</a> ({{ $comment->created_at }})
+                                            </p>
+                                            <p>{{ $comment->comment_text }}</p>
+                                            <div class="row @if (auth()->id() == $comment->user->id) justify-content-end @endif">
+                                                <div id="att-comment-{{$key}}" class="row mx-0">
+                                                    @foreach($comment->attachments as $attachment)
+                                                        @php
+                                                            $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
+                                                        @endphp
+                                                        @if (in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                                        <div class="col-auto mb-3 text-center" data-src="{{ $attachment->geturl() }}" data-sub-html="{{ $attachment->file_name }}">
+                                                            <a href="" target="_blank" title="{{ $attachment->file_name }}">
+                                                                <img src="{{ $attachment->geturl('thumb') }}" alt="thumbnail" width="50" height="50">
+                                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                            </a>
+                                                        </div>
+                                                        @endif
+                                                    @endforeach
                                                 </div>
-                                                <div class="col-md-6 p-1">
-                                                    <div id="quick-reply" class="p-1" style="width: 40rem; overflow-x: auto; white-space: nowrap; float: left;">
-                                                        <span class="bg-light rounded border p-1 reply">Baik, Kami kerjakan</span>
-                                                        <span class="bg-light rounded border p-1 reply">Terima kasih</span>
-                                                        <span class="bg-light rounded border p-1 reply">Tiket sudah selesai ditangani, mohon dicek.</span>
+
+                                                <div class="row mx-0">
+                                                @foreach($comment->attachments as $attachment)
+                                                    @php
+                                                        $file_ext = pathinfo($attachment->geturl(), PATHINFO_EXTENSION);
+                                                    @endphp
+                                                    @if (!in_array($file_ext, FunctionHelper::IMAGES_EXT))
+                                                    <div class="col-auto mb-3 text-center">
+                                                        @if (in_array($file_ext, FunctionHelper::WORDS_EXT))
+                                                            <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
+                                                                <img src="{{ asset('images/word.png') }}" alt="thumbnail" width="50">
+                                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                            </a>
+                                                        @elseif (in_array($file_ext, FunctionHelper::EXCELS_EXT))
+                                                            <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
+                                                                <img src="{{ asset('images/excel.png') }}" alt="thumbnail" width="50">
+                                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                            </a>
+                                                        @elseif (in_array($file_ext, FunctionHelper::PDF_EXT))
+                                                            <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
+                                                                <img src="{{ asset('images/pdf.png') }}" alt="thumbnail" width="50">
+                                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                            </a>
+                                                        @elseif (in_array($file_ext, FunctionHelper::COMPRESSES_EXT))
+                                                            <a href="{{ $attachment->geturl() }}" title="{{ $attachment->file_name }}" download>
+                                                                <img src="{{ asset('images/zip.png') }}" alt="thumbnail" width="50">
+                                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ $attachment->geturl() }}" target="_blank" title="{{ $attachment->file_name }}">
+                                                                <img src="{{ asset('images/paper.png') }}" alt="thumbnail" width="50">
+                                                                <small class="d-block">{{ FunctionHelper::substrMiddle($attachment->file_name) }}</small>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                    @endif
+                                                @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if (auth()->id() != $comment->user->id)
+                                            <div class="col"></div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <p>Tidak ada balasan</p>
+                                @endforelse
+                            </div>
+                            <hr>
+                            <form action="{{ route('admin.tickets.storeComment', $ticket->id) }}" method="POST" id="add-comment" enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-group mt-3">
+                                    <label for="comment_text">Tinggalkan balasan</label>
+                                    @if (!auth()->user()->hasRole('client'))
+                                        <div class="bg-white border rounded" style="min-height: 10rem">
+                                            <div class="card mb-0 border-right-0 border-left-0 border-top-0 rounded-0">
+                                                <div class="card-body p-0">
+                                                    <div class="row">
+                                                        <div class="col-auto">
+                                                            <select class="form-control rounded-0 border-0" name="status_comment" id="status_comment" style="width: max-content;">
+                                                                <option value="">-- None --</option>
+                                                                @foreach ($statuses as $status)
+                                                                    <option value="{{ $status->id }}" @if($ticket->status->id == 1 && $status->id == 3) selected @endif>{{ $status->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6 p-1">
+                                                            <div id="quick-reply" class="p-1" style="width: 40rem; overflow-x: auto; white-space: nowrap; float: left;">
+                                                                <span class="bg-light rounded border p-1 reply">Baik, Kami kerjakan</span>
+                                                                <span class="bg-light rounded border p-1 reply">Terima kasih</span>
+                                                                <span class="bg-light rounded border p-1 reply">Tiket sudah selesai ditangani, mohon dicek.</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <textarea class="form-control border-0 shadow-none" style="resize: none;" id="comment_text" name="comment_text" rows="3" required></textarea>
                                         </div>
+                                    @else
+                                        <textarea class="form-control" style="resize: none;" id="comment_text" name="comment_text" rows="3" required></textarea>
+                                    @endif
+
+                                    <div class="form-group {{ $errors->has('attachments') ? 'has-error' : '' }}">
+                                        <label for="attachments">{{ trans('cruds.ticket.fields.attachments') }}</label>
+                                        <div class="needsclick dropzone" id="attachments-dropzone">
+
+                                        </div>
+                                        @if($errors->has('attachments'))
+                                            <em class="invalid-feedback">
+                                                {{ $errors->first('attachments') }}
+                                            </em>
+                                        @endif
+                                        <p class="helper-block">
+                                            {{ trans('cruds.ticket.fields.attachments_helper') }}
+                                        </p>
                                     </div>
-                                    <textarea class="form-control border-0 shadow-none" style="resize: none;" id="comment_text" name="comment_text" rows="3" required></textarea>
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <button type="submit" class="btn btn-primary btn-block">@lang('global.submit')</button>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="btn" id="loading"></p>
+                                    </div>
                                 </div>
-                            @else
-                                <textarea class="form-control" style="resize: none;" id="comment_text" name="comment_text" rows="3" required></textarea>
-                            @endif
-
-                            <div class="form-group {{ $errors->has('attachments') ? 'has-error' : '' }}">
-                                <label for="attachments">{{ trans('cruds.ticket.fields.attachments') }}</label>
-                                <div class="needsclick dropzone" id="attachments-dropzone">
-
-                                </div>
-                                @if($errors->has('attachments'))
-                                    <em class="invalid-feedback">
-                                        {{ $errors->first('attachments') }}
-                                    </em>
-                                @endif
-                                <p class="helper-block">
-                                    {{ trans('cruds.ticket.fields.attachments_helper') }}
-                                </p>
-                            </div>
-                        <div class="row">
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-primary btn-block">@lang('global.submit')</button>
-                            </div>
-                            <div class="col-md-4">
-                                <p class="btn" id="loading"></p>
-                            </div>
-                        </div>
-                    </form>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    @endcan
 @endsection
 
 @section('scripts')
-<script>
+    <script>
+        @can ('ticket_edit')
+            let ticketIsChange = false;
+            $('.reply').on('click', function () {
+                $('#comment_text').val(
+                    $('#comment_text').val() + $(this).html()
+                );
+            });
 
-    @can ('ticket_edit')
-        let ticketIsChange = false;
-        $('.reply').on('click', function () {
-            $('#comment_text').val(
-                $('#comment_text').val() + $(this).html()
-            );
+            $('#title').on('change', function () {
+                switchToEditMode();
+            });
+
+            $('#content').on('change', function () {
+                switchToEditMode();
+            });
+
+            $('#status').on('change', function () {
+                switchToEditMode();
+            });
+
+            $('#priority').on('change', function () {
+                switchToEditMode();
+            });
+
+            $('#category').on('change', function () {
+                switchToEditMode();
+            });
+
+            $('#ref_id').on('change', function (e) {
+                switchToEditMode();
+            });
+
+            function switchToEditMode() {
+                ticketIsChange = true;
+                if (ticketIsChange) {
+                    $('#btnSaveTicket').removeClass('d-none');
+                }
+            }
+        @endcan
+
+        $('#add-comment').on('submit', function() {
+            $(this).find('button[type="submit"]').attr('disabled','disabled');
+            $('#loading').html('Tunggu sebentar...');
         });
 
-        $('#title').on('change', function () {
-            switchToEditMode();
-        });
+        var uploadedAttachmentsMap = {};
+        Dropzone.options.attachmentsDropzone = {
+            url: '{{ route('admin.tickets.storeMedia') }}',
+            maxFilesize: 2, // MB
+            addRemoveLinks: true,
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            params: {
+                size: 2
+            },
+            success: function (file, response) {
+                $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">');
+                uploadedAttachmentsMap[file.name] = response.name;
+            },
+            removedfile: function (file) {
+                file.previewElement.remove();
+                var name = '';
+                if (typeof file.file_name !== 'undefined') {
+                    name = file.file_name;
+                } else {
+                    name = uploadedAttachmentsMap[file.name];
+                }
+                $('form').find('input[name="attachments[]"][value="' + name + '"]').remove();
+            },
+            init: function () {
+                @if(isset($ticket) && $ticket->attachments)
+                    var files = null;
+                @endif
+            },
+            error: function (file, response) {
+                if ($.type(response) === 'string') {
+                    var message = response; //dropzone sends it's own error messages in string
+                } else {
+                    var message = response.errors.file;
+                }
+                file.previewElement.classList.add('dz-error');
+                _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]');
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                    node = _ref[_i];
+                    _results.push(node.textContent = message);
+                }
 
-        $('#content').on('change', function () {
-            switchToEditMode();
-        });
-
-        $('#status').on('change', function () {
-            switchToEditMode();
-        });
-
-        $('#priority').on('change', function () {
-            switchToEditMode();
-        });
-
-        $('#category').on('change', function () {
-            switchToEditMode();
-        });
-
-        $('#ref_id').on('change', function (e) {
-            switchToEditMode();
-        });
-
-        function switchToEditMode() {
-            ticketIsChange = true;
-            if (ticketIsChange) {
-                $('#btnSaveTicket').removeClass('d-none');
+                return _results;
             }
         }
-    @endcan
 
-    $('#add-comment').on('submit', function() {
-        $(this).find('button[type="submit"]').attr('disabled','disabled');
-        $('#loading').html('Tunggu sebentar...');
-    });
-</script>
-<script>
-    var uploadedAttachmentsMap = {}
-Dropzone.options.attachmentsDropzone = {
-    url: '{{ route('admin.tickets.storeMedia') }}',
-    maxFilesize: 2, // MB
-    addRemoveLinks: true,
-    headers: {
-      'X-CSRF-TOKEN': "{{ csrf_token() }}"
-    },
-    params: {
-      size: 2
-    },
-    success: function (file, response) {
-      $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">')
-      uploadedAttachmentsMap[file.name] = response.name
-    },
-    removedfile: function (file) {
-      file.previewElement.remove()
-      var name = ''
-      if (typeof file.file_name !== 'undefined') {
-        name = file.file_name
-      } else {
-        name = uploadedAttachmentsMap[file.name]
-      }
-      $('form').find('input[name="attachments[]"][value="' + name + '"]').remove()
-    },
-    init: function () {
-        @if(isset($ticket) && $ticket->attachments)
-                var files = null;
-
-        @endif
-    },
-     error: function (file, response) {
-         if ($.type(response) === 'string') {
-             var message = response //dropzone sends it's own error messages in string
-         } else {
-             var message = response.errors.file
-         }
-         file.previewElement.classList.add('dz-error')
-         _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]')
-         _results = []
-         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-             node = _ref[_i]
-             _results.push(node.textContent = message)
-         }
-
-         return _results
-     }
-}
-</script>
-<!-- <script>
-    lightGallery(document.getElementById('lightgallery'), {
-        plugins: [lgZoom, lgThumbnail],
-        speed: 500,
-    });
-</script> -->
-<script>
-    function gallery(){
-        lightGallery(document.getElementById('lightgallery'), {
-            plugins: [lgZoom, lgThumbnail],
-            speed: 500,
-        });
-    }
-    function gallery_comment(index){
-        var i = index;
-        lightGallery(document.getElementById('att-comment-'+i), {
-            plugins: [lgZoom, lgThumbnail],
-            speed: 500,
-        });
-    }
-
-
-    gallery();
-
-    let index = {{$key}}
-    if(index != null){
-        for(let i = 0; i <= index; i++){
-            gallery_comment(i);
+        function gallery(){
+            lightGallery(document.getElementById('lightgallery'), {
+                plugins: [lgZoom, lgThumbnail],
+                speed: 500,
+            });
         }
-    }
+        function gallery_comment(index){
+            var i = index;
+            lightGallery(document.getElementById('att-comment-'+i), {
+                plugins: [lgZoom, lgThumbnail],
+                speed: 500,
+            });
+        }
 
+        gallery();
 
-
-</script>
-
+        let index = {{ $index }};
+        if(index > 0){
+            for(let i = 0; i < index; i++){
+                gallery_comment(i);
+            }
+        }
+    </script>
 @endsection

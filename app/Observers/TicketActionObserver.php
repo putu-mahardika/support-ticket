@@ -17,11 +17,19 @@ class TicketActionObserver
         $this->sendDatabaseNotification($ticket);
 
         // dd($model);
-        // $data  = ['action' => 'New ticket has been created!', 'model_name' => 'Ticket', 'ticket' => $model];
-        // $users = $model->project->users()
+        // $data  = ['action' => 'New ticket has been created!', 'model_name' => 'Ticket', 'ticket' => $ticket];
+        // $users = $ticket->project->users()
         //                ->whereDoesntHave('roles', function ($q) {
         //                    return $q->where('title', 'client');
         //                 })->get();
+
+        // $users_admin = \App\User::whereHas('roles', function ($q) {
+        //     return $q->where('title', 'Admin');
+        // })->get();
+        // try {
+            // Notification::send($users, new DataChangeEmailNotification($data));
+            // Notification::send($users_admin, new DataChangeEmailNotification($data));
+        // } catch (\Exception $e) {
 
         // $users_admin = \App\User::whereHas('roles', function ($q) {
         //     return $q->where('title', 'Admin');
