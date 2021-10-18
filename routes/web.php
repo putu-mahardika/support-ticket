@@ -23,9 +23,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/getJumlahTiketHarian', 'HomeController@getJumlahTiketHarian')->name('getJumlahTiketHarian');
     Route::get('/getLastComment', 'HomeController@getLastComment')->name('getLastComment');
-    Route::get('/getCountStatuses', 'HomeController@getCountStatuses')->name('getCountStatuses');
-    Route::get('/getCountPriorities', 'HomeController@getCountPriorities')->name('getCountPriorities');
-    Route::get('/getCountCategories', 'HomeController@getCountCategories')->name('getCountCategories');
+
+    Route::get('/getDataDoughnut', 'HomeController@getDataDoughnut')->name('getDataDoughnut');
+    
+    Route::get('/getTicketsThisWeek', 'HomeController@getTicketsThisWeek')->name('getTicketsThisWeek');
 
     // Permissions
     Route::delete('permissions/destroy', 'PermissionsController@massDestroy')->name('permissions.massDestroy');

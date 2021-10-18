@@ -13,12 +13,15 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class HomeController
 {
     public function index()
     {
         abort_if(Gate::denies('dashboard_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        // dd(auth()->check());
 
         $date = now();
         $tickets = Ticket::with('project', 'status', 'category', 'priority')
@@ -34,53 +37,88 @@ class HomeController
         $priorities = Priority::all();
 
         $avgTime = $this->getAvgTime($tickets);
-        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime'));
+
+        $weekNow = Carbon::now()->week;
+
+        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime', 'weekNow'));
     }
 
-    public function getCountStatuses(){
-        $data = DB::table('tickets')
-                    ->join('statuses', 'tickets.status_id', '=', 'statuses.id')
-                    ->select('statuses.name as name',
-                        DB::raw('count(*) as total'))
-                    ->when(!auth()->user()->isAdmin(), function ($query) {
-                        return $query->whereHas('project', function ($q) {
-                                    $q->where('id', auth()->user()->projects->first()->id ?? 0);
-                        });
-                    })
-                    ->groupBy('statuses.name')
+    public function getTicketsThisWeek(){
+        $datas = DB::table('tickets')
+                    ->select(DB::raw('dayname(created_at) as hari, count(*) as total'))
+                    ->where('created_at', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 7 WEEK)'))
+                    ->groupBy(DB::raw('dayname(created_at)'))
                     ->get();
-        return $data;
+        // dd($datas);
+        foreach($datas as $data1)
+        {
+            if(isset($data1)){
+                $date_name[] = $data1->hari;
+                $jumlah[] = $data1->total;
+            } else {
+                $date_name[] = null;
+                $jumlah[] = null;
+                break;
+            }
+
+        }
+        // dd($jumlah);
+        $array_dateName = Carbon::getDays();
+        // dd($array_dateName);
+        $data = [];
+        foreach($array_dateName as $dateName)
+        {
+            // dd($dateName);
+            if(isset($date_name))
+            {
+                $temp_index = array_search($dateName, $date_name);
+                if($temp_index === false)
+                {
+                    // dd($temp_index);
+                    array_push($data, array('hari'=>$dateName, 'value'=>0));
+                } else {
+                    // dd($temp_index);
+                    array_push($data, array('hari'=>$dateName, 'value'=>(int)$jumlah[$temp_index]));
+                }
+            } else {
+                array_push($data, array('hari'=>$dateName, 'value'=>0));
+            }
+            // dd($data);
+        }
+        // dd($data);
+        return collect($data);
     }
 
-    public function getCountPriorities(){
-        $data = DB::table('tickets')
-                    ->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
-                    ->select('priorities.name as name',
-                        DB::raw('count(*) as total'))
-                    ->when(!auth()->user()->isAdmin(), function ($query) {
-                        return $query->whereHas('project', function ($q) {
-                                    $q->where('id', auth()->user()->projects->first()->id ?? 0);
-                        });
-                    })
-                    ->groupBy('priorities.name')
-                    ->get();
+    public function getDataDoughnut(Request $request){
+        // dd($request->table);
+        $table = $request->table;
+        $tickets = Ticket::with(['category', 'priority', 'status'])->get();
+        $names = DB::table($request->table)->pluck('name');
+        $data = [];
+        $ticketKeys = $tickets->groupBy('priority.name')->keys();
+
+        foreach ($names as $name) {
+            // $data->put(
+            //     $name,
+            //     in_array($name, $ticketKeys->toArray()) ?
+            //     $tickets->groupBy('priority.name')[$name]->count() : 0
+            // );
+            array_push($data, array('name'=>$name, 
+                        'value'=>in_array($name, $ticketKeys->toArray()) ? $tickets->groupBy('priority.name')[$name]->count() : 0
+            ));
+        }
+        // dd($data);
+
         return $data;
+        // dd(
+        //     $tickets,
+        //     $names,
+        //     $dataStatuses
+        // );
+        // dd('aaaa');
     }
 
-    public function getCountCategories(){
-        $data = DB::table('tickets')
-                    ->join('categories', 'tickets.category_id', '=', 'categories.id')
-                    ->select('categories.name as name',
-                        DB::raw('count(*) as total'))
-                    ->when(!auth()->user()->isAdmin(), function ($query) {
-                        return $query->whereHas('project', function ($q) {
-                                    $q->where('id', auth()->user()->projects->first()->id ?? 0);
-                        });
-                    })
-                    ->groupBy('categories.name')
-                    ->get();
-        return $data;
-    }
+    
 
     public function getAvgTime($tickets){
         return gmdate(
