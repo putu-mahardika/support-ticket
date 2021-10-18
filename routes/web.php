@@ -25,7 +25,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/getLastComment', 'HomeController@getLastComment')->name('getLastComment');
 
     Route::get('/getDataDoughnut', 'HomeController@getDataDoughnut')->name('getDataDoughnut');
-    
+
     Route::get('/getTicketsThisWeek', 'HomeController@getTicketsThisWeek')->name('getTicketsThisWeek');
 
     // Permissions
