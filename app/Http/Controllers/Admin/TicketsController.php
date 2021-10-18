@@ -116,7 +116,7 @@ class TicketsController extends Controller
             });
 
             $table->editColumn('work_duration', function ($row) {
-                return gmdate('H \j\a\m i \m\e\n\i\t', $row->work_duration);
+                return floor($row->work_duration/3600) . ' jam ' . floor(($row->work_duration/60)%60) . ' menit';
             });
 
             $table->addColumn('attachments', function ($row) {
@@ -232,6 +232,11 @@ class TicketsController extends Controller
 
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
+        if ($ticket->assigned_to_user->id != auth()->id() && !auth()->user()->isAdmin()) {
+            return redirect()->back()
+                             ->withStatus('Anda tidak bisa mengedit tiket ini. Silahkan hubungi Admin kami untuk info lebih lanjut');
+        }
+
         $ticket->update($request->all());
 
         if (count($ticket->attachments) > 0) {
@@ -250,14 +255,14 @@ class TicketsController extends Controller
             }
         }
 
-        if (!empty($request->status)) {
-            $ticket->status_id = $request->status;
+        if (!empty($request->status_id)) {
+            $ticket->status_id = $request->status_id;
 
-            if ($request->status == 3 && empty($ticket->work_start)) {
+            if ($request->status_id == 3 && empty($ticket->work_start)) {
                 $ticket->work_start = now();
             }
 
-            if ($request->status == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
+            if ($request->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
                 $ticket->work_end = now();
             }
 
