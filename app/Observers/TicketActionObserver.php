@@ -22,8 +22,8 @@ class TicketActionObserver
             return $q->where('title', 'Admin');
         })->get();
         try {
-            // Notification::send($users, new DataChangeEmailNotification($data));
-            // Notification::send($users_admin, new DataChangeEmailNotification($data));
+            Notification::send($users, new DataChangeEmailNotification($data));
+            Notification::send($users_admin, new DataChangeEmailNotification($data));
         } catch (\Exception $e) {
 
         }
