@@ -1,8 +1,5 @@
 @php
 
-    $user = App\User::find(2)->notifications->toArray();
-
-    dd($user);
 
 @endphp
 @extends('layouts.admin')
@@ -22,7 +19,7 @@
 
 {{-- CONTENT --}}
 @section('content')
-
+    @version
 @endsection
 
 {{-- MODAL --}}
