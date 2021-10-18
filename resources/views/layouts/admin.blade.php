@@ -10,6 +10,7 @@
     <link rel="icon" href="{{ asset('theme/img/headset.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- template bawaaan --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
@@ -62,55 +63,13 @@
                     <ul class="navbar-nav ml-auto">
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                @if ($userNotifications->whereNull('read_at')->count() == 0)
-                                    <i class="fas fa-bell fa-lg"></i>
-                                @else
-                                    <span class="badge badge-danger p-2">
-                                        <i class="fas fa-bell mr-1"></i>
-                                        {{
-                                            $userNotifications->whereNull('read_at')->count() > $maxDisplayNotificationPopup ?
-                                            $maxDisplayNotificationPopup . '+' : $userNotifications->whereNull('read_at')->count();
-                                        }}
-                                    </span>
-                                @endif
-                                <!-- Counter - Alerts -->
-                            </a>
+                            <a id="toggleNotifications" class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header">
                                     Notifications
                                 </h6>
-                                @forelse ($userNotifications->take($maxDisplayNotificationPopup) as $notification)
-                                    <a class="dropdown-item d-flex align-items-center" href="#">
-                                        <div class="mr-3">
-                                            <div class="icon-circle bg-primary position-relative">
-                                                @if ($notification->type == 'App\Notifications\TicketNotification')
-                                                    <i class="fas fa-ticket-alt text-white"></i>
-                                                @elseif ($notification->type == 'App\Notifications\CommentNotification')
-                                                    <i class="fas fa-comment-dots"></i>
-                                                @endif
-                                                @if(empty($notification->read_at))
-                                                    <span class="badge badge-danger position-absolute" style="top: 0; left: -1rem;">
-                                                        new
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="small text-gray-500">
-                                                {{ $notification->created_at->format('D, d M Y H:i') }}
-                                            </div>
-                                            <span class="font-weight-bold">
-                                                {{ $notification->data['title'] . ' - ' . $notification->data['text'] }}
-                                            </span>
-                                        </div>
-                                    </a>
-                                @empty
-                                    <span class="font-weight-bold text-center d-block my-2">
-                                        You not have notifications yet
-                                    </span>
-                                @endforelse
+                                <div id="notificationsList"></div>
                                 @if ($userNotifications->count() > $maxDisplayNotificationPopup)
                                     <a class="dropdown-item text-center small text-gray-500" href="{{ route('admin.notif')}}">
                                         Show All Notification
@@ -197,8 +156,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
     <script>
         const Toast = Swal.mixin({
             toast: true,
@@ -211,12 +168,40 @@
                 toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
         });
+        window.reloadNotification = () => {
+            $.get("{{ route('admin.notif') }}", function (res) {
+                if (res.hasUnread) {
+                    $('#toggleNotifications').html(`
+                        <span class="badge badge-danger p-2">
+                            <i class="fas fa-bell mr-1"></i>
+                            ${res.label}
+                        </span>
+                    `);
+                }
+                else {
+                    $('#toggleNotifications').html(`
+                        <i class="fas fa-bell fa-lg"></i>
+                    `);
+                }
+                $('#notificationsList').html(res.html);
+            });
+        }
+        window.playNotifSound = () => {
+            const audio = new Audio("{{ asset('sound/notif-sound-2.mp3') }}");
+            audio.play();
+        }
     </script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
     <script>
         $(document).ready(() => {
             mqttUserKey = "{{ md5(auth()->user()->email) }}";
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            reloadNotification();
         });
         $(function () {
             let copyButtonTrans = "{{ trans('global.datatables.copy') }}";

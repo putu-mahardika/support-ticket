@@ -5,6 +5,7 @@ let protocol = 'mqqt://';
 let fullHost = `${protocol}${host}:${port}`;
 let client = null;
 window.mqttUserKey = '';
+window.tableToReload = null;
 let baseTopic = '/mchelpdesk/';
 const option = {
     username: 'monster_sby',
@@ -36,11 +37,16 @@ client.on('message', function (topic, message) {
     if (isValidJson(message.toString())) {
         let data = JSON.parse(message.toString());
         if (topic == `${baseTopic}${mqttUserKey}/tickets`) {
+            playNotifSound();
+            reloadNotification();
             Toast.fire({
                 icon: 'info',
                 title: data.title,
                 text: data.text
             });
+            if (tableToReload != null) {
+                tableToReload.ajax.reload();
+            }
         }
     }
 })

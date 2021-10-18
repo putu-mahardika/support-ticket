@@ -69,10 +69,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Projects
     Route::delete('projects/destroy', 'ProjectsController@massDestroy')->name('projects.massDestroy');
     Route::resource('projects', 'ProjectsController');
-    
+
     //Notif
     Route::get('notif', 'NotifController@index')->name('notif');
-   
+    Route::post('notif', 'NotifController@markRead')->name('notif.markRead');
+
 });
 
 
