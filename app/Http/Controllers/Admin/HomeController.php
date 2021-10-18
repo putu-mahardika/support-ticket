@@ -103,7 +103,7 @@ class HomeController
             //     in_array($name, $ticketKeys->toArray()) ?
             //     $tickets->groupBy('priority.name')[$name]->count() : 0
             // );
-            array_push($data, array('name'=>$name, 
+            array_push($data, array('name'=>$name,
                         'value'=>in_array($name, $ticketKeys->toArray()) ? $tickets->groupBy('priority.name')[$name]->count() : 0
             ));
         }
@@ -117,8 +117,6 @@ class HomeController
         // );
         // dd('aaaa');
     }
-
-    
 
     public function getAvgTime($tickets){
         return gmdate(
@@ -207,15 +205,15 @@ class HomeController
             //     ->get();
             $data = DB::select(
                         DB::raw('SELECT a.created_at as tgl,
-                                        c.name as proyek, 
-                                        b.title as judul_tiket, 
-                                        a.author_name as author, 
-                                        a.comment_text as deskripsi 
-                                        from comments a, 
-                                        tickets b, 
-                                        projects c 
-                                        where a.id in (select max(id) from comments group by ticket_id) 
-                                        and a.ticket_id = b.id 
+                                        c.name as proyek,
+                                        b.title as judul_tiket,
+                                        a.author_name as author,
+                                        a.comment_text as deskripsi
+                                        from comments a,
+                                        tickets b,
+                                        projects c
+                                        where a.id in (select max(id) from comments group by ticket_id)
+                                        and a.ticket_id = b.id
                                         and b.project_id = c.id limit 10'
                                 ));
         } else {
@@ -229,13 +227,13 @@ class HomeController
                 // ->get();
                 $data = DB::select(
                             DB::raw('SELECT a.created_at as tgl,
-                                            c.name as proyek, 
-                                            b.title as judul_tiket, 
-                                            a.author_name as author, 
-                                            a.comment_text as deskripsi from comments a, 
-                                            tickets b, projects c 
-                                            where a.id in (select max(id) from comments group by ticket_id) 
-                                            and a.ticket_id = b.id and b.project_id = c.id 
+                                            c.name as proyek,
+                                            b.title as judul_tiket,
+                                            a.author_name as author,
+                                            a.comment_text as deskripsi from comments a,
+                                            tickets b, projects c
+                                            where a.id in (select max(id) from comments group by ticket_id)
+                                            and a.ticket_id = b.id and b.project_id = c.id
                                             and b.project_id = ' . $project . '
                                             limit 10'
                                             ));
