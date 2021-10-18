@@ -150,9 +150,10 @@
                         <div class="col-lg-12">
                             <div class="row">
                                 <div class="col-lg-12">
-                                    <div class="card">
-                                        <div class="text-center card-header">
-                                            Jumlah Tiket Harian (Minggu : {{ $weekNow }})
+                                    <div class="card shadow mb-4">
+                                        <!-- Card Header - Dropdown -->
+                                        <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
+                                            <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian (Minggu : {{ $weekNow }}) </h6>
                                         </div>
                                         <div class="card-body" style="overflow-x: scroll;">
                                             <div class="demo-container">
@@ -264,7 +265,7 @@
             },
             argumentAxis: {
                 allowDecimals: false,
-                title: 'Tanggal',
+                title: 'Hari',
                 label: {
                     wordWrap: "none",
                     overlappingBehavior: "stagger",
