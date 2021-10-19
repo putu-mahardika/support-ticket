@@ -19012,8 +19012,8 @@ function isValidJson(string) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /home/monstercode/projects/support-ticket/resources/js/app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! /home/monstercode/projects/support-ticket/resources/sass/app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\xampp\htdocs\laravel-support\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\laravel-support\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ }),
