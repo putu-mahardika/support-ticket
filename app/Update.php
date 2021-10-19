@@ -8,8 +8,8 @@ class Update
 {
     public function production(Runner $run)
     {
-        $run->external('composer', 'install', '--no-dev', '--prefer-dist', '--optimize-autoloader')
-            ->external('npm', 'install', '--production')
+        $run->external('composer', 'install', '--optimize-autoloader')
+            ->external('npm', 'install')
             ->external('npm', 'run', 'production')
             ->artisan('optimize:clear')
             ->artisan('route:cache')
