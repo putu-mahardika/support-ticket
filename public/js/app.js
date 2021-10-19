@@ -18926,7 +18926,7 @@ __webpack_require__(/*! ./mqtt */ "./resources/js/mqtt.js");
 
 var mqtt = __webpack_require__(/*! mqtt */ "./node_modules/mqtt/lib/connect/index.js");
 
-var host = '192.168.100.143';
+var host = 'monstercode.ip-dynamic.com';
 var port = 9001;
 var protocol = 'mqqt://';
 var fullHost = "".concat(protocol).concat(host, ":").concat(port);
@@ -19012,8 +19012,8 @@ function isValidJson(string) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\xampp\htdocs\support-ticket\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\support-ticket\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /home/monstercode/projects/support-ticket/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /home/monstercode/projects/support-ticket/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ }),

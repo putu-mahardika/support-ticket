@@ -1,5 +1,5 @@
 let mqtt = require('mqtt');
-let host = '192.168.100.143';
+let host = 'monstercode.ip-dynamic.com';
 let port = 9001;
 let protocol = 'mqqt://';
 let fullHost = `${protocol}${host}:${port}`;

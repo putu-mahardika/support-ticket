@@ -11,17 +11,18 @@ class Update
         $run->external('composer', 'install', '--no-dev', '--prefer-dist', '--optimize-autoloader')
             ->external('npm', 'install', '--production')
             ->external('npm', 'run', 'production')
+            ->artisan('optimize:clear')
             ->artisan('route:cache')
             ->artisan('config:cache')
             ->artisan('event:cache')
             ->artisan('migrate', ['--force' => true])
-            ->artisan('cache:clear')
-            ->artisan('queue:restart'); // ->artisan('horizon:terminate');
+            ->artisan('version:absorb');
+            // ->artisan('queue:restart'); // ->artisan('horizon:terminate');
     }
 
     public function local(Runner $run)
     {
-        $run->external('composer', 'update')
+        $run->external('composer', 'install')
             ->external('npm', 'install')
             ->external('npm', 'run', 'development')
             ->artisan('migrate')

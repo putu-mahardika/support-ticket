@@ -1,12 +1,21 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
 	<!-- Sidebar - Brand -->
-	<a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route("admin.home") }}">
-		<div class="sidebar-brand-icon rotate-n-15">
-			<i class="fas fa-headset"></i>
-		</div>
-		<div class="sidebar-brand-text mx-3">Help Desk</div>
-	</a>
+    <div class="">
+        <a class="sidebar-brand row align-items-center justify-content-center" href="{{ route("admin.home") }}">
+            <div class="col-auto pr-0">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-headset"></i>
+                </div>
+            </div>
+            <div class="col text-left sidebar-brand-text">
+                <div class="d-block">{{ config('app.name') }}</div>
+                <span class="d-block small text-white text-lowercase" style="font-size: .6rem;">
+                    @version('compact')
+                </span>
+            </div>
+        </a>
+    </div>
 	<!-- Divider -->
 	<hr class="sidebar-divider my-0">
 
