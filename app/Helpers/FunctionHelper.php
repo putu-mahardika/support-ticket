@@ -31,4 +31,35 @@ class FunctionHelper {
         $minute = $seconds == null ? 0 : $seconds/60;
         return $minute;
     }
+
+    public static function getDayName($names)
+    {
+        $data = [];
+        for($i=0;$i<=6;$i++){
+            switch ($names[$i]){
+                case "Sunday" :
+                    array_push($data, 'Minggu');
+                    break;
+                case "Monday" :
+                    array_push($data, 'Senin');
+                    break;
+                case "Tuesday" :
+                    array_push($data, 'Selasa');
+                    break;
+                case "Wednesday" :
+                    array_push($data, 'Rabu');
+                    break;
+                case "Thursday" :
+                    array_push($data, 'Kamis');
+                    break;
+                case "Friday" :
+                    array_push($data, 'Jumat');
+                    break;
+                case "Saturday" :
+                    array_push($data, 'Sabtu');
+                    break;
+            }
+        }
+        return $data;
+    }
 }

@@ -14,6 +14,8 @@ use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Helpers\FunctionHelper;
+
 
 class HomeController
 {
@@ -39,51 +41,37 @@ class HomeController
         $avgTime = $this->getAvgTime($tickets);
 
         $weekNow = Carbon::now()->week;
-
+        
         return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime', 'weekNow'));
     }
 
     public function getTicketsThisWeek(){
-        $datas = DB::table('tickets')
-                    ->select(DB::raw('dayname(created_at) as hari, count(*) as total'))
-                    ->where('created_at', '>', DB::raw('DATE_SUB(NOW(), INTERVAL 7 WEEK)'))
-                    ->groupBy(DB::raw('dayname(created_at)'))
+        $tickets = Ticket::
+                    select(DB::raw('date(created_at) as date, count(*) as total'))
+                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                    ->groupBy(DB::raw('date(created_at)'))
                     ->get();
-        // dd($datas);
-        foreach($datas as $data1)
+
+        $tickets->map(function($ticket){
+            $ticket->hari = Carbon::create($ticket->date)->locale('id')->dayName;
+            return $ticket;
+        })->toArray();
+        foreach($tickets as $ticket)
         {
-            if(isset($data1)){
-                $date_name[] = $data1->hari;
-                $jumlah[] = $data1->total;
+            if(isset($ticket)){
+                $ticketKeys[] = $ticket->hari;
+                $ticketCount[$ticket->hari] = $ticket->total;
             } else {
-                $date_name[] = null;
-                $jumlah[] = null;
+                $ticketKeys[] = null;
                 break;
             }
-
         }
-        // dd($jumlah);
-        $array_dateName = Carbon::getDays();
-        // dd($array_dateName);
+        $names = FunctionHelper::getDayName(Carbon::getDays());
         $data = [];
-        foreach($array_dateName as $dateName)
-        {
-            // dd($dateName);
-            if(isset($date_name))
-            {
-                $temp_index = array_search($dateName, $date_name);
-                if($temp_index === false)
-                {
-                    // dd($temp_index);
-                    array_push($data, array('hari'=>$dateName, 'value'=>0));
-                } else {
-                    // dd($temp_index);
-                    array_push($data, array('hari'=>$dateName, 'value'=>(int)$jumlah[$temp_index]));
-                }
-            } else {
-                array_push($data, array('hari'=>$dateName, 'value'=>0));
-            }
-            // dd($data);
+        foreach ($names as $name) {
+            array_push($data, array('name'=>$name, 
+                        'value'=>in_array($name, $ticketKeys) ? $ticketCount[$name] : 0
+            ));
         }
         // dd($data);
         return collect($data);
@@ -103,7 +91,7 @@ class HomeController
             //     in_array($name, $ticketKeys->toArray()) ?
             //     $tickets->groupBy('priority.name')[$name]->count() : 0
             // );
-            array_push($data, array('name'=>$name, 
+            array_push($data, array('name'=>$name,
                         'value'=>in_array($name, $ticketKeys->toArray()) ? $tickets->groupBy('priority.name')[$name]->count() : 0
             ));
         }
@@ -117,8 +105,6 @@ class HomeController
         // );
         // dd('aaaa');
     }
-
-    
 
     public function getAvgTime($tickets){
         return gmdate(
@@ -207,15 +193,15 @@ class HomeController
             //     ->get();
             $data = DB::select(
                         DB::raw('SELECT a.created_at as tgl,
-                                        c.name as proyek, 
-                                        b.title as judul_tiket, 
-                                        a.author_name as author, 
-                                        a.comment_text as deskripsi 
-                                        from comments a, 
-                                        tickets b, 
-                                        projects c 
-                                        where a.id in (select max(id) from comments group by ticket_id) 
-                                        and a.ticket_id = b.id 
+                                        c.name as proyek,
+                                        b.title as judul_tiket,
+                                        a.author_name as author,
+                                        a.comment_text as deskripsi
+                                        from comments a,
+                                        tickets b,
+                                        projects c
+                                        where a.id in (select max(id) from comments group by ticket_id)
+                                        and a.ticket_id = b.id
                                         and b.project_id = c.id limit 10'
                                 ));
         } else {
@@ -229,13 +215,13 @@ class HomeController
                 // ->get();
                 $data = DB::select(
                             DB::raw('SELECT a.created_at as tgl,
-                                            c.name as proyek, 
-                                            b.title as judul_tiket, 
-                                            a.author_name as author, 
-                                            a.comment_text as deskripsi from comments a, 
-                                            tickets b, projects c 
-                                            where a.id in (select max(id) from comments group by ticket_id) 
-                                            and a.ticket_id = b.id and b.project_id = c.id 
+                                            c.name as proyek,
+                                            b.title as judul_tiket,
+                                            a.author_name as author,
+                                            a.comment_text as deskripsi from comments a,
+                                            tickets b, projects c
+                                            where a.id in (select max(id) from comments group by ticket_id)
+                                            and a.ticket_id = b.id and b.project_id = c.id
                                             and b.project_id = ' . $project . '
                                             limit 10'
                                             ));
