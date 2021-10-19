@@ -304,9 +304,9 @@
             <div class="card-body">
                 <table class="table table-bordered">
                     <tr>
-                        <th>
+                        {{-- <th>
                             {{ trans('cruds.ticket.fields.comments') }}
-                        </th>
+                        </th> --}}
                         <td>
                             <div class="mx-3" id="comment-wrapper"></div>
                             <hr>

@@ -125,6 +125,8 @@
                             </div>
                         </div>
                         {{-- Bar Chart --}}
+
+                         <!-- DAILY CHART -->
                         <div class="col-xl-12 col-lg-12">
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
@@ -144,17 +146,16 @@
                             </div>
                         </div>
 
-
-
                         <!-- WEEKLY CHART -->
-                        <div class="col-lg-12">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="card shadow mb-4">
-                                        <!-- Card Header - Dropdown -->
-                                        <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
-                                            <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian (Minggu : {{ $weekNow }}) </h6>
-                                        </div>
+                        <div class="col-xl-12 col-lg-12">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian (Minggu : {{ $weekNow }}) </h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="row">
                                         <div class="card-body" style="overflow-x: scroll;">
                                             <div class="demo-container">
                                                 <div id="chart1"></div>
@@ -164,6 +165,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                     @can('user_comment')
                         {{-- Table Last Comment  --}}
@@ -211,7 +213,7 @@
                 }
             },
             series: [
-                { valueField: "value", name: "Tiket", color: "#f6c23e" }
+                { valueField: "value", name: "Tiket", color: "#06d638" }
             ],
             legend: {
                 visible: false
@@ -254,7 +256,7 @@
                 }
             },
             series: [
-                { valueField: "value", name: "Tiket", color: "#f6c23e" }
+                { valueField: "value", name: "Tiket", color: "#009423" }
             ],
             legend: {
                 visible: false
