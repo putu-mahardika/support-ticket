@@ -13,6 +13,8 @@ use App\Notifications\UpdateTicketNotification;
 
 class TicketActionObserver
 {
+    public $afterCommit = true;
+
     public function created(Ticket $ticket)
     {
         $this->sendDatabaseNotification($ticket);

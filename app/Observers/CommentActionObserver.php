@@ -10,6 +10,8 @@ use App\Notifications\NewCommentNotification;
 
 class CommentActionObserver
 {
+    public $afterCommit = true;
+
     public function created(Comment $comment)
     {
         $this->sendDatabaseNotification($comment);
