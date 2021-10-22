@@ -19,6 +19,7 @@ class Workclock extends Model
     protected $fillable = [
         'id',
         'day',
+        'time_start',
         'duration',
         'created_at',
         'updated_at',

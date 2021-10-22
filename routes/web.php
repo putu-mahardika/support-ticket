@@ -56,7 +56,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/workinglogs', 'WorkingLogsController@index')->name('workinglogs.index');
 
     //Work Clock
-    Route::get('/workclock', 'WorkClockController@index')->name('workclock.index');
+    Route::resource('/workclock', 'WorkClockController');
 
     // Tickets
     Route::delete('tickets/destroy', 'TicketsController@massDestroy')->name('tickets.massDestroy');
