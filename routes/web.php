@@ -52,6 +52,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::delete('categories/destroy', 'CategoriesController@massDestroy')->name('categories.massDestroy');
     Route::resource('categories', 'CategoriesController');
 
+    // Working Logs
+    Route::get('/workinglogs', 'WorkingLogsController@index')->name('workinglogs.index');
+
+    //Work Clock
+    Route::get('/workclock', 'WorkClockController@index')->name('workclock.index');
+
     // Tickets
     Route::delete('tickets/destroy', 'TicketsController@massDestroy')->name('tickets.massDestroy');
     Route::post('tickets/media', 'TicketsController@storeMedia')->name('tickets.storeMedia');
