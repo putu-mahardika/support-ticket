@@ -151,8 +151,8 @@ class TicketsController extends Controller
 
         $categories = Category::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $assigned_to_users = User::whereHas('roles', function($query) {
-                $query->whereId(2);
+        $assigned_to_users = User::whereDoesntHave('roles', function($query) {
+                $query->whereId(3);
             })
             ->pluck('name', 'id')
             ->prepend(trans('global.pleaseSelect'), '');
@@ -224,8 +224,8 @@ class TicketsController extends Controller
 
         $categories = Category::all()->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $assigned_to_users = User::whereHas('roles', function($query) {
-                $query->whereId(2);
+        $assigned_to_users = User::whereDoesntHave('roles', function($query) {
+                $query->whereId(3);
             })
             ->pluck('name', 'id')
             ->prepend(trans('global.pleaseSelect'), '');
