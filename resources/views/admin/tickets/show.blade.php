@@ -88,23 +88,15 @@
                                     {{ trans('cruds.ticket.fields.title') }}
                                 </th>
                                 <td>
-                                    @can ('ticket_edit')
-                                        <input type="text" name="title" id="title" value="{{ $ticket->title }}" class="form-control">
-                                    @else
-                                        {{ $ticket->title }}
-                                    @endcan
+                                    {{ $ticket->title }}
                                 </td>
                             </tr>
                             <tr>
                                 <th>
                                     {{ trans('cruds.ticket.fields.content') }}
                                 </th>
-                                <td>
-                                    @can ('ticket_edit')
-                                        <textarea name="content" id="content" cols="30" rows="5" class="form-control" style="resize: none;">{!! $ticket->content !!}</textarea>
-                                    @else
-                                        {!! $ticket->content !!}
-                                    @endcan
+                                <td id="desc">
+                                    {!! $ticket->content !!}
                                 </td>
                             </tr>
                             <tr>
@@ -505,5 +497,17 @@
                 gallery_comment(i);
             }
         }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/linkifyjs@3.0.3/dist/linkify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/linkify-html@3.0.3/dist/linkify-html.min.js"></script>
+    <script>
+        const desc = document.getElementById('desc');
+        const options = {
+            rel: 'nofollow noreferrer noopener'
+        }
+        const desc1 = linkifyHtml(desc.innerHTML, options)
+        console.log(desc1);
+        desc.innerHTML = desc1;
+
     </script>
 @endsection
