@@ -20,9 +20,9 @@
 	<hr class="sidebar-divider my-0">
 
 	<!-- Nav Item - Dashboard -->
-	<li class="nav-item active">
+	<li class="nav-item">
 		@can('dashboard_access')
-			<a class="nav-link" href="{{ route("admin.home") }}">
+			<a class="nav-link " href="{{ route("admin.home") }}">
 				<i class="fas fa-fw fa-tachometer-alt"></i>
 				<span>{{ trans('global.dashboard') }}</span>
 			</a>
@@ -38,7 +38,7 @@
 
 	@can('user_management_access')
 		<!-- Nav Item - User Management -->
-		<li class="nav-item">
+		<li class="nav-item ">
 			<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUser" aria-expanded="true" aria-controls="collapseTwo">
 				<i class="fas fa-users"></i>
 				<span>{{ trans('cruds.userManagement.title') }}</span>

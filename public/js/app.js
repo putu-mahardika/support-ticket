@@ -19012,13 +19012,8 @@ function isValidJson(string) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-<<<<<<< HEAD
 __webpack_require__(/*! C:\xampp\htdocs\support-ticket\resources\js\app.js */"./resources/js/app.js");
 module.exports = __webpack_require__(/*! C:\xampp\htdocs\support-ticket\resources\sass\app.scss */"./resources/sass/app.scss");
-=======
-__webpack_require__(/*! C:\xampp\htdocs\monster-helpdesk\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\monster-helpdesk\resources\sass\app.scss */"./resources/sass/app.scss");
->>>>>>> 296ddbb9656afa274a44a595df04e2378994e2c2
 
 
 /***/ }),
