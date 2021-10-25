@@ -309,7 +309,7 @@
         }
 
         // List Menu Active
-        let lists = document.querySelectorAll('ul.navbar-nav li.nav-item a.nav-link');
+        let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
 
         lists.forEach(list => {
         console.log(list.childNodes[1].href);
