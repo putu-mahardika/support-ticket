@@ -332,6 +332,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/lightgallery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/plugins/thumbnail/lg-thumbnail.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/plugins/zoom/lg-zoom.min.js"></script>
+    <script>
+        let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
+        let collapseLists = document.querySelectorAll('ul.navbar-nav li.nav-item .collapse .collapse-inner a');
+        
+        lists.forEach(list => {
+            if (list.childNodes[1].href == location.href) {
+                list.classList.add('active');
+            }
+            else {
+                list.classList.remove('active');
+            }
+        });
+
+        collapseLists.forEach(collapseList => {
+            if (collapseList.href == location.href) {
+                collapseList.classList.add('active');
+                collapseList.closest('.nav-item').classList.add('active');
+            }
+            else {
+                collapseList.classList.remove('active');
+            }
+        });
+    </script>
     @yield('scripts')
 
 </body>
