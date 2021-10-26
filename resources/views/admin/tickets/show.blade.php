@@ -264,7 +264,7 @@
                                         Work Duration
                                     </th>
                                     <td>
-                                        {{ floor($ticket->work_duration/3600) . ' jam ' . floor(($ticket->work_duration/60)%60) . ' menit' }}
+                                        {{ FunctionHelper::floor_work_duration($ticket->work_duration) }}
                                     </td>
                                 </tr>
                             @endif

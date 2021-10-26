@@ -62,4 +62,9 @@ class FunctionHelper {
         }
         return $data;
     }
+
+    public function floor_work_duration($time){
+        $data = floor($time/3600) . ' jam ' . floor(($time/60)%60) . ' menit';
+        return $data;
+    }
 }
