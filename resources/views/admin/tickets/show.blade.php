@@ -370,6 +370,8 @@
     <script>
         $(document).ready(() => {
             viewToReload();
+            desc_linkify();
+            gallery();
         });
         @can ('ticket_edit')
             let ticketIsChange = false;
@@ -424,6 +426,7 @@
             `);
             $.get("{{ route('admin.tickets.getComments') }}", {id: "{{ $ticket->id }}"}, function (res) {
                 $('#comment-wrapper').html(res);
+                init();
             });
         }
 
@@ -488,26 +491,37 @@
                 speed: 500,
             });
         }
-
-        gallery();
-
-        let index = {{ $index }};
-        if(index > 0){
-            for(let i = 0; i < index; i++){
-                gallery_comment(i);
-            }
-        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/linkifyjs@3.0.3/dist/linkify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/linkify-html@3.0.3/dist/linkify-html.min.js"></script>
     <script>
-        const desc = document.getElementById('desc');
-        const options = {
-            rel: 'nofollow noreferrer noopener'
+        function desc_linkify(){
+            const desc = document.getElementById('desc');
+            const options = {
+                rel: 'nofollow noreferrer noopener'
+            }
+            const desc1 = linkifyHtml(desc.innerHTML, options)
+            desc.innerHTML = desc1;
         }
-        const desc1 = linkifyHtml(desc.innerHTML, options)
-        console.log(desc1);
-        desc.innerHTML = desc1;
+        
+        function comment_linkify(index){
+            var i = index;
+            const comment_txt = document.getElementById('text-comment-'+i);
+            const options = {
+                rel: 'nofollow noreferrer noopener'
+            }
+            const comment_txt_new = linkifyHtml(comment_txt.innerHTML, options)
+            comment_txt.innerHTML = comment_txt_new;
+        }
 
+        function init(){
+            let index = {{ $index }};
+            if(index > 0){
+                for(let i = 0; i < index; i++){
+                    gallery_comment(i);
+                    comment_linkify(i);
+                }
+            }
+        }
     </script>
 @endsection

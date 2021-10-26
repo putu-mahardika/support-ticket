@@ -7,7 +7,7 @@
             <p class="font-weight-bold">
                 <a href="mailto:{{ $comment->author_email }}">{{ $comment->author_name }}</a> ({{ $comment->created_at }})
             </p>
-            <p>{{ $comment->comment_text }}</p>
+            <p id="text-comment-{{$key}}">{{ $comment->comment_text }}</p>
             <div class="row @if (auth()->id() == $comment->user->id) justify-content-end @endif">
                 <div id="att-comment-{{$key}}" class="row mx-0">
                     @foreach($comment->attachments as $attachment)
