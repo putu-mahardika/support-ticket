@@ -54,6 +54,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Working Logs
     Route::get('/workinglogs', 'WorkingLogsController@index')->name('workinglogs.index');
+    Route::get('/workinglogs/data', 'WorkingLogsController@data')->name('workinglogs.data');
 
     //Work Clock
     Route::resource('/workclock', 'WorkClockController');
@@ -65,6 +66,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('tickets/report', 'TicketsController@showReport')->name('tickets.showReport');
     Route::get('tickets/getReport', 'TicketsController@getReport')->name('tickets.getReport');
     Route::get('tickets/getComments', 'TicketsController@getComments')->name('tickets.getComments');
+    Route::put('tickets/quick-edit/{ticket_id}', 'TicketsController@quickEdit')->name('tickets.quickEdit');
     Route::resource('tickets', 'TicketsController');
 
     // Comments
