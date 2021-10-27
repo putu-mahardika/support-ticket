@@ -64,7 +64,7 @@
             <div class="mb-2">
                 <table class="table table-bordered table-striped">
                     <tbody>
-                        <form id="formQuickEditTicket" action="{{ route("admin.tickets.update", [$ticket->id]) }}" method="post">
+                        <form id="formQuickEditTicket" action="{{ route("admin.tickets.quickEdit", [$ticket->id]) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <tr>
