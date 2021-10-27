@@ -17,6 +17,7 @@ class TicketActionObserver
 
     public function created(Ticket $ticket)
     {
+        if (app()->runningInConsole()) return;
         $this->sendDatabaseNotification($ticket);
 
         $data  = ['action' => 'New ticket has been created!', 'model_name' => 'Ticket', 'ticket' => $ticket];
@@ -46,6 +47,7 @@ class TicketActionObserver
 
     public function updated(Ticket $ticket)
     {
+        if (app()->runningInConsole()) return;
         $this->sendDatabaseNotification($ticket, 'edit');
         // if($model->isDirty('assigned_to_user_id'))
         // {

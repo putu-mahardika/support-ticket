@@ -14,6 +14,7 @@ class CommentActionObserver
 
     public function created(Comment $comment)
     {
+        if (app()->runningInConsole()) return;
         $this->sendDatabaseNotification($comment);
     }
 
