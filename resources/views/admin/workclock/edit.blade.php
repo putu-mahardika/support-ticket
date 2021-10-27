@@ -27,7 +27,7 @@
 
                         <div class="form-group {{ $errors->has('time_start') ? 'has-error' : '' }}">
                             <label for="time_start">Time Start*</label>
-                            <input type="time" name="time_start" id="time_start" class="form-control" required onchange="getTimeEnd();" value="{{ old('time_start', $workclock->time_start) }}">
+                            <input type="time" name="time_start" id="time_start" class="form-control" required onchange="getTimeEnd();" value="{{ old('time_start', $workclock->time_start->toTimeString()) }}">
                             @if($errors->has('time_start'))
                                 <em class="invalid-feedback">
                                     {{ $errors->first('time_start') }}
@@ -37,7 +37,7 @@
 
                         <div class="form-group {{ $errors->has('duration') ? 'has-error' : '' }}">
                             <label for="duration">Duration*</label>
-                            <input type="number" name="duration" id="duration" class="form-control" min="1" max="24" step="1" required onchange="getTimeEnd();" value="{{ old('duration', $workclock->duration) }}">
+                            <input type="number" name="duration" id="duration" class="form-control" min="0" max="24" step="1" required onchange="getTimeEnd();" value="{{ old('duration', $workclock->duration) }}">
                             @if($errors->has('duration'))
                                 <em class="invalid-feedback">
                                     {{ $errors->first('duration') }}
