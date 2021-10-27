@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\FunctionHelper;
+use App\Helpers\TicketHelper;
+use App\WorkingLog;
 
 class TicketsController extends Controller
 {
@@ -273,16 +275,10 @@ class TicketsController extends Controller
 
             $ticket->save();
             $ticket->refresh();
+            TicketHelper::generateWorkingLog($ticket->id);
         }
 
-        if (!empty($ticket->work_start) && !empty($ticket->work_end) && empty($ticket->work_duration)) {
-            $ticket->work_duration = Carbon::create($ticket->work_end)
-                                           ->diffInSeconds(
-                                               Carbon::create($ticket->work_start)
-                                           );
-            $ticket->save();
-            $ticket->refresh();
-        }
+        TicketHelper::calculateWorkDuration(collect([$ticket]));
 
         return redirect()->route('admin.tickets.index')->with('status', 'Perubahan berhasil ditambahkan.');
     }
@@ -346,16 +342,10 @@ class TicketsController extends Controller
 
             $ticket->save();
             $ticket->refresh();
+            TicketHelper::generateWorkingLog($ticket->id);
         }
 
-        if (!empty($ticket->work_start) && !empty($ticket->work_end) && empty($ticket->work_duration)) {
-            $ticket->work_duration = Carbon::create($ticket->work_end)
-                                           ->diffInSeconds(
-                                               Carbon::create($ticket->work_start)
-                                           );
-            $ticket->save();
-            $ticket->refresh();
-        }
+        TicketHelper::calculateWorkDuration(collect([$ticket]));
 
         $ticket->sendCommentNotification($comment);
 
@@ -498,5 +488,36 @@ class TicketsController extends Controller
         // dd($request);
         // dd(collect($result));
         return collect($result);
+    }
+
+    public function quickEdit(Request $request, $ticket_id)
+    {
+        $ticket = Ticket::find($ticket_id);
+        if ($ticket->assigned_to_user->id != auth()->id() && !auth()->user()->isAdmin()) {
+            return redirect()->back()
+                             ->withStatus('Anda tidak bisa mengedit tiket ini. Silahkan hubungi Admin kami untuk info lebih lanjut');
+        }
+
+        $ticket->update($request->all());
+
+        if (!empty($request->status_id)) {
+            $ticket->status_id = $request->status_id;
+
+            if ($request->status_id == 3 && empty($ticket->work_start)) {
+                $ticket->work_start = now();
+            }
+
+            if ($request->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
+                $ticket->work_end = now();
+            }
+
+            $ticket->save();
+            $ticket->refresh();
+            TicketHelper::generateWorkingLog($ticket->id);
+        }
+
+        TicketHelper::calculateWorkDuration(collect([$ticket]));
+
+        return redirect()->route('admin.tickets.index')->with('status', 'Perubahan berhasil ditambahkan.');
     }
 }
