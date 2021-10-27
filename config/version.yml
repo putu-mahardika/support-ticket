@@ -4,10 +4,10 @@ current:
   label: v
   major: 1
   minor: 1
-  patch: 0
-  prerelease: 14-g2d3902d
+  patch: 1
+  prerelease: 31-g3a35eda
   buildmetadata: ''
-  commit: 2d3902
+  commit: 3a35ed
   timestamp:
     year: 2021
     month: 10
