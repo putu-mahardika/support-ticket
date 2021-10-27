@@ -177,6 +177,7 @@ return [
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         App\Providers\MqttHelperServiceProvider::class,
         App\Providers\FunctionHelperServiceProvider::class,
+        App\Providers\TicketHelperServiceProvider::class,
     ],
 
     /*
@@ -230,6 +231,7 @@ return [
         'Bugsnag'      => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
         'MqttHelper'   => App\Helpers\MqttHelper::class,
         'FunctionHelper' => App\Helpers\FunctionHelper::class,
+        'TicketHelper' => App\Helpers\TicketHelper::class,
     ],
 
 ];
