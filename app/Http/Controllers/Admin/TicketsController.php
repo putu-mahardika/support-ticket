@@ -287,12 +287,14 @@ class TicketsController extends Controller
     {
         abort_if(Gate::denies('ticket_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        // $project = Auth::user()->projects->first() ?? null;
+
         $ticket->load('status', 'priority', 'category', 'assigned_to_user', 'ref');
 
         $statuses = Status::all();
         $priorities = Priority::all();
         $categories = Category::all();
-        $ticketRef = Ticket::whereNotIn('id', [$ticket->id])->get();
+        $ticketRef = Ticket::whereNotIn('id', [$ticket->id])->where('project_id', $ticket->project_id)->get();
         return view('admin.tickets.show', compact('ticket', 'statuses', 'priorities', 'categories', 'ticketRef'));
     }
 

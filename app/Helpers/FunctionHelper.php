@@ -97,4 +97,9 @@ class FunctionHelper {
                     1 : intval(explode('.', $lastCode->code)[2]) + 1;
         return $lastCode->project->code . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
     }
+
+    public function floor_work_duration($time){
+        $data = floor($time/3600) . ' jam ' . floor(($time/60)%60) . ' menit';
+        return $data;
+    }
 }
