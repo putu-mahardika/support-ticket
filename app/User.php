@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Helpers\FunctionHelper;
 use Carbon\Carbon;
 use Hash;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -100,5 +101,20 @@ class User extends Authenticatable
 
     public function projects(){
         return $this->belongsToMany(Project::class, 'user_project', 'user_id', 'project_id');
+    }
+
+    public function hasProject($project)
+    {
+        if (FunctionHelper::varIs($project) === "integer") {
+            $id = $project;
+        }
+        elseif (FunctionHelper::varIs($project) === "object") {
+            $id = $project->id;
+        }
+        else {
+            return;
+        }
+
+        return $this->projects->pluck('id')->contains($id);
     }
 }
