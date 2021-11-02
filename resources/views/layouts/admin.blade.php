@@ -31,6 +31,12 @@
     <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.common.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.light.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/css/lightgallery-bundle.min.css">
+    <style>
+        .disabledContainer {
+            pointer-events: none;
+            opacity: 0.4;
+        }
+    </style>
     @yield('styles')
 
     {{-- template SB-ADMIN-2 --}}
@@ -335,7 +341,7 @@
     <script>
         let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
         let collapseLists = document.querySelectorAll('ul.navbar-nav li.nav-item .collapse .collapse-inner a');
-        
+
         lists.forEach(list => {
             if (list.childNodes[1].href == location.href) {
                 list.classList.add('active');

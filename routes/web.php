@@ -55,6 +55,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Working Logs
     Route::get('/workinglogs', 'WorkingLogsController@index')->name('workinglogs.index');
     Route::get('/workinglogs/data', 'WorkingLogsController@data')->name('workinglogs.data');
+    Route::get('/workinglogs/tickets', 'WorkingLogsController@tickets')->name('workinglogs.tickets');
+    Route::post('/workinglogs/recreate-logs', 'WorkingLogsController@recreateLogs')->name('workinglogs.recreateLogs');
 
     //Work Clock
     Route::resource('/workclock', 'WorkClockController');
