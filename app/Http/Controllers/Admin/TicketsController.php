@@ -25,6 +25,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\FunctionHelper;
 use App\Helpers\TicketHelper;
 use App\WorkingLog;
+use Illuminate\Validation\Rule;
 
 class TicketsController extends Controller
 {
@@ -239,12 +240,63 @@ class TicketsController extends Controller
 
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
+        $recreateLog = true;
         if ($ticket->assigned_to_user->id != auth()->id() && !auth()->user()->isAdmin()) {
             return redirect()->back()
                              ->withStatus('Anda tidak bisa mengedit tiket ini. Silahkan hubungi Admin kami untuk info lebih lanjut');
         }
 
-        $ticket->update($request->all());
+        $request->validate([
+            "title" => ['required', 'string'],
+            "content" => ['required', 'string'],
+            "status_id" => ['required'],
+            "priority_id" => ['required'],
+            "category_id" => ['required'],
+            "assigned_to_user_id" => ['required'],
+            "work_start" => [
+                Rule::requiredIf(function () use ($request) {
+                    return $request->has('checkbox_edit_work_start');
+                })
+            ],
+            "work_start_reason" => [
+                Rule::requiredIf(function () use ($request) {
+                    return $request->has('checkbox_edit_work_start');
+                })
+            ],
+            "work_end" => [
+                Rule::requiredIf(function () use ($request) {
+                    return $request->has('checkbox_edit_work_end');
+                })
+            ],
+            "work_end_reason" => [
+                Rule::requiredIf(function () use ($request) {
+                    return $request->has('checkbox_edit_work_end');
+                })
+            ]
+        ]);
+
+        if (!$request->has('checkbox_edit_work_start')) {
+            $request->request->remove('old_work_start');
+            $request->request->remove('work_start');
+            $request->request->remove('work_start_reason');
+            $recreateLog = false;
+        }
+
+        if (!$request->has('checkbox_edit_work_end')) {
+            $request->request->remove('old_work_end');
+            $request->request->remove('work_end');
+            $request->request->remove('work_end_reason');
+            $recreateLog = false;
+        }
+
+        if ($recreateLog) {
+            Ticket::withoutEvents(function () use ($ticket, $request) {
+                $ticket->update($request->all());
+            });
+        }
+        else {
+            $ticket->update($request->all());
+        }
 
         if (count($ticket->attachments) > 0) {
             foreach ($ticket->attachments as $media) {
@@ -278,7 +330,11 @@ class TicketsController extends Controller
             TicketHelper::generateWorkingLog($ticket->id);
         }
 
-        TicketHelper::calculateWorkDuration(collect([$ticket]));
+        if ($recreateLog) {
+            TicketHelper::recreateLog(collect([$ticket]));
+        }
+
+        TicketHelper::calculateWorkDuration(collect([$ticket]), $recreateLog);
 
         return redirect()->route('admin.tickets.index')->with('status', 'Perubahan berhasil ditambahkan.');
     }

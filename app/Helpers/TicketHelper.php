@@ -94,11 +94,11 @@ class TicketHelper {
         }
     }
 
-    public static function calculateWorkDuration($tickets)
+    public static function calculateWorkDuration($tickets, $ignorePerfectLog = false)
     {
         foreach ($tickets as $ticket) {
             $ticketLogs = WorkingLog::where('ticket_id', $ticket->id)->get();
-            if (static::isPerfectLog($ticket->id)) {
+            if (static::isPerfectLog($ticket->id) || $ignorePerfectLog) {
                 $ticket->work_duration = $ticketLogs->map(function($log, $key) {
                     return $log->finished_at->diffInSeconds($log->started_at);
                 })
@@ -131,7 +131,7 @@ class TicketHelper {
             if ($diffInDays == 0) {
                 WorkingLog::create([
                     'ticket_id' => $ticket->id,
-                    'status_id' => $ticket->status_id,
+                    'status_id' => 5, // Hard code of "Closed"
                     'started_at' => $ticket->work_start,
                     'finished_at' => $ticket->work_end,
                 ]);
@@ -156,18 +156,23 @@ class TicketHelper {
                         }
 
                         if ($i == $diffInDays) { // last loop
-                            $finished_at = $ticket->work_end;
+                            $finished_at = Carbon::create($ticket->work_end);
+                            if ($finished_at < $start) {
+                                $finished_at = $start;
+                            }
+                            $status_id = 5; // Hard code of "Closed"
                         }
                         else {
                             $finished_at = $start->hour($endTime[0])
                                                  ->minute($endTime[1])
                                                  ->second($endTime[2])
                                                  ->toDateTimeString();
+                            $status_id = 3; // Hard code of "Working"
                         }
 
                         WorkingLog::create([
                             'ticket_id' => $ticket->id,
-                            'status_id' => $ticket->status_id,
+                            'status_id' => $status_id,
                             'started_at' => $started_at,
                             'finished_at' => $finished_at,
                         ]);

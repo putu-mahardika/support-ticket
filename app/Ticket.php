@@ -48,6 +48,10 @@ class Ticket extends Model implements HasMedia
         'work_start',
         'work_end',
         'work_duration',
+        'old_work_start',
+        'old_work_end',
+        'work_start_reason',
+        'work_end_reason',
     ];
 
     public static function boot()

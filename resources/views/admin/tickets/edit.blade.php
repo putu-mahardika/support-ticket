@@ -142,6 +142,81 @@
                     </div>
                 @endif
 
+                @if (auth()->user()->isAdmin() && $ticket->status_id == 5)
+                    <div class="row my-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <label for="checkbox_edit_work_start">Work Start</label>
+                                        <input type="checkbox" class="form-checkbox m-1" name="checkbox_edit_work_start" id="checkbox_edit_work_start" onchange="dateBackToogle('start')">
+                                    </div>
+                                    <hr>
+                                    <div id="work_start_container" class="disabledContainer">
+                                        <div class="form-group">
+                                            <label for="old_work_start">Old</label>
+                                            <input type="datetime-local" class="form-control" name="old_work_start" id="old_work_start" value="{{ old('old_work_start', Str::replace(' ', 'T', $ticket->work_start)) }}" readonly>
+                                        </div>
+                                        <div class="form-group {{ $errors->has('work_start') ? 'has-error' : '' }}">
+                                            <label for="work_start">New<span class="text-danger">*</span></label>
+                                            <input type="datetime-local" class="form-control" name="work_start" id="work_start">
+                                            @if($errors->has('work_start'))
+                                                <em class="invalid-feedback">
+                                                    {{ $errors->first('work_start') }}
+                                                </em>
+                                            @endif
+                                        </div>
+                                        <div class="form-group {{ $errors->has('work_start_reason') ? 'has-error' : '' }}">
+                                            <label for="work_start_reason">Reason<span class="text-danger">*</span></label>
+                                            <textarea style="resize: none;" class="form-control" name="work_start_reason" id="work_start_reason" cols="30" rows="3"></textarea>
+                                            @if($errors->has('work_start_reason'))
+                                                <em class="invalid-feedback">
+                                                    {{ $errors->first('work_start_reason') }}
+                                                </em>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <label for="checkbox_edit_work_end">Work End</label>
+                                        <input type="checkbox" class="form-checkbox m-1" name="checkbox_edit_work_end" id="checkbox_edit_work_end" onchange="dateBackToogle('end')">
+                                    </div>
+                                    <hr>
+                                    <div id="work_end_container" class="disabledContainer">
+                                        <div class="form-group">
+                                            <label for="old_work_end">Old</label>
+                                            <input type="datetime-local" class="form-control" name="old_work_end" id="old_work_end" value="{{ old('old_work_end', Str::replace(' ', 'T', $ticket->work_end)) }}" readonly>
+                                        </div>
+                                        <div class="form-group {{ $errors->has('work_end') ? 'has-error' : '' }}">
+                                            <label for="work_end">New<span class="text-danger">*</span></label>
+                                            <input type="datetime-local" class="form-control" name="work_end" id="work_end">
+                                            @if($errors->has('work_end'))
+                                                <em class="invalid-feedback">
+                                                    {{ $errors->first('work_end') }}
+                                                </em>
+                                            @endif
+                                        </div>
+                                        <div class="form-group {{ $errors->has('work_end_reason') ? 'has-error' : '' }}">
+                                            <label for="work_end_reason">Reason<span class="text-danger">*</span></label>
+                                            <textarea style="resize: none;" class="form-control" name="work_end_reason" id="work_end_reason" cols="30" rows="3"></textarea>
+                                            @if($errors->has('work_end_reason'))
+                                                <em class="invalid-feedback">
+                                                    {{ $errors->first('work_end_reason') }}
+                                                </em>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div>
                     <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
                 </div>
@@ -151,60 +226,66 @@
 @endsection
 
 @section('scripts')
-<script>
-    var uploadedAttachmentsMap = {}
-    Dropzone.options.attachmentsDropzone = {
-        url: '{{ route('admin.tickets.storeMedia') }}',
-        maxFilesize: 2, // MB
-        addRemoveLinks: true,
-        headers: {
-        'X-CSRF-TOKEN': "{{ csrf_token() }}"
-        },
-        params: {
-        size: 2
-        },
-        success: function (file, response) {
-        $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">')
-        uploadedAttachmentsMap[file.name] = response.name
-        },
-        removedfile: function (file) {
-        file.previewElement.remove()
-        var name = ''
-        if (typeof file.file_name !== 'undefined') {
-            name = file.file_name
-        } else {
-            name = uploadedAttachmentsMap[file.name]
-        }
-        $('form').find('input[name="attachments[]"][value="' + name + '"]').remove()
-        },
-        init: function () {
-            @if(isset($ticket) && $ticket->attachments)
-                var files =
-                    {!! json_encode($ticket->attachments) !!}
-                    for (var i in files) {
-                        var file = files[i]
-                        this.options.addedfile.call(this, file)
-                        file.previewElement.classList.add('dz-complete')
-                        $('form').append('<input type="hidden" name="attachments[]" value="' + file.file_name + '">')
-                    }
-            @endif
-        },
-        error: function (file, response) {
-            if ($.type(response) === 'string') {
-                var message = response //dropzone sends it's own error messages in string
+    <script>
+        var uploadedAttachmentsMap = {}
+        Dropzone.options.attachmentsDropzone = {
+            url: '{{ route('admin.tickets.storeMedia') }}',
+            maxFilesize: 2, // MB
+            addRemoveLinks: true,
+            headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            params: {
+            size: 2
+            },
+            success: function (file, response) {
+            $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">')
+            uploadedAttachmentsMap[file.name] = response.name
+            },
+            removedfile: function (file) {
+            file.previewElement.remove()
+            var name = ''
+            if (typeof file.file_name !== 'undefined') {
+                name = file.file_name
             } else {
-                var message = response.errors.file
+                name = uploadedAttachmentsMap[file.name]
             }
-            file.previewElement.classList.add('dz-error')
-            _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]')
-            _results = []
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                node = _ref[_i]
-                _results.push(node.textContent = message)
-            }
+            $('form').find('input[name="attachments[]"][value="' + name + '"]').remove()
+            },
+            init: function () {
+                @if(isset($ticket) && $ticket->attachments)
+                    var files =
+                        {!! json_encode($ticket->attachments) !!}
+                        for (var i in files) {
+                            var file = files[i]
+                            this.options.addedfile.call(this, file)
+                            file.previewElement.classList.add('dz-complete')
+                            $('form').append('<input type="hidden" name="attachments[]" value="' + file.file_name + '">')
+                        }
+                @endif
+            },
+            error: function (file, response) {
+                if ($.type(response) === 'string') {
+                    var message = response //dropzone sends it's own error messages in string
+                } else {
+                    var message = response.errors.file
+                }
+                file.previewElement.classList.add('dz-error')
+                _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]')
+                _results = []
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                    node = _ref[_i]
+                    _results.push(node.textContent = message)
+                }
 
-            return _results
+                return _results
+            }
         }
-    }
-</script>
+
+        function dateBackToogle(name) {
+            $(`#work_${name}_container`).toggleClass('disabledContainer');
+            $(`#work_${name}`).prop('required', !$(`#work_${name}`).prop('required'));
+            $(`#work_${name}_reason`).prop('required', !$(`#work_${name}_reason`).prop('required'));
+        }
+    </script>
 @endsection
