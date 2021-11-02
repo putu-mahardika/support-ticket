@@ -8,16 +8,14 @@ class Update
 {
     public function production(Runner $run)
     {
-        $run->external('composer', 'install', '--optimize-autoloader')
+        $run->artisan('down')
+            ->external('git', 'pull')
+            ->external('composer', 'install', '--optimize-autoloader')
             ->external('npm', 'install')
             ->external('npm', 'run', 'production')
-            ->artisan('optimize:clear')
-            ->artisan('route:cache')
-            ->artisan('config:cache')
-            ->artisan('event:cache')
             ->artisan('migrate', ['--force' => true])
-            ->artisan('version:absorb');
-            // ->artisan('queue:restart'); // ->artisan('horizon:terminate');
+            ->artisan('version:absorb')
+            ->artisan('optimize:clear');
     }
 
     public function local(Runner $run)
@@ -26,7 +24,6 @@ class Update
             ->external('npm', 'install')
             ->external('npm', 'run', 'development')
             ->artisan('migrate')
-            ->artisan('version:absorb')
             ->artisan('optimize:clear');
     }
 }
