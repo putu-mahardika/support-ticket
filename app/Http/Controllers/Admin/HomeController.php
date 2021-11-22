@@ -38,10 +38,13 @@ class HomeController
         $categories = Category::all();
         $priorities = Priority::all();
 
+        $weekStart = date_format($date->startOfWeek(),"d-m-Y");
+        $weekEnd = $date->endOfWeek();
+
         $avgTime = $this->getAvgTime($tickets);
 
         $weekNow = Carbon::now()->week;
-        
+
         return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime', 'weekNow'));
     }
 
@@ -51,11 +54,12 @@ class HomeController
                     ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
                     ->groupBy(DB::raw('date(created_at)'))
                     ->get();
-
         $tickets->map(function($ticket){
             $ticket->hari = Carbon::create($ticket->date)->locale('id')->dayName;
             return $ticket;
         })->toArray();
+        // dd($tickets);
+
         foreach($tickets as $ticket)
         {
             if(isset($ticket)){
@@ -67,20 +71,30 @@ class HomeController
             }
         }
         $names = FunctionHelper::getDayName(Carbon::getDays());
+        // dd($names);
         $data = [];
+
         foreach ($names as $name) {
-            array_push($data, array('name'=>$name, 
+            if (empty($ticketKeys)) {
+                array_push($data, array('name'=>$name, 'value'=>0));
+            } else {
+                array_push($data, array('name'=>$name,
                         'value'=>in_array($name, $ticketKeys) ? $ticketCount[$name] : 0
-            ));
+                ));
+            }
+
         }
-        // dd($data);
+        // dd(collect($data));
         return collect($data);
     }
 
     public function getDataDoughnut(Request $request){
         // dd($request->table);
+        $date = now();
         $table = $request->table;
-        $tickets = Ticket::with(['category', 'priority', 'status'])->get();
+        $tickets = Ticket::with(['category', 'priority', 'status'])
+                    ->whereMonth('created_at', $date->month)
+                    ->get();
         $names = DB::table($request->table)->pluck('name');
         $data = [];
         $ticketKeys = $tickets->groupBy('priority.name')->keys();

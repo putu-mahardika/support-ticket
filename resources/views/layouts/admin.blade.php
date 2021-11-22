@@ -315,17 +315,17 @@
         }
 
         // List Menu Active
-        let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
+        // let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
 
-        lists.forEach(list => {
-        console.log(list.childNodes[1].href);
-        if (location.href == list.childNodes[1].href) {
-                list.classList.add('active');
-            }
-            else {
-                list.classList.remove('active');
-            }
-        });
+        // lists.forEach(list => {
+        // console.log(list.childNodes[1].href);
+        // if (location.href == list.childNodes[1].href) {
+        //         list.classList.add('active');
+        //     }
+        //     else {
+        //         list.classList.remove('active');
+        //     }
+        // });
     </script>
     <!-- Bootstrap core JavaScript-->
     <script src="{{ asset('theme/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

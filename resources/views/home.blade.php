@@ -76,6 +76,9 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="card-footer">
+                                            <div class="text-dark text-right">{{ $date->locale('id')->monthName }} {{$date->year}}</div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-xl-6 col-md-6 mb-4">
@@ -93,6 +96,9 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="card-footer">
+                                            <div class="text-dark text-right">{{ $date->locale('id')->monthName }} {{$date->year}}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +109,7 @@
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
                                 <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Current Condition</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Current Condition ({{ $date->locale('id')->monthName }} {{$date->year}})</h6>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
@@ -131,7 +137,7 @@
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
                                 <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian (Bulan : {{ $date->locale('id')->monthName }}) </h6>
+                                    <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian ({{ $date->locale('id')->monthName }} {{$date->year}}) </h6>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
@@ -151,7 +157,7 @@
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
                                 <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian (Minggu : {{ $weekNow }}) </h6>
+                                    <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian (Minggu : {{ $weekNow }}) ({{date_format($date->startOfWeek(),"d/m/Y")}} - {{date_format($date->endOfWeek(),"d/m/Y")}}) </h6>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
