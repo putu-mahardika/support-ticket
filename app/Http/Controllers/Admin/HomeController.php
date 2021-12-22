@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Helpers\FunctionHelper;
-
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Str;
 
 class HomeController
 {
@@ -41,69 +42,53 @@ class HomeController
         $avgTime = $this->getAvgTime($tickets);
 
         $weekNow = Carbon::now()->week;
-        
+
         return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime', 'weekNow'));
     }
 
-    public function getTicketsThisWeek(){
-        $tickets = Ticket::
-                    select(DB::raw('date(created_at) as date, count(*) as total'))
-                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                    ->groupBy(DB::raw('date(created_at)'))
-                    ->get();
+    public function getTicketsThisWeek(Request $request){
+        $dateFilter = Carbon::createFromFormat('Y-m', $request->monthFilter)->week($request->weekFilter);
+        $tickets = Ticket::selectRaw('DATE(created_at) as date, COUNT(id) as total')
+                         ->whereDate('created_at', '>=', $dateFilter->startOfWeek()->toDateString())
+                         ->whereDate('created_at', '<=', $dateFilter->endOfWeek()->toDateString())
+                         ->when(!auth()->user()->isAdmin(), function ($query) {
+                             $project_id = auth()->user()->projects()->first()->id;
+                             return $query->where('project_id', $project_id);
+                         })
+                         ->groupByRaw('DATE(created_at)')
+                         ->orderByRaw('DATE(created_at)', 'asc')
+                         ->get();
 
-        $tickets->map(function($ticket){
-            $ticket->hari = Carbon::create($ticket->date)->locale('id')->dayName;
-            return $ticket;
-        })->toArray();
-        foreach($tickets as $ticket)
-        {
-            if(isset($ticket)){
-                $ticketKeys[] = $ticket->hari;
-                $ticketCount[$ticket->hari] = $ticket->total;
-            } else {
-                $ticketKeys[] = null;
-                break;
-            }
-        }
-        $names = FunctionHelper::getDayName(Carbon::getDays());
-        $data = [];
-        foreach ($names as $name) {
-            array_push($data, array('name'=>$name, 
-                        'value'=>in_array($name, $ticketKeys) ? $ticketCount[$name] : 0
-            ));
-        }
-        // dd($data);
-        return collect($data);
+        $periode = CarbonPeriod::create($dateFilter->startOfWeek()->toDateString(), $dateFilter->endOfWeek()->toDateString());
+        $dates = collect($periode->toArray())->map(function ($date) use ($tickets) {
+            $ticket = $tickets->where('date', $date->toDateString())->first();
+            return [
+                'date' => $date->toDateString(),
+                'name' => $date->locale('id')->dayName . "\n(" . $date->format('d/m/Y') . ')',
+                'value' => $ticket->total ?? 0
+            ];
+        });
+        return collect($dates);
     }
 
     public function getDataDoughnut(Request $request){
-        // dd($request->table);
-        $table = $request->table;
-        $tickets = Ticket::with(['category', 'priority', 'status'])->get();
+        $dateFilter = Carbon::createFromFormat('Y-m', $request->monthFilter)->day(1);
+        $tickets = Ticket::with(Str::singular($request->table))
+                         ->whereDate('created_at', '>=', $dateFilter->toDateString())
+                         ->whereDate('created_at', '<=', $dateFilter->endOfMonth()->toDateString())
+                         ->get();
         $names = DB::table($request->table)->pluck('name');
         $data = [];
-        $ticketKeys = $tickets->groupBy('priority.name')->keys();
-
+        $groupTicket = $tickets->groupBy(Str::singular($request->table).'.name');
+        $ticketKeys = $groupTicket->keys();
         foreach ($names as $name) {
-            // $data->put(
-            //     $name,
-            //     in_array($name, $ticketKeys->toArray()) ?
-            //     $tickets->groupBy('priority.name')[$name]->count() : 0
-            // );
-            array_push($data, array('name'=>$name,
-                        'value'=>in_array($name, $ticketKeys->toArray()) ? $tickets->groupBy('priority.name')[$name]->count() : 0
-            ));
+            array_push($data, [
+                'name' => $name,
+                'value' => in_array($name, $ticketKeys->toArray()) ? $groupTicket[$name]->count() : 0
+            ]);
         }
-        // dd($data);
 
         return $data;
-        // dd(
-        //     $tickets,
-        //     $names,
-        //     $dataStatuses
-        // );
-        // dd('aaaa');
     }
 
     public function getAvgTime($tickets){
@@ -115,65 +100,28 @@ class HomeController
         );
     }
 
-    public function getJumlahTiketHarian(){
-        $date_temp = date('d/m/Y');
-        $date = explode('/', $date_temp);
-        $alltgl = cal_days_in_month(CAL_GREGORIAN, $date[1], $date[2]);
-        // dd($alltgl);
-        $user_role = Auth::user()->roles()->first()->id;
-        // dd($user_role);
-        if ($user_role == 1) {
-            $datas = DB::table('tickets')
-                ->selectRaw('DAY(created_at) as tgl')
-                ->selectRaw('COUNT(*) as jumlah')
-                ->whereMonth('created_at', $date[1])
-                ->whereYear('created_at', $date[2])
-                ->groupByRaw('DAY(created_at)')
-                ->orderByRaw('DAY(created_at)', 'asc')
-                ->get();
-        } else {
-            $project_id = Auth::user()->projects->first()->id ?? null;
-            if(!is_null($project_id)){
-                $datas = DB::table('tickets')
-                    ->selectRaw('DAY(created_at) as tgl')
-                    ->selectRaw('COUNT(*) as jumlah')
-                    ->whereMonth('created_at', $date[1])
-                    ->whereYear('created_at', $date[2])
-                    ->where('project_id', $project_id)
-                    ->groupByRaw('DAY(created_at)')
-                    ->orderByRaw('DAY(created_at)', 'asc')
-                    ->get();
-            }
-        }
-        foreach($datas as $data)
-        {
-            if(isset($data)){
-                $date_month[] = $data->tgl;
-                $jumlah[] = $data->jumlah;
-            } else {
-                $date_month[] = null;
-                $jumlah[] = null;
-                break;
-            }
+    public function getJumlahTiketHarian(Request $request){
+        $dateFilter = Carbon::createFromFormat('Y-m', $request->monthFilter)->day(1);
+        $tickets = Ticket::selectRaw('DAY(created_at) as tgl, COUNT(id) as jumlah')
+                      ->whereDate('created_at', '>=', $dateFilter->toDateString())
+                      ->whereDate('created_at', '<=', $dateFilter->endOfMonth()->toDateString())
+                      ->when(!auth()->user()->isAdmin(), function ($query) {
+                          $project_id = auth()->user()->projects()->first()->id;
+                          return $query->where('project_id', $project_id);
+                      })
+                      ->groupByRaw('DAY(created_at)')
+                      ->orderByRaw('DAY(created_at)', 'asc')
+                      ->get();
 
-        }
-        $data = [];
-        for($i=1;$i<=$alltgl;$i++)
-        {
-            if(isset($date_month))
-            {
-                $temp_index = array_search($i, $date_month);
-                if($temp_index === false)
-                {
-                    array_push($data, array('tgl'=>(int)$i, 'value'=>0));
-                } else {
-                    array_push($data, array('tgl'=>(int)$i, 'value'=>(int)$jumlah[$temp_index]));
-                }
-            } else {
-                array_push($data, array('tgl'=>(int)$i, 'value'=>0));
-            }
-        }
-        return collect($data);
+        $periode = CarbonPeriod::create($dateFilter->startOfMonth()->toDateString(), $dateFilter->endOfMonth()->toDateString());
+        $dates = collect($periode->toArray())->map(function ($date) use ($tickets) {
+            $ticket = $tickets->where('tgl', $date->day)->first();
+            return [
+                'tgl' => $date->day,
+                'value' => $ticket->jumlah ?? 0
+            ];
+        });
+        return $dates;
     }
 
     public function getRataDurasiSelesai(){
