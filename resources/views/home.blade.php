@@ -67,7 +67,7 @@
                                     <div class="col mr-2">
                                         <div class="text-lg font-weight-bold text-white text-uppercase mb-1">Total Tickets</div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-1000">
-                                            <h2 class="counter">{{ number_format($tickets->count()) }}</h2>
+                                            <h2 id="totalTicketCounter" class="counter">0</h2>
                                         </div>
                                     </div>
                                     <div class="col-auto">
@@ -205,7 +205,6 @@
 @section('scripts')
 @parent
 <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
-<script src="https://unpkg.com/counterup2@2.0.2/dist/index.js">	</script>
 <script>
     let dailyTicketWeek = null;
     let dailyTicketMonth = null;
@@ -244,6 +243,18 @@
             container.appendChild(content.get(0));
         }
     };
+
+    function counterUp(el, count, delay = 100) {
+        let start = 0;
+        let interval = setInterval(() => {
+            start += Math.max(Math.floor(count/delay), 1);
+            $(el).text(start);
+            if (start >= count) {
+                clearInterval(interval);
+                $(el).text(count);
+            }
+        }, delay/((50/100)*count));
+    }
 
     function loadCurrentConditionChart() {
         currCategory = $("#kategori").dxPieChart($.extend({}, commonSettings, {
@@ -392,21 +403,27 @@
         });
     });
 
-    const counterUp = window.counterUp.default;
-    const el = document.querySelector( '.counter' );
+    // const counterUp = window.counterUp.default;
+    // const el = document.querySelector( '.counter' );
 
     // Start counting, typically you need to call this when the
     // element becomes visible, or whenever you like.
-    counterUp( el, {
-        duration: 2000,
-        delay: 16,
-    } );
+    // counterUp( el, {
+    //     duration: 2000,
+    //     delay: 16,
+    // } );
 
     $(document).ready(() => {
         loadEvents();
         loadCurrentConditionChart();
         loadDailyTicketMonth();
         loadDailyTicketWeek();
+
+        counterUp(
+            $('#totalTicketCounter'),
+            {{ $tickets->count() }},
+            1000
+        );
     });
 
 </script>
