@@ -131,8 +131,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian (Bulan :
-                            {{ $date->locale('id')->monthName }}) </h6>
+                        <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian</h6>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
@@ -162,7 +161,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text" id="weekLabel">Week</span>
                                     </div>
-                                    <input id="weekInput" type="number" class="form-control" value="{{ now()->week }}" min="1" max="{{ now()->weeksInYear() }}" aria-describedby="weekLabel">
+                                    {{-- <input id="weekInput" type="number" class="form-control" value="{{ now()->week }}" min="1" max="{{ now()->weeksInYear() }}" aria-describedby="weekLabel"> --}}
+                                    <select name="weekInput" id="weekInput" class="form-control"></select>
                                 </div>
                             </div>
                         </div>
@@ -363,6 +363,8 @@
     function loadEvents() {
         $('#formMonthFilter').on('submit', function (e) {
             e.preventDefault();
+            loadWeekInput();
+
             let requestParams = generateFilter();
 
             currCategory.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=categories&${requestParams}`);
@@ -392,6 +394,17 @@
         });
     }
 
+    function loadWeekInput() {
+        let monthFilter = $('#monthFilter').val();
+        $.get(`{{ route('admin.weeksInMonth') }}?${generateFilter()}&onlyWeek=true`, res => {
+            let html = "";
+            res.forEach(week => {
+                html += `<option value="${week}">${week}</option>`;
+            });
+            $('#weekInput').html(html);
+        });
+    }
+
     $(function(){
         $("#gridContainer").dxDataGrid({
             dataSource: "{{ url('admin/getLastComment') }}",
@@ -403,21 +416,12 @@
         });
     });
 
-    // const counterUp = window.counterUp.default;
-    // const el = document.querySelector( '.counter' );
-
-    // Start counting, typically you need to call this when the
-    // element becomes visible, or whenever you like.
-    // counterUp( el, {
-    //     duration: 2000,
-    //     delay: 16,
-    // } );
-
     $(document).ready(() => {
         loadEvents();
         loadCurrentConditionChart();
         loadDailyTicketMonth();
         loadDailyTicketWeek();
+        loadWeekInput();
 
         counterUp(
             $('#totalTicketCounter'),

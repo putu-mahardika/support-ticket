@@ -48,6 +48,7 @@ class HomeController
 
     public function getTicketsThisWeek(Request $request){
         $dateFilter = Carbon::createFromFormat('Y-m', $request->monthFilter)->week($request->weekFilter);
+        // dd($dateFilter);
         $tickets = Ticket::selectRaw('DATE(created_at) as date, COUNT(id) as total')
                          ->whereDate('created_at', '>=', $dateFilter->startOfWeek()->toDateString())
                          ->whereDate('created_at', '<=', $dateFilter->endOfWeek()->toDateString())
@@ -176,5 +177,22 @@ class HomeController
             }
         }
         return collect($data);
+    }
+
+    public function weeksInMonth(Request $request)
+    {
+        $date = Carbon::createFromFormat('Y-m', $request->monthFilter);
+        $start = $date->startOfMonth()->toDateString();
+        $end = $date->endOfMonth()->toDateString();
+        $periode = CarbonPeriod::create($start, $end);
+        $dates = collect($periode->toArray())->groupBy(function ($value, $key) {
+            return $value->week;
+        });
+
+        if (filter_var($request->onlyWeek, FILTER_VALIDATE_BOOLEAN)) {
+            return $dates->keys();
+        }
+
+        return $dates;
     }
 }
