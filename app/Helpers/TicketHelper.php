@@ -96,10 +96,12 @@ class TicketHelper {
 
     public static function calculateWorkDuration($tickets, $ignorePerfectLog = false)
     {
-        $progressIndex = 0;
-        $progressMax = $tickets->count();
-        foreach ($tickets as $ticket) {
+        if (app()->runningInConsole()) {
+            $progressIndex = 0;
+            $progressMax = $tickets->count();
+        }
 
+        foreach ($tickets as $ticket) {
             $ticketLogs = WorkingLog::where('ticket_id', $ticket->id)->get();
             if (static::isPerfectLog($ticket->id) || $ignorePerfectLog) {
                 $ticket->work_duration = $ticketLogs->map(function($log, $key) {
@@ -110,8 +112,10 @@ class TicketHelper {
                 $ticket->refresh();
             }
 
-            $progressIndex++;
-            FunctionHelper::progressBar($progressIndex, $progressMax);
+            if (app()->runningInConsole()) {
+                $progressIndex++;
+                FunctionHelper::progressBar($progressIndex, $progressMax);
+            }
         }
     }
 
