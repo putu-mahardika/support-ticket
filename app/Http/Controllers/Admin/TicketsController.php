@@ -240,7 +240,6 @@ class TicketsController extends Controller
 
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        $recreateLog = true;
         if ($ticket->assigned_to_user->id != auth()->id() && !auth()->user()->isAdmin()) {
             return redirect()->back()
                              ->withStatus('Anda tidak bisa mengedit tiket ini. Silahkan hubungi Admin kami untuk info lebih lanjut');
@@ -279,24 +278,15 @@ class TicketsController extends Controller
             $request->request->remove('old_work_start');
             $request->request->remove('work_start');
             $request->request->remove('work_start_reason');
-            $recreateLog = false;
         }
 
         if (!$request->has('checkbox_edit_work_end')) {
             $request->request->remove('old_work_end');
             $request->request->remove('work_end');
             $request->request->remove('work_end_reason');
-            $recreateLog = false;
         }
 
-        if ($recreateLog) {
-            Ticket::withoutEvents(function () use ($ticket, $request) {
-                $ticket->update($request->all());
-            });
-        }
-        else {
-            $ticket->update($request->all());
-        }
+        $ticket->update($request->all());
 
         if (count($ticket->attachments) > 0) {
             foreach ($ticket->attachments as $media) {
@@ -313,28 +303,6 @@ class TicketsController extends Controller
                 $ticket->addMedia(storage_path('tmp/uploads/' . $file))->toMediaCollection('attachments');
             }
         }
-
-        if (!empty($request->status_id)) {
-            $ticket->status_id = $request->status_id;
-
-            if ($request->status_id == 3 && empty($ticket->work_start)) {
-                $ticket->work_start = now();
-            }
-
-            if ($request->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
-                $ticket->work_end = now();
-            }
-
-            $ticket->save();
-            $ticket->refresh();
-            TicketHelper::generateWorkingLog($ticket->id);
-        }
-
-        if ($recreateLog) {
-            TicketHelper::recreateLog(collect([$ticket]));
-        }
-
-        TicketHelper::calculateWorkDuration(collect([$ticket]), $recreateLog);
 
         return redirect()->route('admin.tickets.index')->with('status', 'Perubahan berhasil ditambahkan.');
     }
@@ -388,22 +356,10 @@ class TicketsController extends Controller
         }
 
         if (!empty($request->status_comment)) {
-            $ticket->status_id = $request->status_comment;
-
-            if ($request->status_comment == 3 && empty($ticket->work_start)) {
-                $ticket->work_start = now();
-            }
-
-            if ($request->status_comment == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
-                $ticket->work_end = now();
-            }
-
-            $ticket->save();
-            $ticket->refresh();
-            TicketHelper::generateWorkingLog($ticket->id);
+            $ticket->update([
+                'status_id' => $request->status_comment
+            ]);
         }
-
-        TicketHelper::calculateWorkDuration(collect([$ticket]));
 
         $ticket->sendCommentNotification($comment);
 
@@ -433,6 +389,11 @@ class TicketsController extends Controller
                             ->latest()
                             ->first();
         $project_code = explode('.', $lastCode->code);
+        dd(
+            $project,
+            $lastCode->toArray(),
+            $project_code
+        );
         $newNum = empty($lastCode) ? 1 : intval($project_code[2]) + 1;
         return $project_code[0] . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
     }
@@ -557,24 +518,6 @@ class TicketsController extends Controller
         }
 
         $ticket->update($request->all());
-
-        if (!empty($request->status_id)) {
-            $ticket->status_id = $request->status_id;
-
-            if ($request->status_id == 3 && empty($ticket->work_start)) {
-                $ticket->work_start = now();
-            }
-
-            if ($request->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
-                $ticket->work_end = now();
-            }
-
-            $ticket->save();
-            $ticket->refresh();
-            TicketHelper::generateWorkingLog($ticket->id);
-        }
-
-        TicketHelper::calculateWorkDuration(collect([$ticket]));
 
         return redirect()->route('admin.tickets.index')->with('status', 'Perubahan berhasil ditambahkan.');
     }

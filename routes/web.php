@@ -1,5 +1,8 @@
 <?php
 // Route::get('/', 'TicketController@create');
+
+use Illuminate\Http\Request;
+
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -23,10 +26,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/getJumlahTiketHarian', 'HomeController@getJumlahTiketHarian')->name('getJumlahTiketHarian');
     Route::get('/getLastComment', 'HomeController@getLastComment')->name('getLastComment');
-
     Route::get('/getDataDoughnut', 'HomeController@getDataDoughnut')->name('getDataDoughnut');
-
     Route::get('/getTicketsThisWeek', 'HomeController@getTicketsThisWeek')->name('getTicketsThisWeek');
+    Route::get('weeksInMonth', 'HomeController@weeksInMonth')->name('weeksInMonth');
+
 
     // Permissions
     Route::delete('permissions/destroy', 'PermissionsController@massDestroy')->name('permissions.massDestroy');

@@ -15,7 +15,8 @@ class Update
             ->external('npm', 'run', 'production')
             ->artisan('migrate', ['--force' => true])
             ->artisan('version:absorb')
-            ->artisan('optimize:clear');
+            ->artisan('optimize:clear')
+            ->artisan('up');
     }
 
     public function local(Runner $run)
