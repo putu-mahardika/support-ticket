@@ -13,24 +13,25 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- template bawaaan --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css" rel="stylesheet" />
-    <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" /> --}}
     {{-- <link href="https://unpkg.com/@coreui/coreui@2.1.16/dist/css/coreui.min.css" rel="stylesheet" /> --}}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
+    {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.common.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.light.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.light.css" /> --}}
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.common.css" />
+    {{-- <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.common.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.light.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/css/lightgallery-bundle.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/css/lightgallery-bundle.min.css"> --}}
     <style>
         .disabledContainer {
             pointer-events: none;
@@ -141,8 +142,10 @@
         <!-- Page Wrapper End-->
     </div>
 
+    <script src="{{ asset('js/app.js') }}"></script>
+
     {{-- Template bawaan --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/@coreui/coreui@2.1.16/dist/js/coreui.min.js"></script>
     <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
@@ -161,7 +164,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
     <script>
         const Toast = Swal.mixin({
             toast: true,
@@ -201,7 +204,7 @@
             }
         }
     </script>
-    <script src="{{ asset('js/app.js') }}"></script>
+    {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
     <script src="{{ asset('js/main.js') }}"></script>
     <script>
         $(document).ready(() => {
@@ -334,10 +337,10 @@
     <script src="{{ asset('theme/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="{{ asset('theme/js/sb-admin-2.min.js') }}"></script>
+    {{-- <script src="{{ asset('theme/js/sb-admin-2.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/lightgallery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/plugins/thumbnail/lg-thumbnail.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/plugins/zoom/lg-zoom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.3.0-beta.4/plugins/zoom/lg-zoom.min.js"></script> --}}
     <script>
         let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
         let collapseLists = document.querySelectorAll('ul.navbar-nav li.nav-item .collapse .collapse-inner a');

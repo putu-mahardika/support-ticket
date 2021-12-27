@@ -1,8 +1,27 @@
 // Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
+// @import url('https://fonts.googleapis.com/css?family=Nunito');
 
 // Variables
-@import 'variables';
+// @import 'variables';
 
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
+// @import '~bootstrap/scss/bootstrap';
+@import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.min.css';
+@import '~bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css';
+
+@import '~font-awesome/css/font-awesome.min.css';
+
+// @import '../css/jquery.dataTables.min.css';
+// @import '../css/buttons.dataTables.min.css';
+// @import '../css/select.dataTables.min.css';
+
+@import '~select2/dist/css/select2.min.css';
+
+@import '~lightgallery/css/lightgallery-bundle.min.css';
+@import '~devextreme/dist/css/dx.common.css';
+@import '~devextreme/dist/css/dx.light.css';
+@import '~dropzone/dist/dropzone.css';
+
+
+
