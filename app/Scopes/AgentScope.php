@@ -5,6 +5,7 @@ namespace App\Scopes;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class AgentScope implements Scope
 {
@@ -18,9 +19,14 @@ class AgentScope implements Scope
     public function apply(Builder $builder, Model $model)
     {
         $user = auth()->user();
-        if(auth()->check() && request()->is('admin/*') && $user->roles->contains(2))
+        // if(auth()->check() && request()->is('admin/*') && $user->roles->contains(2))
+        // {
+        //     $builder->where('assigned_to_user_id', $user->id);
+        // }
+
+        if(auth()->check() && request()->is('admin/*') && $user->roles->contains(3))
         {
-            $builder->where('assigned_to_user_id', $user->id);
+            $builder->where('author_name', $user->name);
         }
     }
 }

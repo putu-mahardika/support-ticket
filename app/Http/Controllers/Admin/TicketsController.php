@@ -33,20 +33,11 @@ class TicketsController extends Controller
 
     public function index(Request $request)
     {
-        $user_role = Auth::user()->roles()->first()->id;
         if ($request->ajax()) {
-            if($user_role == 1 || $user_role == 2){
                 $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
                                ->filterTickets($request)
                                ->select(sprintf('%s.*', (new Ticket)->table))
                                ->orderBy('status_id', 'asc');
-            } else {
-                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
-                               ->filterTickets($request)
-                               ->select(sprintf('%s.*', (new Ticket)->table))
-                               ->where('author_name', Auth::user()->name)
-                               ->orderBy('status_id', 'asc');
-            }
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -389,11 +380,11 @@ class TicketsController extends Controller
                             ->latest()
                             ->first();
         $project_code = explode('.', $lastCode->code);
-        dd(
-            $project,
-            $lastCode->toArray(),
-            $project_code
-        );
+        // dd(
+        //     $project,
+        //     $lastCode->toArray(),
+        //     $project_code
+        // );
         $newNum = empty($lastCode) ? 1 : intval($project_code[2]) + 1;
         return $project_code[0] . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
     }

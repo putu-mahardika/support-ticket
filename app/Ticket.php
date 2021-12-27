@@ -61,7 +61,7 @@ class Ticket extends Model implements HasMedia
 
         Ticket::observe(new \App\Observers\TicketActionObserver);
 
-        // static::addGlobalScope(new AgentScope);
+        static::addGlobalScope(new AgentScope);
     }
 
     public function registerMediaConversions(Media $media = null): void

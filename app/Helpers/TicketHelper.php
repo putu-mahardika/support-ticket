@@ -53,6 +53,7 @@ class TicketHelper {
 
     public static function generateWorkingLog($ticket_id)
     {
+        // dd($ticket_id);
         $ticket = Ticket::find($ticket_id);
         $lastLog = WorkingLog::where('ticket_id', $ticket->id)->latest()->first();
         $workClock = Workclock::where('day', now()->dayName)->first();
