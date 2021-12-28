@@ -89,6 +89,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('notif', 'NotifController@index')->name('notif');
     Route::post('notif', 'NotifController@markRead')->name('notif.markRead');
 
+    //Profile
+    Route::resource('profile', 'ProfileController');
+
 });
 
 
