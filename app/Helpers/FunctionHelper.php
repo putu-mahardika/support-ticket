@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Ticket;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class FunctionHelper {
@@ -146,5 +147,13 @@ class FunctionHelper {
         if($done == $total) {
             echo "\n";
         }
+    }
+
+    public static function dxFilterGenerator(Builder $query, $dxFilter)
+    {
+        dd($dxFilter);
+        $filter = eval('return' . $dxFilter . ';');
+
+        $filterArr = explode('.', $filter[0]);
     }
 }
