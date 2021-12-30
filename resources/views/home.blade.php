@@ -204,7 +204,6 @@
 @endsection
 @section('scripts')
 @parent
-<script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
 <script>
     let dailyTicketWeek = null;
     let dailyTicketMonth = null;

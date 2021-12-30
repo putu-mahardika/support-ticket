@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\FunctionHelper;
 use App\Helpers\TicketHelper;
 use App\Http\Controllers\Controller;
 use App\Ticket;
@@ -18,13 +19,21 @@ class WorkingLogsController extends Controller
 
     public function data(Request $request)
     {
-        $logs = WorkingLog::with('ticket', 'status')->get();
-        return $logs;
+        $query = WorkingLog::with('ticket', 'status')
+                           ->when($request->has('filter'), function ($query) use ($request) {
+                               return FunctionHelper::dxFilterGenerator($query, $request->filter);
+                           });
+
+        $logs = $query->limit($request->take)->offset($request->skip)->get();
+        return [
+            'data' => $logs,
+            'totalCount' => $query->count()
+        ];
     }
 
     public function tickets()
     {
-        $tickets = Ticket::all();
+        $tickets = Ticket::limit(10)->get();
         return $tickets;
     }
 
