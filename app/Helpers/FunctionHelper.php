@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Ticket;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
@@ -151,9 +152,152 @@ class FunctionHelper {
 
     public static function dxFilterGenerator(Builder $query, $dxFilter)
     {
-        dd($dxFilter);
-        $filter = eval('return' . $dxFilter . ';');
+        $filterArr = explode('"', $dxFilter);
+        if(count($filterArr) == 7)
+        {
+            $filterColumn = FunctionHelper::dxGetTableColumnFilter($filterArr[1]); // get table & column name
+            $filterOperator = $filterArr[3];    // get operator filter
+            if(strpos($filterArr[5], 'Z') !== false)
+            {
+                $filterValue = Carbon::parse($filterArr[5])->tz(config('app.timezone'))->format('Y-m-d H:i:s');
+            } else {
+                $filterValue = $filterArr[5];       // get value filter
+            }
+        }
+        elseif (count($filterArr) == 15)
+        {
+            $filterColumn = FunctionHelper::dxGetTableColumnFilter($filterArr[1]); // get table & column name
+            $filterOperator = $filterArr[7]; // get operator filter
+            $filterValue = [         // get value filter
+                $filterArr[3],       // get start operator 1 filter
+                Carbon::parse($filterArr[5])->tz(config('app.timezone'))->format('Y-m-d H:i:s'),   // get start value filter
+                $filterArr[11],      // get end operator filter
+                Carbon::parse($filterArr[13])->subSecond()->tz(config('app.timezone'))->format('Y-m-d H:i:s'),    // get end value filter
+            ];
+        }
 
-        $filterArr = explode('.', $filter[0]);
+
+        switch ($filterOperator) {
+
+            // ===============>>> Case String <<<===============
+            case 'contains':
+                $operator = 'like';
+                $filterValue = '%'.$filterValue.'%';
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case 'notcontains':
+                $operator = 'not like';
+                $filterValue = '%'.$filterValue.'%';
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case 'startswith':
+                $operator = 'like';
+                $filterValue = $filterValue.'%';
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case 'endswith':
+                $operator = 'like';
+                $filterValue = '%'.$filterValue;
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+
+            // ===============>>> Case String, Numeric <<<===============
+            case '=':
+                $operator = '=';
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case '<>':
+                $operator = '<>';;
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+
+            // ===============>>> Case Numeric & Date <<<===============
+            case '<':
+                $operator = '<';;
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case '>':
+                $operator = '>';;
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case '<=':
+                $operator = '<=';;
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case '>=':
+                $operator = '>=';;
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+
+            case 'and':
+                $operator = 'between';
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+            case 'or':
+                $operator = 'not between';
+                $datas = FunctionHelper::dxQueryFilter($query, $filterColumn, $filterValue, $operator);
+                break;
+
+            default:
+                # code...
+                break;
+        }
+
+        return $datas;
     }
+
+
+    // ===============>>> Get Table and Column Name dari filterColumn (jika filterColumn = relasi ) <<<===============
+    public static function dxGetTableColumnFilter($filterColumn)
+    {
+        if(strpos($filterColumn,'.') !== false)     // cek filter column is relasi
+        {
+            $filterColResult = explode('.', $filterColumn);     // column is relasi = explode filterColumn
+        } else {
+            $filterColResult = $filterColumn;
+        }
+
+        return $filterColResult;
+    }
+
+
+    public static function dxQueryFilter(Builder $query, $filterColumn, $filterValue, $operator)
+    {
+        if(is_array($filterValue))      // cek value = [] (untuk case between & not between)
+        {
+            if(is_array($filterColumn))     // cek column = [] (jika column dari tabel relasi)
+            {
+                if($operator == 'between')      // jika case between & column relasi
+                {
+                    $datas = $query->whereHas($filterColumn[0], function ($q) use($filterColumn, $filterValue) {
+                        $q->whereBetween($filterColumn[1], [$filterValue[1], $filterValue[3]]);
+                    });
+                } else {    // jika case not between & column relasi
+                    $datas = $query->whereHas($filterColumn[0], function ($q) use($filterColumn, $filterValue) {
+                        $q->whereNotBetween($filterColumn[1], [$filterValue[1], $filterValue[3]]);
+                    });
+                }
+
+            } else {
+                if($operator == 'between')  // jika case between & column not relasi
+                {
+                    $datas = $query->whereBetween($filterColumn, [$filterValue[1], $filterValue[3]]);   // jika case between
+                } else {
+                    $datas = $query->whereNotBetween($filterColumn, [$filterValue[1], $filterValue[3]]);    // jika case not between
+                }
+            }
+        } else {    // jika case bukan between & not between
+            if(is_array($filterColumn))     // jika column relasi
+            {
+                $datas = $query->whereHas($filterColumn[0], function ($q) use($filterColumn, $filterValue, $operator) {
+                    $q->where($filterColumn[1], $operator, $filterValue);
+                });
+            } else {    // jika column not relasi
+                $datas = $query->where($filterColumn, $operator, $filterValue);
+            }
+        }
+
+        return $datas;
+    }
+
 }

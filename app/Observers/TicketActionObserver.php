@@ -73,9 +73,11 @@ class TicketActionObserver
         if ($ticket->status_id == 3 && empty($ticket->work_start)) {
             if ($ticket->getOriginal('status_id', 1) < 3) {
                 Ticket::withoutEvents(function () use ($ticket) {
-                    Ticket::find($ticket->id)->update([
-                        'work_start' => now()
-                    ]);
+                    // Ticket::find($ticket->id)->update([
+                    //     'work_start' => now()
+                    // ]);
+                    $ticket->work_start = now();
+                    $ticket->save();
                 });
             }
         }
@@ -87,9 +89,11 @@ class TicketActionObserver
         if ($ticket->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
             if ($ticket->getOriginal('status_id', 1) < 5) {
                 Ticket::withoutEvents(function () use ($ticket) {
-                    Ticket::find($ticket->id)->update([
-                        'work_end' => now()
-                    ]);
+                    // Ticket::find($ticket->id)->update([
+                    //     'work_end' => now()
+                    // ]);
+                    $ticket->work_end = now();
+                    $ticket->save();
                 });
             }
         }
