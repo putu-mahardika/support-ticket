@@ -15,7 +15,9 @@
     </div>
 
     <div class="card-body">
-        <div class="table-responsive">
+        <div id="gridContainer"></div>
+
+        {{-- <div class="table-responsive">
             <table class=" table table-bordered table-striped table-hover datatable datatable-Role">
                 <thead>
                     <tr>
@@ -80,57 +82,102 @@
                     @endforeach
                 </tbody>
             </table>
-        </div>
+        </div> --}}
 
 
     </div>
 </div>
 @endsection
 @section('scripts')
-@parent
-<script>
-    $(function () {
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('role_delete')
-  let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
-  let deleteButton = {
-    text: deleteButtonTrans,
-    url: "{{ route('admin.roles.massDestroy') }}",
-    className: 'btn-danger',
-    action: function (e, dt, node, config) {
-      var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {
-          return $(entry).data('entry-id')
-      });
+    <script>
+        let dataGrid = null;
 
-      if (ids.length === 0) {
-        alert('{{ trans('global.datatables.zero_selected') }}')
+        function getData() {
+            dataGrid = $("#gridContainer").dxDataGrid({
+                dataSource: @json($roles),
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
+                },
+                columnAutoWidth: true,
+                columns: [
+                    {
+                        caption: '#',
+                        cellTemplate: function(cellElement, cellInfo) {
+                            cellElement.text(cellInfo.row.rowIndex + 1);
+                        },
+                        dataType: 'number',
+                    },
+                    {
+                        dataField: "title",
+                        minWidth: 150,
+                    },
+                    {
+                        dataField: 'permissions',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            let values = cellInfo.value.map(permission => {
+                                return `<span class="badge badge-info">${permission.title}</span>`;
+                            });
+                            cellElement.html(values.join(' '));
+                        }
+                    },
+                    {
+                        caption: '',
+                        dataField: 'id',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            cellElement.html(
+                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.roles.index') }}/${cellInfo.value}/edit">
+                                    <i class="fas fa-edit fa-sm"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                    <i class="fas fa-trash-alt fa-sm"></i>
+                                </button>`
+                            );
+                        },
+                        allowFiltering: false,
+                        allowSorting: false,
+                        minWidth: 100,
+                    }
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                wordWrapEnabled: true
+            }).dxDataGrid("instance");
+        }
 
-        return
-      }
+        function actionDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                showDenyButton: true,
+                showConfirmButton: false,
+                showCancelButton: true,
+                denyButtonText: `Delete`,
+            }).then((result) => {
+                if (result.isDenied) {
+                    $.ajax({
+                        url: `{{ route('admin.roles.index') }}/${id}`,
+                        type: 'POST',
+                        data: {
+                            _method: 'DELETE'
+                        },
+                        success: (res) => {
+                            location.reload();
+                        },
+                        error: (error) => {
+                            Swal.fire('Delete record is fail', '', 'error');
+                        }
+                    });
+                }
+            });
+        }
 
-      if (confirm('{{ trans('global.areYouSure') }}')) {
-        $.ajax({
-          headers: {'x-csrf-token': _token},
-          method: 'POST',
-          url: config.url,
-          data: { ids: ids, _method: 'DELETE' }})
-          .done(function () { location.reload() })
-      }
-    }
-  }
-  dtButtons.push(deleteButton)
-@endcan
-
-  $.extend(true, $.fn.dataTable.defaults, {
-    order: [[ 1, 'desc' ]],
-    pageLength: 100,
-  });
-  $('.datatable-Role:not(.ajaxTable)').DataTable({ buttons: dtButtons })
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
-        $($.fn.dataTable.tables(true)).DataTable()
-            .columns.adjust();
-    });
-})
-
-</script>
+        $(document).ready(() => {
+            getData();
+        });
+    </script>
 @endsection

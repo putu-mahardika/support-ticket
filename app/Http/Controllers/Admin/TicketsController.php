@@ -521,4 +521,16 @@ class TicketsController extends Controller
 
         return redirect()->route('admin.tickets.index')->with('status', 'Perubahan berhasil ditambahkan.');
     }
+
+    public function data(Request $request)
+    {
+        $user = auth()->user()->load('roles');
+        $tickets = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
+                               ->filterTickets($request)
+                               ->select(sprintf('%s.*', (new Ticket)->table))
+                               ->when(!$user->isAdmin() && !$user->isAgent(), function ($query) use ($user) {
+                                   return $query->where('author_name', $user->name);
+                               })
+                               ->orderBy('status_id', 'asc');
+    }
 }

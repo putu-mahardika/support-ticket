@@ -27,60 +27,140 @@
         @endif
 
         <div class="card-body">
-            <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-Ticket">
-                <thead>
-                    <tr>
-                        <th width="10">
-
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.created_at') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.code') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.title') }}
-                        </th>
-                        <th>
-                            Last Comment
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.status') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.priority') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.category') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.author_name') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.author_email') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.project') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.assigned_to_user') }}
-                        </th>
-                        <th>
-                            Work Duration
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
-                    </tr>
-                </thead>
-            </table>
+            <div id="gridContainer"></div>
         </div>
     </div>
 @endsection
 
 @section('scripts')
-    @parent
+    <script>
+        let dataGrid = null;
+        let dataSource = new DevExpress.data.CustomStore({
+            key: "id",
+            load: function(loadOptions) {
+                var d = $.Deferred();
+                var params = {};
+                [
+                    "filter",
+                    "group",
+                    "groupSummary",
+                    "parentIds",
+                    "requireGroupCount",
+                    "requireTotalCount",
+                    "searchExpr",
+                    "searchOperation",
+                    "searchValue",
+                    "select",
+                    "sort",
+                    "skip",
+                    "take",
+                    "totalSummary",
+                    "userData"
+                ].forEach(function(i) {
+                    if(i in loadOptions && isNotEmpty(loadOptions[i])) {
+                        params[i] = JSON.stringify(loadOptions[i]);
+                    }
+                });
+                console.log(params);
+                $.getJSON("{{ route('admin.workinglogs.data') }}", params)
+                    .done(function(response) {
+                        d.resolve(response.data, {
+                            totalCount: response.totalCount,
+                        });
+                    })
+                    .fail(function() { throw "Data loading error" });
+                return d.promise();
+            },
+        });
+
+        function getData() {
+            dataGrid = $("#gridContainer").dxDataGrid({
+                dataSource: @json($roles),
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
+                },
+                columnAutoWidth: true,
+                columns: [
+                    {
+                        caption: '#',
+                        cellTemplate: function(cellElement, cellInfo) {
+                            cellElement.text(cellInfo.row.rowIndex + 1);
+                        },
+                        dataType: 'number',
+                    },
+                    {
+                        dataField: "title",
+                        minWidth: 150,
+                    },
+                    {
+                        dataField: 'permissions',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            let values = cellInfo.value.map(permission => {
+                                return `<span class="badge badge-info">${permission.title}</span>`;
+                            });
+                            cellElement.html(values.join(' '));
+                        }
+                    },
+                    {
+                        caption: '',
+                        dataField: 'id',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            cellElement.html(
+                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.roles.index') }}/${cellInfo.value}/edit">
+                                    <i class="fas fa-edit fa-sm"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                    <i class="fas fa-trash-alt fa-sm"></i>
+                                </button>`
+                            );
+                        },
+                        allowFiltering: false,
+                        allowSorting: false,
+                        minWidth: 100,
+                    }
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                wordWrapEnabled: true
+            }).dxDataGrid("instance");
+        }
+
+        function actionDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                showDenyButton: true,
+                showConfirmButton: false,
+                showCancelButton: true,
+                denyButtonText: `Delete`,
+            }).then((result) => {
+                if (result.isDenied) {
+                    $.ajax({
+                        url: `{{ route('admin.roles.index') }}/${id}`,
+                        type: 'POST',
+                        data: {
+                            _method: 'DELETE'
+                        },
+                        success: (res) => {
+                            location.reload();
+                        },
+                        error: (error) => {
+                            Swal.fire('Delete record is fail', '', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        $(document).ready(() => {
+            getData();
+        });
+    </script>
     <script>
         $(function () {
             // let filters = `
@@ -191,7 +271,7 @@
                             } else {
                                 return '<a href="' + row.view_link + '">' + data + ' (' + row.comments_count + ') </a>';
                             }
-                            
+
                         }
                     },
                     {

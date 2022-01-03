@@ -86,6 +86,16 @@ class User extends Authenticatable
         return $this->roles->contains(1);
     }
 
+    public function isAgent()
+    {
+        return $this->roles->contains(2);
+    }
+
+    public function isClient()
+    {
+        return $this->roles->contains(3);
+    }
+
     public function getRoleNamesAttribute()
     {
         return $this->roles()->pluck('title');

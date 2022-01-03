@@ -15,114 +15,87 @@
     </div>
 
     <div class="card-body">
-        <div class="table-responsive">
-            <table class=" table table-bordered table-striped table-hover datatable datatable-Permission">
-                <thead>
-                    <tr>
-                        <th width="10">
-
-                        </th>
-                        <th>
-                            {{ trans('cruds.permission.fields.id') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.permission.fields.title') }}
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($permissions as $key => $permission)
-                        <tr data-entry-id="{{ $permission->id }}">
-                            <td>
-
-                            </td>
-                            <td>
-                                {{ $permission->id ?? '' }}
-                            </td>
-                            <td>
-                                {{ $permission->title ?? '' }}
-                            </td>
-                            <td>
-                                @can('permission_show')
-                                    <a class="btn btn-xs btn-primary" href="{{ route('admin.permissions.show', $permission->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-                                @endcan
-
-                                @can('permission_edit')
-                                    <a class="btn btn-xs btn-info" href="{{ route('admin.permissions.edit', $permission->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
-                                @endcan
-
-                                @can('permission_delete')
-                                    <form action="{{ route('admin.permissions.destroy', $permission->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
-                                    </form>
-                                @endcan
-
-                            </td>
-
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-
+        <div id="gridContainer"></div>
     </div>
 </div>
 @endsection
 @section('scripts')
-@parent
-<script>
-    $(function () {
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('permission_delete')
-  let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
-  let deleteButton = {
-    text: deleteButtonTrans,
-    url: "{{ route('admin.permissions.massDestroy') }}",
-    className: 'btn-danger',
-    action: function (e, dt, node, config) {
-      var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {
-          return $(entry).data('entry-id')
-      });
+    <script>
+        let dataGrid = null;
 
-      if (ids.length === 0) {
-        alert('{{ trans('global.datatables.zero_selected') }}')
+        function getData() {
+            dataGrid = $("#gridContainer").dxDataGrid({
+                dataSource: @json($permissions),
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
+                },
+                columnAutoWidth: true,
+                columns: [
+                    {
+                        caption: '#',
+                        cellTemplate: function(cellElement, cellInfo) {
+                            cellElement.text(cellInfo.row.rowIndex + 1);
+                        },
+                        dataType: 'number'
+                    },
+                    { dataField: "title" },
+                    {
+                        caption: '',
+                        dataField: 'id',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            cellElement.html(
+                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.permissions.index') }}/${cellInfo.value}/edit">
+                                    <i class="fas fa-edit fa-sm"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                    <i class="fas fa-trash-alt fa-sm"></i>
+                                </button>`
+                            );
+                        },
+                        allowFiltering: false,
+                        allowSorting: false,
+                    }
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                }
+            }).dxDataGrid("instance");
+        };
 
-        return
-      }
+        function actionDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                showDenyButton: true,
+                showConfirmButton: false,
+                showCancelButton: true,
+                denyButtonText: `Delete`,
+            }).then((result) => {
+                if (result.isDenied) {
+                    $.ajax({
+                        url: `{{ route('admin.permissions.index') }}/${id}`,
+                        type: 'POST',
+                        data: {
+                            _method: 'DELETE'
+                        },
+                        success: (res) => {
+                            location.reload();
+                        },
+                        error: (error) => {
+                            Swal.fire('Delete record is fail', '', 'error');
+                        }
+                    });
+                }
+            });
+        }
 
-      if (confirm('{{ trans('global.areYouSure') }}')) {
-        $.ajax({
-          headers: {'x-csrf-token': _token},
-          method: 'POST',
-          url: config.url,
-          data: { ids: ids, _method: 'DELETE' }})
-          .done(function () { location.reload() })
-      }
-    }
-  }
-  dtButtons.push(deleteButton)
-@endcan
+        $(document).ready(() => {
+            getData();
+        });
 
-  $.extend(true, $.fn.dataTable.defaults, {
-    order: [[ 1, 'desc' ]],
-    pageLength: 100,
-  });
-  $('.datatable-Permission:not(.ajaxTable)').DataTable({ buttons: dtButtons })
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
-        $($.fn.dataTable.tables(true)).DataTable()
-            .columns.adjust();
-    });
-})
-
-</script>
+    </script>
 @endsection

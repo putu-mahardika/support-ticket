@@ -22,7 +22,7 @@ require('datatables.net-select/js/dataTables.select.min.js');
 
 window.moment = require('moment');
 
-require('select2/dist/js/select2.full.min.js');
+window.select2 = require('select2/dist/js/select2.js');
 require('dropzone');
 
 window.Swal = require("sweetalert2/dist/sweetalert2.js");
