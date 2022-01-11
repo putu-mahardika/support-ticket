@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\FunctionHelper;
 use App\Http\Controllers\Controller;
 use App\Project;
 use App\Http\Requests\MassDestroyProjectRequest;
@@ -151,5 +152,11 @@ class ProjectsController extends Controller
         Project::whereIn('id', request('ids'))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    public function data(Request $request)
+    {
+        $projects = Project::all();
+        return $projects;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -14,7 +15,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        return view('admin/profile/index');
+        return view('admin.profile.index');
     }
 
     /**
@@ -35,7 +36,18 @@ class ProfileController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = User::find(auth()->id());
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'company' => $request->company
+        ]);
+
+        $user->photo->delete();
+        $user->addMediaFromBase64($request->photo, 'image/*')
+            ->toMediaCollection('profile');
+
+        return redirect()->route('admin.profile.index');
     }
 
     /**

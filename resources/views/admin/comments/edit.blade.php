@@ -72,12 +72,116 @@
                     {{ trans('cruds.comment.fields.comment_text_helper') }}
                 </p>
             </div>
+
+            {{-- Comment Attachment Section --}}
+            <div class="form-group {{ $errors->has('attachments') ? 'has-error' : '' }}">
+                <label for="attachments">Attachments</label>
+
+                {{-- id attachments-comment-dropzone is important for JS. please check the function: dropzoneInit() --}}
+                <div class="needsclick dropzone" id="attachments-comment-dropzone"></div>
+
+                @if($errors->has('attachments'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('attachments') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.ticket.fields.attachments_helper') }}
+                </p>
+            </div>
             <div>
                 <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
             </div>
         </form>
-
-
     </div>
 </div>
+@endsection
+
+@section('scripts')
+    <script>
+        var uploadedAttachmentsMap = {}
+        // When this page is fully loaded, everything in this function will run
+        $(document).ready(() => {
+            dropzoneInit();
+        });
+
+
+        /**
+         * Init dropzone
+         */
+        function dropzoneInit() {
+            $("#attachments-comment-dropzone").dropzone({
+                url: '{{ route('admin.tickets.storeMedia') }}',
+                maxFilesize: 2, // MB
+                addRemoveLinks: true,
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                params: {
+                    size: 2
+                },
+                success: function (file, response) {
+                    $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">');
+                    uploadedAttachmentsMap[file.name] = response.name;
+                },
+                removedfile: function (file) {
+                    file.previewElement.remove();
+                    var name = '';
+                    if (typeof file.file_name !== 'undefined') {
+                        name = file.file_name;
+                    }
+                    else {
+                        name = uploadedAttachmentsMap[file.name];
+                    }
+                    $('form').find('input[name="attachments[]"][value="' + name + '"]').remove();
+                },
+                init: function () {
+                    @if(!empty($comment->attachments))
+
+                        // show image attachments
+                        var files = {!!json_encode(FunctionHelper::getImagesAttachment($comment->attachments))!!};
+                        for (var i in files) {
+                            var file = files[i];
+                            this.options.addedfile.call(this, file);
+                            file.previewElement.classList.add('dz-complete');
+
+                            // Show image as thumbnail
+                            $(file.previewElement).find('.dz-image img')[0].setAttribute('src', file.custom_properties.url);
+
+                            // add file name to form
+                            $('form').append('<input type="hidden" name="attachments[]" value="' + file.file_name + '">');
+                        }
+
+                        // show non-image attachments
+                        files = {!!json_encode(FunctionHelper::getImagesAttachment($comment->attachments, true))!!};
+                        for (var i in files) {
+                            var file = files[i];
+                            this.options.addedfile.call(this, file);
+                            file.previewElement.classList.add('dz-complete');
+
+                            // add file name to form
+                            $('form').append('<input type="hidden" name="attachments[]" value="' + file.file_name + '">');
+                        }
+                    @endif
+                },
+                error: function (file, response) {
+                    if ($.type(response) === 'string') {
+                        var message = response; //dropzone sends it's own error messages in string
+                    }
+                    else {
+                        var message = response.errors.file;
+                    }
+                    file.previewElement.classList.add('dz-error');
+                    _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]');
+                    _results = [];
+                    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                        node = _ref[_i];
+                        _results.push(node.textContent = message);
+                    }
+
+                    return _results;
+                }
+            });
+        }
+    </script>
 @endsection

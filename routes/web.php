@@ -29,6 +29,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/getDataDoughnut', 'HomeController@getDataDoughnut')->name('getDataDoughnut');
     Route::get('/getTicketsThisWeek', 'HomeController@getTicketsThisWeek')->name('getTicketsThisWeek');
     Route::get('weeksInMonth', 'HomeController@weeksInMonth')->name('weeksInMonth');
+    Route::get('statPanel', 'HomeController@statPanel')->name('statPanel');
 
 
     // Permissions
@@ -76,6 +77,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::resource('tickets', 'TicketsController');
 
     // Comments
+    Route::get('comments/data', 'CommentsController@data')->name('comments.data');
     Route::delete('comments/destroy', 'CommentsController@massDestroy')->name('comments.massDestroy');
     Route::resource('comments', 'CommentsController');
 
@@ -84,6 +86,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Projects
     Route::delete('projects/destroy', 'ProjectsController@massDestroy')->name('projects.massDestroy');
+    Route::get('projects/data', 'ProjectsController@data')->name('projects.data');
     Route::resource('projects', 'ProjectsController');
 
     //Notif

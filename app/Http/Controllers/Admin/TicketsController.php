@@ -25,7 +25,9 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\FunctionHelper;
 use App\Helpers\TicketHelper;
 use App\WorkingLog;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
+use PDO;
 
 class TicketsController extends Controller
 {
@@ -33,106 +35,7 @@ class TicketsController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-                $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
-                               ->filterTickets($request)
-                               ->select(sprintf('%s.*', (new Ticket)->table))
-                               ->orderBy('status_id', 'asc');
-            $table = Datatables::of($query);
-
-            $table->addColumn('placeholder', '&nbsp;');
-            $table->addColumn('actions', '&nbsp;');
-
-            $table->editColumn('actions', function ($row) {
-                $viewGate      = 'ticket_show';
-                $editGate      = 'ticket_edit';
-                $deleteGate    = 'ticket_delete';
-                $crudRoutePart = 'tickets';
-
-                return view('partials.datatablesActions', compact(
-                    'viewGate',
-                    'editGate',
-                    'deleteGate',
-                    'crudRoutePart',
-                    'row'
-                ));
-            });
-
-            $table->editColumn('created_at', function ($row) {
-                return $row->id ? $row->created_at : "";
-            });
-            $table->editColumn('title', function ($row) {
-                return $row->title ? $row->title : "";
-            });
-            $table->addColumn('status_name', function ($row) {
-                return $row->status ? $row->status->name : '';
-            });
-            $table->addColumn('status_color', function ($row) {
-                return $row->status ? $row->status->color : '#000000';
-            });
-
-            $table->addColumn('priority_name', function ($row) {
-                return $row->priority ? $row->priority->name : '';
-            });
-            $table->addColumn('priority_color', function ($row) {
-                return $row->priority ? $row->priority->color : '#000000';
-            });
-
-            $table->addColumn('category_name', function ($row) {
-                return $row->category ? $row->category->name : '';
-            });
-            $table->addColumn('category_color', function ($row) {
-                return $row->category ? $row->category->color : '#000000';
-            });
-
-            $table->editColumn('author_name', function ($row) {
-                return $row->author_name ? $row->author_name : "";
-            });
-            $table->editColumn('author_email', function ($row) {
-                return $row->author_email ? $row->author_email : "";
-            });
-            $table->addColumn('project_name', function ($row) {
-                return $row->project ? $row->project->name : '';
-            });
-            $table->addColumn('assigned_to_user_name', function ($row) {
-                return $row->assigned_to_user ? $row->assigned_to_user->name : '';
-            });
-
-            $table->addColumn('comments_count', function ($row) {
-                return $row->comments->count();
-            });
-
-            $table->addColumn('attachment_count', function ($row) {
-                return $row->attachments->count();
-            });
-
-            $table->addColumn('last_comment', function ($row) {
-                return $row->comments->last()->comment_text ?? '-';
-            });
-
-            $table->addColumn('view_link', function ($row) {
-                return route('admin.tickets.show', $row->id);
-            });
-
-            $table->editColumn('work_duration', function ($row) {
-                return floor($row->work_duration/3600) . ' jam ' . floor(($row->work_duration/60)%60) . ' menit';
-            });
-
-            $table->addColumn('attachments', function ($row) {
-                return $row->attachments->count();
-            });
-
-            $table->rawColumns(['actions', 'placeholder', 'status', 'priority', 'category', 'assigned_to_user', 'project']);
-
-            return $table->make(true);
-        }
-
-        $priorities = Priority::all();
-        $statuses = Status::all();
-        $categories = Category::all();
-
-        // dd(Auth::user()->projects->first());
-        return view('admin.tickets.index', compact('priorities', 'statuses', 'categories'));
+        return view('admin.tickets.index');
     }
 
     public function create()
@@ -516,12 +419,55 @@ class TicketsController extends Controller
     public function data(Request $request)
     {
         $user = auth()->user()->load('roles');
-        $tickets = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
-                               ->filterTickets($request)
-                               ->select(sprintf('%s.*', (new Ticket)->table))
-                               ->when(!$user->isAdmin() && !$user->isAgent(), function ($query) use ($user) {
-                                   return $query->where('author_name', $user->name);
-                               })
-                               ->orderBy('status_id', 'asc');
+        $query = Ticket::with(['status', 'priority', 'category', 'assigned_to_user', 'comments.media', 'project', 'media'])
+                       ->withCount('comments')
+                       ->when(!$user->isAdmin() && !$user->isAgent(), function ($q) use ($user) {
+                           return $q->where('author_name', $user->name);
+                       })
+                       ->when($request->has('filter'), function ($q) use ($request) {
+                           return FunctionHelper::dxFilterGenerator($q, $request->filter);
+                       })
+                       ->when($request->has('sort'), function (Builder $q) use ($request) {
+                           $sort = eval('return json_decode($request->sort)[0];');
+                           $selector = FunctionHelper::dxGetTableColumnFilter($sort->selector);
+                           switch ($selector[0]) {
+                                case 'status':
+                                    return $q->join('statuses', 'tickets.status_id', '=', 'statuses.id')
+                                             ->orderBy('statuses.name', $sort->desc ? 'desc' : 'asc');
+                                   break;
+                                case 'priority':
+                                    return $q->join('priorities', 'tickets.priority_id', '=', 'priorities.id')
+                                             ->orderBy('priorities.name', $sort->desc ? 'desc' : 'asc');
+                                   break;
+                                case 'category':
+                                    return $q->join('categories', 'tickets.category_id', '=', 'categories.id')
+                                             ->orderBy('categories.name', $sort->desc ? 'desc' : 'asc');
+                                   break;
+                                case 'assigned_to_user':
+                                    return $q->join('users', 'tickets.assigned_to_user_id', '=', 'users.id')
+                                             ->orderBy('users.name', $sort->desc ? 'desc' : 'asc');
+                                   break;
+                                case 'project':
+                                    return $q->join('projects', 'tickets.project_id', '=', 'projects.id')
+                                             ->orderBy('projects.name', $sort->desc ? 'desc' : 'asc');
+                                   break;
+                               default:
+                                    return $q->orderBy('tickets.'.$selector, $sort->desc ? 'desc' : 'asc');
+                                   break;
+                           }
+                       })
+                       ->when(!$request->has('sort'), function ($q) use ($request) {
+                            return $q->orderBy('tickets.status_id', 'asc')
+                                     ->orderBy('tickets.updated_at', 'desc');
+                       });
+        $tickets = $query->limit($request->take)->offset($request->skip)->get();
+        $tickets = $tickets->map(function ($ticket, $key) {
+            $ticket->work_duration = FunctionHelper::floor_work_duration($ticket->work_duration);
+            return $ticket;
+        });
+        return [
+            'data' => $tickets,
+            'totalCount' => $query->count()
+        ];
     }
 }

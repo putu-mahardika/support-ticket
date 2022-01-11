@@ -24,26 +24,9 @@ class HomeController
     {
         abort_if(Gate::denies('dashboard_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        // dd(auth()->check());
-
-        $date = now();
-        $tickets = Ticket::with('project', 'status', 'category', 'priority')
-                         ->whereMonth('created_at', $date->month)
-                         ->when(!auth()->user()->isAdmin(), function ($query) {
-                             return $query->whereHas('project', function ($q) {
-                                        $q->where('id', auth()->user()->projects->first()->id ?? 0);
-                            });
-                         })
-                         ->get();
-        $statuses = Status::all();
-        $categories = Category::all();
-        $priorities = Priority::all();
-
-        $avgTime = $this->getAvgTime($tickets);
-
         $weekNow = Carbon::now()->week;
 
-        return view('home', compact('tickets', 'statuses', 'categories', 'priorities', 'date', 'avgTime', 'weekNow'));
+        return view('home', compact('weekNow'));
     }
 
     public function getTicketsThisWeek(Request $request){
@@ -194,5 +177,22 @@ class HomeController
         }
 
         return $dates;
+    }
+
+    public function statPanel(Request $request)
+    {
+        $date = Carbon::createFromFormat('Y-m', $request->monthFilter);
+        $query = Ticket::with('project', 'status', 'category', 'priority')
+                         ->whereDate('created_at', '>=', $date->startOfMonth()->toDateString())
+                         ->whereDate('created_at', '<=', $date->endOfMonth()->toDateString())
+                         ->when(!auth()->user()->isAdmin(), function ($query) {
+                             return $query->whereHas('project', function ($q) {
+                                        $q->where('id', auth()->user()->projects->first()->id ?? 0);
+                            });
+                         });
+
+        $avgTime = FunctionHelper::floor_work_duration($query->sum('work_duration'));
+        $ticketsCount = $query->count();
+        return compact('ticketsCount', 'avgTime');
     }
 }

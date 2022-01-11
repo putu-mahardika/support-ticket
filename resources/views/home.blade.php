@@ -85,7 +85,7 @@
                                         <div class="text-lg font-weight-bold text-white text-uppercase mb-1">Average Ticket
                                             Finish Time</div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-1000">
-                                            <h2 class="counter">{{ ($avgTime) }}</h2>
+                                            <h2 id="avgTime" class="counter"></h2>
                                         </div>
                                     </div>
                                     <div class="col-auto">
@@ -103,7 +103,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Current Condition</h6>
+                        <h6 class="m-0 font-weight-bold text-primary" id="headerCurrentCondition">Current Condition</h6>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
@@ -131,7 +131,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary"> Jumlah Tiket Harian</h6>
+                        <h6 class="m-0 font-weight-bold text-primary" id="headerDailyTicket">Jumlah Tiket Harian</h6>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
@@ -151,7 +151,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-2">
-                        <h6 class=" m-0 font-weight-bold text-primary"> Jumlah Tiket Harian </h6>
+                        <h6 class=" m-0 font-weight-bold text-primary" id="headerWeeklyTicket">Jumlah Tiket Harian </h6>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
@@ -240,7 +240,10 @@
                     '<text text-anchor="middle" style="font-size: 50px" x="100" y="120" fill="#494949"></text></svg>' );
 
             container.appendChild(content.get(0));
-        }
+        },
+        loadingIndicator: {
+            enabled: true,
+        },
     };
 
     function counterUp(el, count, delay = 100) {
@@ -308,6 +311,9 @@
                 title: 'Jumlah',
                 allowDecimals: false,
             },
+            loadingIndicator: {
+                enabled: true,
+            },
         }).dxChart('instance');
     }
 
@@ -350,7 +356,21 @@
                 title: 'Jumlah',
                 allowDecimals: false,
             },
+            loadingIndicator: {
+                enabled: true,
+            },
         }).dxChart('instance');
+    }
+
+    function loadStatPanel(params) {
+        $.get(`{{ route('admin.statPanel') }}?${generateFilter()}`, res => {
+            counterUp(
+                $('#totalTicketCounter'),
+                res.ticketsCount,
+                1000
+            );
+            $('#avgTime').text(res.avgTime);
+        });
     }
 
     function generateFilter() {
@@ -360,12 +380,21 @@
     }
 
     function loadEvents() {
+        $('#formModalFilterMonth').on('submit', function (e) {
+            e.preventDefault();
+            $('#monthFilter').val($('#monthFilterModal').val());
+            $('#formMonthFilter').trigger('submit');
+            $('#modalFilterMonth').modal('hide');
+        });
+
         $('#formMonthFilter').on('submit', function (e) {
             e.preventDefault();
             loadWeekInput();
-
+            $('#monthFilterModal').val($('#monthFilter').val());
             let requestParams = generateFilter();
 
+            changeLabelHeader();
+            loadStatPanel();
             currCategory.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=categories&${requestParams}`);
             currCategory.refresh();
 
@@ -404,6 +433,13 @@
         });
     }
 
+    function changeLabelHeader() {
+        $('#headerCurrentCondition').text(`Group ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+        $('#headerDailyTicket').text(`Grafik Tiket Harian ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+        $('#headerWeeklyTicket').text(`Grafik Tiket Mingguan ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+        // $('#headerCurrentCondition').append(` ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+    }
+
     $(function(){
         $("#gridContainer").dxDataGrid({
             dataSource: "{{ url('admin/getLastComment') }}",
@@ -416,17 +452,13 @@
     });
 
     $(document).ready(() => {
+        changeLabelHeader();
+        loadStatPanel();
         loadEvents();
         loadCurrentConditionChart();
         loadDailyTicketMonth();
         loadDailyTicketWeek();
         loadWeekInput();
-
-        counterUp(
-            $('#totalTicketCounter'),
-            {{ $tickets->count() }},
-            1000
-        );
     });
 
 </script>

@@ -53,7 +53,7 @@
                     <ul class="navbar-nav ml-auto">
                         <!-- Nav Item - Alerts -->
                         @if (request()->route()->getName() == 'admin.home')
-                            <li class="nav-item d-block d-sm-none">
+                            <li class="nav-item d-block d-sm-none" data-toggle="modal" data-target="#modalFilterMonth">
                                 <a href="#" class="nav-link">
                                     <i class="fas fa-calendar"></i>
                                 </a>
@@ -81,7 +81,7 @@
                             <!-- Nav Item - Project Information -->
                             <li class="nav-item dropdown no-arrow">
                                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    <span class="mr-2 d-none d-lg-inline text-gray-700 small">
                                         {{ auth()->user()->projects()->first()->name ?? '' }}
                                     </span>
                                 </a>
@@ -95,19 +95,19 @@
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                     Hallo {{ auth()->user()->name ?? '(null)' }}
                                 </span>
-                                <img class="img-profile rounded-circle fa-2x" src="{{ asset('theme/img/undraw_profile.svg') }}">
-                                <i class="fas fa-ellipsis-v p-2"></i>
+                                <img class="img-profile rounded-circle" src="{{ asset(auth()->user()->photo->getUrl('thumb')) }}">
+                                <i class="fas fa-caret-down p-2"></i>
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="{{ route('admin.profile.index')}}">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile Settings
+                                <a class="dropdown-item text-gray-700" href="{{ route('admin.profile.index')}}">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2"></i>
+                                    Profile
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>
                                     Logout
                                 </a>
                             </div>
@@ -147,48 +147,32 @@
         <!-- Page Wrapper End-->
     </div>
 
-    {{-- Template bawaan --}}
+    <!-- Modal -->
+    <div class="modal fade" id="modalFilterMonth" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formModalFilterMonth" class="form-group">
+                        <input type="month" id="monthFilterModal" name="monthFilterModal" class="form-control mr-2" value="{{ now()->format('Y-m') }}">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" form="formModalFilterMonth">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @include('partials.photoswipe')
+
     <script src="{{ asset('js/app.js') }}"></script>
-    <script>
-        const Toast = Swal.mixin({
-            toast: true,
-            timer: 5000,
-            position: 'top-end',
-            timerProgressBar: true,
-            showConfirmButton: false,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        });
-        // window.reloadNotification = () => {
-        //     $.get("{{ route('admin.notif') }}", function (res) {
-        //         if (res.hasUnread) {
-        //             $('#toggleNotifications').html(`
-        //                 <span class="badge badge-danger p-2">
-        //                     <i class="fas fa-bell mr-1"></i>
-        //                     ${res.label}
-        //                 </span>
-        //             `);
-        //         }
-        //         else {
-        //             $('#toggleNotifications').html(`
-        //                 <i class="fas fa-bell fa-lg"></i>
-        //             `);
-        //         }
-        //         $('#notificationsList').html(res.html);
-        //     });
-        // }
-        window.playNotifSound = () => {
-            let audio = new Audio("{{ asset('sound/notif-sound-2.mp3') }}");
-            audio.play();
-            let promise = audio.play();
-            if (promise !== undefined) {
-                promise.then().catch();
-            }
-        }
-    </script>
-    {{-- <script src="{{ asset('js/main.js') }}"></script> --}}
     <script>
         $(document).ready(() => {
             mqttUserKey = "{{ md5(auth()->user()->email) }}";
@@ -198,7 +182,36 @@
                 }
             });
             reloadNotification();
+            onLoadParent;
         });
+
+        window.reloadNotification = () => {
+            $.get("{{ route('admin.notif') }}", function (res) {
+                if (res.hasUnread) {
+                    $('#toggleNotifications').html(`
+                        <span class="badge badge-danger p-2">
+                            <i class="fas fa-bell mr-1"></i>
+                            ${res.label}
+                        </span>
+                    `);
+                }
+                else {
+                    $('#toggleNotifications').html(`
+                        <i class="fas fa-bell fa-lg"></i>
+                    `);
+                }
+                $('#notificationsList').html(res.html);
+            });
+        }
+
+        window.playNotifSound = () => {
+            let audio = new Audio("{{ asset('sound/notif-sound-2.mp3') }}");
+            audio.play();
+            let promise = audio.play();
+            if (promise !== undefined) {
+                promise.then().catch();
+            }
+        }
 
         const getInitials = (name) => {
             let initials = name.split(' ');
@@ -210,20 +223,6 @@
             return initials.toUpperCase();
         }
 
-        // List Menu Active
-        let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
-
-        lists.forEach(list => {
-        console.log(list.childNodes[1].href);
-        if (location.href == list.childNodes[1].href) {
-                list.classList.add('active');
-            }
-            else {
-                list.classList.remove('active');
-            }
-        });
-    </script>
-    <script>
         let lists = document.querySelectorAll('ul.navbar-nav li.nav-item');
         let collapseLists = document.querySelectorAll('ul.navbar-nav li.nav-item .collapse .collapse-inner a');
 
@@ -245,10 +244,10 @@
                 collapseList.classList.remove('active');
             }
         });
+
+        window.onLoadParent = () => {}
     </script>
-
     @yield('scripts')
-
 </body>
 
 </html>

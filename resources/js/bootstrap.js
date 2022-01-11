@@ -23,20 +23,27 @@ require('datatables.net-select/js/dataTables.select.min.js');
 window.moment = require('moment');
 
 window.select2 = require('select2/dist/js/select2.js');
-require('dropzone');
+window.Dropzone = require('dropzone');
 
 window.Swal = require("sweetalert2/dist/sweetalert2.js");
+window.Toast = Swal.mixin({
+    toast: true,
+    timer: 5000,
+    position: 'top-end',
+    timerProgressBar: true,
+    showConfirmButton: false,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+});
 
 require('devextreme/dist/js/dx.all.js');
-
-require('lightgallery/lib/lightgallery.js');
-require('lightgallery/plugins/thumbnail/lg-thumbnail.min.js');
-require('lightgallery/plugins/zoom/lg-zoom.min.js');
+window.PhotoSwipe = require('photoswipe');
+window.PhotoSwipeUI_Default = require('photoswipe/src/js/ui/photoswipe-ui-default');
 
 require('@babel/polyfill/dist/polyfill.min.js');
-
 require('exceljs/dist/exceljs.min.js');
-
 require('jspdf');
 require('jspdf-autotable/dist/jspdf.plugin.autotable.min.js');
 

@@ -6,6 +6,10 @@ use App\Ticket;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image as FacadesImage;
+use Spatie\Image\Image;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class FunctionHelper {
 
@@ -300,4 +304,50 @@ class FunctionHelper {
         return $datas;
     }
 
+    public static function getImagesAttachment(MediaCollection $attachments, $inverse = false)
+    {
+        return $attachments->filter(function ($attachment) use ($inverse) {
+            if ($inverse) {
+                return !in_array(pathinfo($attachment->getUrl(), PATHINFO_EXTENSION), static::IMAGES_EXT);
+            }
+            else {
+                return in_array(pathinfo($attachment->getUrl(), PATHINFO_EXTENSION), static::IMAGES_EXT);
+            }
+        })->map(function (Media $attachment) use ($inverse) {
+            if ($inverse) {
+                $attachment->setCustomProperty('url', $attachment->getUrl())
+                           ->setCustomProperty('extension', pathinfo($attachment->getUrl(), PATHINFO_EXTENSION))
+                           ->save();
+            }
+            else {
+                $image = Image::load($attachment->getPath());
+                $attachment->setCustomProperty('width', $image->getWidth())
+                           ->setCustomProperty('height', $image->getHeight())
+                           ->setCustomProperty('url', $attachment->getUrl())
+                           ->setCustomProperty('urlThumb', $attachment->getUrl('thumb'))
+                           ->setCustomProperty('extension', pathinfo($attachment->getUrl(), PATHINFO_EXTENSION))
+                           ->save();
+            }
+            return $attachment;
+        });
+    }
+
+    public function getImageFromMediaLibrary(Media $image, $width = 0, $height = 0, $toBase64 = false)
+    {
+        if ($width > 0 || $height > 0) {
+            if ($toBase64) {
+                return (string) FacadesImage::make($image->getPath())->resize($width, $height)->encode('data-url');
+            }
+            else {
+                return FacadesImage::make($image->getPath())->resize($width, $height)->response();
+            }
+        }
+
+        if ($toBase64) {
+            return (string) FacadesImage::make($image->getPath())->encode('data-url');
+        }
+        else {
+            return FacadesImage::make($image->getPath())->response();
+        }
+    }
 }
