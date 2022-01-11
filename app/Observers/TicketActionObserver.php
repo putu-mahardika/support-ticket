@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\User;
 use App\Ticket;
 use App\Helpers\MqttHelper;
+use App\Helpers\TicketHelper;
 use App\Notifications\NewTicketNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\AssignedTicketNotification;
@@ -13,50 +14,104 @@ use App\Notifications\UpdateTicketNotification;
 
 class TicketActionObserver
 {
-    public $afterCommit = true;
+    // public $afterCommit = true;
 
     public function created(Ticket $ticket)
     {
+        /**
+         * If create ticket from console, will be ignored
+         */
         if (app()->runningInConsole()) return;
+
+
+        /**
+         * Send websocket notification
+         */
         $this->sendDatabaseNotification($ticket);
 
-        $data  = ['action' => 'New ticket has been created!', 'model_name' => 'Ticket', 'ticket' => $ticket];
+
+        /**
+         * Send mail notification
+         */
+
+        // Preparing Data
+        $data  = [
+            'action' => 'New ticket has been created!',
+            'model_name' => 'Ticket',
+            'ticket' => $ticket
+        ];
+
+        // Get all users (ex. client & admin)
         $users = $ticket->project->users()
                         ->whereDoesntHave('roles', function ($q) {
                            return $q->where('title', 'client');
                         })->get();
 
+        // Get all admin
         $users_admin = \App\User::whereHas('roles', function ($q) {
             return $q->where('title', 'Admin');
         })->get();
+
+        // Send mail
         try {
             Notification::send($users, new DataChangeEmailNotification($data));
             Notification::send($users_admin, new DataChangeEmailNotification($data));
-        } catch (\Exception $e) {
-
-        // $users_admin = \App\User::whereHas('roles', function ($q) {
-        //     return $q->where('title', 'Admin');
-        // })->get();
-        // try {
-        //     Notification::send($users, new DataChangeEmailNotification($data));
-        //     Notification::send($users_admin, new DataChangeEmailNotification($data));
-        // } catch (\Exception $e) {
-
-        }
+        } catch (\Exception $e) {}
     }
 
     public function updated(Ticket $ticket)
     {
+        /**
+         * If create ticket from console, will be ignored
+         */
         if (app()->runningInConsole()) return;
+
+
+        /**
+         * Check and fill word_start column
+         */
+        if ($ticket->status_id == 3 && empty($ticket->work_start)) {
+            if ($ticket->getOriginal('status_id', 1) < 3) {
+                Ticket::withoutEvents(function () use ($ticket) {
+                    // Ticket::find($ticket->id)->update([
+                    //     'work_start' => now()
+                    // ]);
+                    $ticket->work_start = now();
+                    $ticket->save();
+                });
+            }
+        }
+
+
+        /**
+         * Check and fill word_end column
+         */
+        if ($ticket->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
+            if ($ticket->getOriginal('status_id', 1) < 5) {
+                Ticket::withoutEvents(function () use ($ticket) {
+                    // Ticket::find($ticket->id)->update([
+                    //     'work_end' => now()
+                    // ]);
+                    $ticket->work_end = now();
+                    $ticket->save();
+                });
+            }
+        }
+
+
+        /**
+         * Generate working log
+         */
+        if ($ticket->wasChanged('work_start') || $ticket->wasChanged('work_end')) {
+            TicketHelper::generateWorkingLog($ticket->id);
+            TicketHelper::calculateWorkDuration(collect([$ticket]));
+        }
+
+
+        /**
+         * Send mail notification
+         */
         $this->sendDatabaseNotification($ticket, 'edit');
-        // if($model->isDirty('assigned_to_user_id'))
-        // {
-        //     $user = $model->assigned_to_user;
-        //     if($user)
-        //     {
-        //         Notification::send($user, new AssignedTicketNotification($model));
-        //     }
-        // }
     }
 
     private function sendEmailNotification()

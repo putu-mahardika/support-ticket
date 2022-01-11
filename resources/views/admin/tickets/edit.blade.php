@@ -1,6 +1,5 @@
 @extends('layouts.admin')
 @section('content')
-
     <div class="card">
         <div class="card-header">
             {{ trans('global.edit') }} {{ trans('cruds.ticket.title_singular') }}
@@ -13,7 +12,7 @@
         @endif
 
         <div class="card-body">
-            <form action="{{ route("admin.tickets.update", [$ticket->id]) }}" method="POST" enctype="multipart/form-data">
+            <form id="edit-ticket" action="{{ route("admin.tickets.update", [$ticket->id]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -217,8 +216,13 @@
                     </div>
                 @endif
 
-                <div>
-                    <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+                <div class="row">
+                    <div class="col-md-1">
+                        <input class="btn btn-danger btn-block" type="submit" value="{{ trans('global.save') }}">
+                    </div>
+                    <div class="col-2">
+                        <p class="btn" id="loading"></p>
+                    </div>
                 </div>
             </form>
         </div>
@@ -227,60 +231,75 @@
 
 @section('scripts')
     <script>
-        var uploadedAttachmentsMap = {}
-        Dropzone.options.attachmentsDropzone = {
-            url: '{{ route('admin.tickets.storeMedia') }}',
-            maxFilesize: 2, // MB
-            addRemoveLinks: true,
-            headers: {
-            'X-CSRF-TOKEN': "{{ csrf_token() }}"
-            },
-            params: {
-            size: 2
-            },
-            success: function (file, response) {
-            $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">')
-            uploadedAttachmentsMap[file.name] = response.name
-            },
-            removedfile: function (file) {
-            file.previewElement.remove()
-            var name = ''
-            if (typeof file.file_name !== 'undefined') {
-                name = file.file_name
-            } else {
-                name = uploadedAttachmentsMap[file.name]
-            }
-            $('form').find('input[name="attachments[]"][value="' + name + '"]').remove()
-            },
-            init: function () {
-                @if(isset($ticket) && $ticket->attachments)
-                    var files =
-                        {!! json_encode($ticket->attachments) !!}
+        var uploadedAttachmentsMap = {};
+        function dropzoneInit() {
+            $("#attachments-dropzone").dropzone({
+                url: '{{ route('admin.tickets.storeMedia') }}',
+                maxFilesize: 2, // MB
+                addRemoveLinks: true,
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                params: {
+                    size: 2
+                },
+                success: function (file, response) {
+                    $('form').append('<input type="hidden" name="attachments[]" value="' + response.name + '">');
+                    uploadedAttachmentsMap[file.name] = response.name;
+                },
+                removedfile: function (file) {
+                    file.previewElement.remove();
+                    var name = '';
+                    if (typeof file.file_name !== 'undefined') {
+                        name = file.file_name;
+                    }
+                    else {
+                        name = uploadedAttachmentsMap[file.name];
+                    }
+                    $('form').find('input[name="attachments[]"][value="' + name + '"]').remove();
+                },
+                init: function () {
+                    @if(isset($ticket) && $ticket->attachments)
+                        var files = {!!json_encode($ticket->attachments)!!};
                         for (var i in files) {
-                            var file = files[i]
-                            this.options.addedfile.call(this, file)
-                            file.previewElement.classList.add('dz-complete')
-                            $('form').append('<input type="hidden" name="attachments[]" value="' + file.file_name + '">')
+                            var file = files[i];
+                            this.options.addedfile.call(this, file);
+                            file.previewElement.classList.add('dz-complete');
+                            $('form').append('<input type="hidden" name="attachments[]" value="' + file.file_name + '">');
                         }
-                @endif
-            },
-            error: function (file, response) {
-                if ($.type(response) === 'string') {
-                    var message = response //dropzone sends it's own error messages in string
-                } else {
-                    var message = response.errors.file
-                }
-                file.previewElement.classList.add('dz-error')
-                _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]')
-                _results = []
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                    node = _ref[_i]
-                    _results.push(node.textContent = message)
-                }
+                    @endif
+                },
+                error: function (file, response) {
+                    if ($.type(response) === 'string') {
+                        var message = response; //dropzone sends it's own error messages in string
+                    }
+                    else {
+                        var message = response.errors.file;
+                    }
+                    file.previewElement.classList.add('dz-error');
+                    _ref = file.previewElement.querySelectorAll('[data-dz-errormessage]');
+                    _results = [];
+                    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                        node = _ref[_i];
+                        _results.push(node.textContent = message);
+                    }
 
-                return _results
-            }
+                    return _results;
+                }
+            });
         }
+
+        function loadEvents() {
+            $('#edit-ticket').on('submit', function() {
+                $(this).find('input[type="submit"]').attr('disabled','disabled');
+                $('#loading').html('Tunggu sebentar...');
+            });
+        }
+
+        $(document).ready(() => {
+            dropzoneInit();
+            loadEvents();
+        });
 
         function dateBackToogle(name) {
             $(`#work_${name}_container`).toggleClass('disabledContainer');

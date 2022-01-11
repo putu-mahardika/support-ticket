@@ -28,8 +28,6 @@ class UsersController extends Controller
         abort_if(Gate::denies('user_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $roles = Role::all()->pluck('title', 'id')->prepend(trans('global.pleaseSelect'), '');
-
-        // $projects = Project::all()->pluck('name', 'id');
         $projects = DB::table('projects')
                 ->join('user_project', 'user_project.project_id', '=', 'projects.id')
                 ->join('users', 'users.id', '=', 'user_project.user_id', )
@@ -37,15 +35,13 @@ class UsersController extends Controller
                 ->where('user_project.is_pm', 1)
                 ->get();
 
-        // dd($projects);
-
         return view('admin.users.create', compact('roles', 'projects'));
     }
 
     public function store(StoreUserRequest $request)
     {
         $user = User::create($request->all());
-        $user->projects()->attach($request->project);
+        $user->projects()->sync($request->projects);
         $user->roles()->sync($request->input('roles', []));
 
         return redirect()->route('admin.users.index');
@@ -58,25 +54,21 @@ class UsersController extends Controller
         $roles = Role::all()->pluck('title', 'id');
         $projects = Project::all()->pluck('name', 'id');
 
-        // $user->load('roles', 'project');
         $projects = DB::table('projects')
                 ->join('user_project', 'user_project.project_id', '=', 'projects.id')
                 ->join('users', 'users.id', '=', 'user_project.user_id', )
                 ->select('projects.id as id', 'projects.name as name')
                 ->where('user_project.is_pm', 1)
                 ->get();
-        // dd($user);
 
         return view('admin.users.edit', compact('roles', 'user', 'projects'));
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        // dd($request);
         $user->update($request->all());
         $user->roles()->sync($request->input('roles', []));
-        $user->projects()->detach();
-        $user->projects()->attach($request->project);
+        $user->projects()->sync($request->projects);
 
         return redirect()->route('admin.users.index');
     }

@@ -6,6 +6,7 @@ use App\Scopes\AgentScope;
 use App\Traits\Auditable;
 use App\Notifications\CommentEmailNotification;
 use Faker\Provider\Lorem;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,7 +17,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Ticket extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia, Auditable;
+    use SoftDeletes, InteractsWithMedia, Auditable, HasFactory;
 
     public $table = 'tickets';
 
@@ -60,7 +61,7 @@ class Ticket extends Model implements HasMedia
 
         Ticket::observe(new \App\Observers\TicketActionObserver);
 
-        // static::addGlobalScope(new AgentScope);
+        static::addGlobalScope(new AgentScope);
     }
 
     public function registerMediaConversions(Media $media = null): void

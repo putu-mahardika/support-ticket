@@ -53,6 +53,7 @@ class TicketHelper {
 
     public static function generateWorkingLog($ticket_id)
     {
+        // dd($ticket_id);
         $ticket = Ticket::find($ticket_id);
         $lastLog = WorkingLog::where('ticket_id', $ticket->id)->latest()->first();
         $workClock = Workclock::where('day', now()->dayName)->first();
@@ -96,6 +97,11 @@ class TicketHelper {
 
     public static function calculateWorkDuration($tickets, $ignorePerfectLog = false)
     {
+        if (app()->runningInConsole()) {
+            $progressIndex = 0;
+            $progressMax = $tickets->count();
+        }
+
         foreach ($tickets as $ticket) {
             $ticketLogs = WorkingLog::where('ticket_id', $ticket->id)->get();
             if (static::isPerfectLog($ticket->id) || $ignorePerfectLog) {
@@ -105,6 +111,11 @@ class TicketHelper {
                 ->sum();
                 $ticket->save();
                 $ticket->refresh();
+            }
+
+            if (app()->runningInConsole()) {
+                $progressIndex++;
+                FunctionHelper::progressBar($progressIndex, $progressMax);
             }
         }
     }
@@ -120,7 +131,11 @@ class TicketHelper {
     public static function recreateLog($tickets)
     {
         WorkingLog::whereIn('ticket_id', $tickets->pluck('id')->toArray())->delete();
+
+        $progressIndex = 0;
+        $progressMax = $tickets->count();
         foreach ($tickets as $ticket) {
+
             $workStart = Carbon::create($ticket->work_start);
             $workEnd = Carbon::create($ticket->work_end);
             $diffInDays = $workEnd->hour(0)->minute(0)->second(0)
@@ -179,6 +194,9 @@ class TicketHelper {
                     }
                 }
             }
+
+            $progressIndex++;
+            FunctionHelper::progressBar($progressIndex, $progressMax);
         }
         static::calculateWorkDuration($tickets);
     }

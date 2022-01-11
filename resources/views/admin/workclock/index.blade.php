@@ -20,100 +20,99 @@
                 </div>
             @endif
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover table-sm">
-                    <thead>
-                        <tr>
-                            <th class="text-right">
-                                #
-                            </th>
-                            <th>
-                                Day
-                            </th>
-                            <th>
-                                Start
-                            </th>
-                            <th>
-                                Duration
-                            </th>
-                            <th>
-                                End
-                            </th>
-                            <th>
-                                Action
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($workclocks as $workclock)
-                            <tr>
-                                <td class="text-right">
-                                    {{ $loop->iteration ?? '' }}
-                                </td>
-                                <td>
-                                    {{ $workclock->day ?? '' }}
-                                </td>
-                                <td>
-                                    {{ $workclock->time_start }}
-                                </td>
-                                <td>
-                                    {{ $workclock->duration ?? '' }}
-                                </td>
-                                <td>
-                                    {{ Carbon\Carbon::create($workclock->time_start)->addHours($workclock->duration)->format('H:i:s') }}
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.workclock.edit', $workclock->id) }}" class="btn btn-sm btn-info">
-                                        Edit
-                                    </a>
-                                    <button class="btn btn-sm btn-danger" id="btnDelete" data-id="{{ $workclock->id }}">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center">
-                                    No data!
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            <div id="gridContainer"></div>
         </div>
     </div>
 @endsection
 @section('scripts')
-    @parent
     <script>
-        $(function () {
-            $('body').on('click', '#btnDelete', function () {
-                let id = $(this).data('id');
-                Swal.fire({
-                    title: 'Anda yakin?',
-                    text: "Data yang dihapus tidak dapat dikembalikan!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#e74a3b',
-                    cancelButtonColor: '#858796',
-                    confirmButtonText: 'Hapus',
-                    cancelButtonText: 'Batal',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "DELETE",
-                            url: `{{ route('admin.workclock.index') }}/${id}`,
-                            success: function(response) {
-                                window.location.reload();
-                            },
-                            error: function(response) {
-                                console.log(response);
-                            }
-                        });
+        let dataGrid = null;
+
+        function getData() {
+            dataGrid = $("#gridContainer").dxDataGrid({
+                dataSource: @json($workclocks),
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
+                },
+                columnAutoWidth: true,
+                columns: [
+                    {
+                        caption: '#',
+                        cellTemplate: function(cellElement, cellInfo) {
+                            cellElement.text(cellInfo.row.rowIndex + 1);
+                        },
+                        dataType: 'number',
+                    },
+                    {
+                        dataField: "day",
+                        minWidth: 150,
+                    },
+                    {
+                        dataField: 'time_start',
+                        dataType: 'datetime',
+                        format: 'hh:mm:ss'
+                    },
+                    {
+                        dataField: 'duration'
+                    },
+                    {
+                        caption: '',
+                        dataField: 'id',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            cellElement.html(
+                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.workclock.index') }}/${cellInfo.value}/edit">
+                                    <i class="fas fa-edit fa-sm"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                    <i class="fas fa-trash-alt fa-sm"></i>
+                                </button>`
+                            );
+                        },
+                        allowFiltering: false,
+                        allowSorting: false,
+                        minWidth: 100,
                     }
-                })
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                wordWrapEnabled: true
+            }).dxDataGrid("instance");
+        }
+
+        function actionDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                showDenyButton: true,
+                showConfirmButton: false,
+                showCancelButton: true,
+                denyButtonText: `Delete`,
+            }).then((result) => {
+                if (result.isDenied) {
+                    $.ajax({
+                        url: `{{ route('admin.workclock.index') }}/${id}`,
+                        type: 'POST',
+                        data: {
+                            _method: 'DELETE'
+                        },
+                        success: (res) => {
+                            location.reload();
+                        },
+                        error: (error) => {
+                            Swal.fire('Delete record is fail', '', 'error');
+                        }
+                    });
+                }
             });
+        }
+
+        $(document).ready(() => {
+            getData();
         });
     </script>
 @endsection

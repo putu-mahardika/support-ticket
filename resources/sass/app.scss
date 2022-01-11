@@ -2,7 +2,22 @@
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 
 // Variables
-@import 'variables';
+// @import 'variables';
 
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
+// @import '~bootstrap/scss/bootstrap';
+@import '../css/sb-admin-2.css';
+@import '~@fortawesome/fontawesome-free/css/all.css';
+@import '~sweetalert2/src/sweetalert2.scss';
+
+@import '~select2/dist/css/select2.css';
+
+@import '~photoswipe/dist/photoswipe.css';
+@import '~photoswipe/dist/default-skin/default-skin.css';
+@import '~devextreme/dist/css/dx.common.css';
+@import '~devextreme/dist/css/dx.light.css';
+@import '~dropzone/dist/dropzone.css';
+@import '../css/profile-picture.css';
+
+
+

@@ -42,106 +42,118 @@
 @endsection
 @section('scripts')
     @parent
-    <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
-    <script src="{{ asset('js/devExtreme.locale.id.js') }}"></script>
     <script>
-        DevExpress.localization.loadMessages(idLocale);
-        DevExpress.localization.locale("id");
         let selectedTickets = [];
         let dataGrid = null;
         let dataGridTickets = null;
-        $(function () {
-            $(document).ready(() => {
-                getData();
-
-                $('#modalRecreateLog').on('show.bs.modal', function (e) {
-                    selectedTickets = [];
-                    $('#btnRecreate').prop('disabled', selectedTickets.length <= 0);
-
-                    if (dataGridTickets) {
-                        dataGridTickets.deselectAll();
-                        dataGridTickets.clearSelection();
+        let dataSource = new DevExpress.data.CustomStore({
+            key: "id",
+            load: function(loadOptions) {
+                console.log(loadOptions);
+                var d = $.Deferred();
+                var params = {};
+                [
+                    "filter",
+                    "group",
+                    "groupSummary",
+                    "parentIds",
+                    "requireGroupCount",
+                    "requireTotalCount",
+                    "searchExpr",
+                    "searchOperation",
+                    "searchValue",
+                    "select",
+                    "sort",
+                    "skip",
+                    "take",
+                    "totalSummary",
+                    "userData"
+                ].forEach(function(i) {
+                    if(i in loadOptions && isNotEmpty(loadOptions[i])) {
+                        params[i] = JSON.stringify(loadOptions[i]);
                     }
                 });
+                console.log(params);
+                $.getJSON("{{ route('admin.workinglogs.data') }}", params)
+                    .done(function(response) {
+                        d.resolve(response.data, {
+                            totalCount: response.totalCount,
+                        });
+                    })
+                    .fail(function() { throw "Data loading error" });
+                return d.promise();
+            },
+        });
 
-                $('#modalRecreateLog').on('shown.bs.modal', function (e) {
-                    getDataTickets();
-                });
+        function customDataSource() {
 
-                $('#modalRecreateLog').on('hidden.bs.modal', function (e) {
-                    dataGrid.refresh();
-                });
+        }
 
-                $('body').on('click', '#btnRecreate', function () {
-                    $('#gridContainerTicket').addClass('disabledContainer');
-                    $('#btnRecreateClose').prop('disabled', true);
-                    $(this).prop('disabled', true);
-                    $(this).html(`
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Loading...
-                    `);
-                    recreateLogs();
-                });
+        function selectionChanged(e) {
+            selectedTickets = e.selectedRowsData.map((ticket) => {
+                return ticket.id;
             });
 
-            function selectionChanged(e) {
-                selectedTickets = e.selectedRowsData.map((ticket) => {
-                    return ticket.id;
-                });
+            $('#btnRecreate').prop('disabled', selectedTickets.length <= 0);
+        }
 
-                $('#btnRecreate').prop('disabled', selectedTickets.length <= 0);
-            }
-
-            function getData() {
-                dataGrid = $("#gridContainer").dxDataGrid({
-                    dataSource: "{{ route('admin.workinglogs.data') }}",
-                    keyExpr: 'id',
-                    sorting: {
-                        mode: "multiple"
-                    },
-                    columnAutoWidth: true,
-                    columns: [
-                        {
-                            caption: '#',
-                            cellTemplate: function(cellElement, cellInfo) {
-                                cellElement.text(cellInfo.row.rowIndex + 1);
-                            },
-                            dataType: 'number'
+        function getData() {
+            dataGrid = $("#gridContainer").dxDataGrid({
+                dataSource: dataSource,
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
+                },
+                columnAutoWidth: true,
+                columns: [
+                    {
+                        caption: '#',
+                        cellTemplate: function(cellElement, cellInfo) {
+                            cellElement.text(cellInfo.row.rowIndex + 1);
                         },
-                        {dataField: "ticket.title", caption: "Ticket"},
-                        {dataField: "status.name", caption: "Status"},
-                        {dataField: "started_at", caption: "Start", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"},
-                        {dataField: "finished_at", caption: "End", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"}
-                    ],
-                    showBorders: true,
-                    filterRow: { visible: true },
-                    hoverStateEnabled: true,
-                }).dxDataGrid("instance");
-            };
+                        dataType: 'number'
+                    },
+                    {dataField: "ticket.title", caption: "Ticket"},
+                    {dataField: "status.name", caption: "Status"},
+                    {dataField: "started_at", caption: "Start", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"},
+                    {dataField: "finished_at", caption: "End", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"}
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                }
+            }).dxDataGrid("instance");
+        };
 
-            function getDataTickets() {
-                dataGridTickets = $("#gridContainerTicket").dxDataGrid({
-                    dataSource: "{{ route('admin.workinglogs.tickets') }}",
-                    keyExpr: 'id',
-                    sorting: {
-                        mode: "multiple"
-                    },
-                    selection: {
-                        mode: "multiple",
-                        showCheckBoxesMode: "always"
-                    },
-                    columns: [
-                        {dataField: "title", caption: "Ticket"},
-                        {dataField: "work_start", caption: "Start", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"},
-                        {dataField: "work_end", caption: "End", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"}
-                    ],
-                    showBorders: true,
-                    filterRow: { visible: true },
-                    hoverStateEnabled: true,
-                    onSelectionChanged: selectionChanged
-                }).dxDataGrid("instance");
-            };
-        });
+        function isNotEmpty(value) {
+            return value !== undefined && value !== null && value !== "";
+        }
+
+        function getDataTickets() {
+            dataGridTickets = $("#gridContainerTicket").dxDataGrid({
+                dataSource: "{{ route('admin.workinglogs.tickets') }}",
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
+                },
+                selection: {
+                    mode: "multiple",
+                    showCheckBoxesMode: "always"
+                },
+                columns: [
+                    {dataField: "title", caption: "Ticket"},
+                    {dataField: "work_start", caption: "Start", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"},
+                    {dataField: "work_end", caption: "End", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"}
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                onSelectionChanged: selectionChanged
+            }).dxDataGrid("instance");
+        };
 
         function recreateLogs() {
             $.ajax({
@@ -166,5 +178,39 @@
                 }
             });
         }
+
+        $(document).ready(() => {
+            customDataSource();
+            getData();
+
+            $('#modalRecreateLog').on('show.bs.modal', function (e) {
+                selectedTickets = [];
+                $('#btnRecreate').prop('disabled', selectedTickets.length <= 0);
+
+                if (dataGridTickets) {
+                    dataGridTickets.deselectAll();
+                    dataGridTickets.clearSelection();
+                }
+            });
+
+            $('#modalRecreateLog').on('shown.bs.modal', function (e) {
+                getDataTickets();
+            });
+
+            $('#modalRecreateLog').on('hidden.bs.modal', function (e) {
+                dataGrid.refresh();
+            });
+
+            $('body').on('click', '#btnRecreate', function () {
+                $('#gridContainerTicket').addClass('disabledContainer');
+                $('#btnRecreateClose').prop('disabled', true);
+                $(this).prop('disabled', true);
+                $(this).html(`
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Loading...
+                `);
+                recreateLogs();
+            });
+        });
     </script>
 @endsection

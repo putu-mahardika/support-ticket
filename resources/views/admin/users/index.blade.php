@@ -15,156 +15,88 @@
     </div>
 
     <div class="card-body">
-        <div class="table-responsive">
-            <table class=" table table-bordered table-striped table-hover datatable datatable-User">
-                <thead>
-                    <tr>
-                        <th width="10">
-
-                        </th>
-                        <th>
-                            {{ trans('cruds.user.fields.id') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.user.fields.name') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.user.fields.email') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.user.fields.company') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.user.fields.project') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.user.fields.roles') }}
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($users as $user)
-                        <tr data-entry-id="{{ $loop->iteration }}">
-                            <td>
-
-                            </td>
-                            <td>
-                                {{ $loop->iteration ?? '' }}
-                            </td>
-                            <td>
-                                {{ $user->name ?? '' }}
-                            </td>
-                            <td>
-                                {{ $user->email ?? '-' }}
-                            </td>
-                            <td>
-                                {{ $user->company ?? '-' }}
-                            </td>
-                            <td>
-                                {{ $user->projects->pluck('name')->join(', ')  }}
-                            </td>
-                            <td>
-                                @forelse ($user->roles as $role)
-                                    @if ($role->title == 'Admin')
-                                        <span class="badge badge-primary">{{ $role->title }}</span>
-                                    @elseif ($role->title == 'Agent')
-                                        <span class="badge badge-success">{{ $role->title }}</span>
-                                    @else
-                                        <span class="badge badge-danger">{{ $role->title }}</span>
-                                    @endif
-                                @empty
-                                    -
-                                @endforelse
-                            </td>
-                            <td>
-                                @can('user_show')
-                                    <a class="btn btn-primary" href="{{ route('admin.users.show', $user->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-                                @endcan
-
-                                @can('user_edit')
-                                    <a class="btn btn-info" href="{{ route('admin.users.edit', $user->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
-                                @endcan
-
-                                @can('user_delete')
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="submit" class="btn btn-danger" value="{{ trans('global.delete') }}">
-                                    </form>
-                                @endcan
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        <div id="gridContainer"></div>
     </div>
 </div>
 @endsection
 @section('scripts')
-@parent
-<script>
-    $(function () {
-        let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons);
-        @can('user_delete')
-            let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
-            let deleteButton      = {
-                text     : deleteButtonTrans,
-                url      : "{{ route('admin.users.massDestroy') }}",
-                className: 'btn-danger',
-                action   : function (e, dt, node, config) {
-                    var ids = $.map(dt.rows({
-                        selected: true
-                    }).nodes(), function (entry) {
-                        return $(entry).data('entry-id');
-                    });
+    <script>
+        let dataGrid = null;
 
-                    if (ids.length === 0) {
-                        alert('{{ trans('global.datatables.zero_selected ') }}');
-                        return;
-                    }
-
-                    if (confirm('{{ trans('global.areYouSure ') }}')) {
-                        $.ajax({
-                                headers: {
-                                    'x-csrf-token': _token
-                                },
-                                method: 'POST',
-                                url   : config.url,
-                                data  : {
-                                    ids    : ids,
-                                    _method: 'DELETE'
-                                }
-                            })
-                            .done(function () {
-                                location.reload();
+        function getData() {
+            dataGrid = $("#gridContainer").dxDataGrid({
+                dataSource: @json($users),
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
+                },
+                columnAutoWidth: true,
+                columns: [
+                    {
+                        caption: '#',
+                        cellTemplate: function(cellElement, cellInfo) {
+                            cellElement.text(cellInfo.row.rowIndex + 1);
+                        },
+                        dataType: 'number',
+                    },
+                    {
+                        dataField: "name",
+                    },
+                    {
+                        dataField: "email"
+                    },
+                    {
+                        dataField: "company"
+                    },
+                    {
+                        dataField: 'projects',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            let values = cellInfo.value.map(project => {
+                                return `<span class="badge badge-primary">${project.name}</span>`;
                             });
+                            cellElement.html(values.join(' '));
+                        }
+                    },
+                    {
+                        dataField: 'roles',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            let values = cellInfo.value.map(role => {
+                                return `<span class="badge badge-info">${role.title}</span>`;
+                            });
+                            cellElement.html(values.join(' '));
+                        }
+                    },
+                    {
+                        caption: '',
+                        dataField: 'id',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            cellElement.html(
+                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.users.index') }}/${cellInfo.value}/edit">
+                                    <i class="fas fa-edit fa-sm"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                    <i class="fas fa-trash-alt fa-sm"></i>
+                                </button>`
+                            );
+                        },
+                        allowFiltering: false,
+                        allowSorting: false,
+                        minWidth: 50,
                     }
-                }
-            }
-            dtButtons.push(deleteButton);
-        @endcan
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                wordWrapEnabled: true
+            }).dxDataGrid("instance");
+        }
 
-        $.extend(true, $.fn.dataTable.defaults, {
-            order: [
-                [1, 'asc']
-            ],
-            pageLength: 100,
+        $(document).ready(() => {
+            getData();
         });
-        $('.datatable-User:not(.ajaxTable)').DataTable({
-            buttons: dtButtons
-        })
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            $($.fn.dataTable.tables(true)).DataTable()
-                .columns.adjust();
-        });
-    });
-</script>
+    </script>
 @endsection

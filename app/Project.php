@@ -11,6 +11,8 @@ class Project extends Model
 
     public $table = 'projects';
 
+    protected $appends = ['user_pm'];
+
     protected $dates = [
         'created_at',
         'updated_at',
@@ -30,6 +32,10 @@ class Project extends Model
 
     public function users(){
         return $this->belongsToMany(User::class, 'user_project', 'project_id', 'user_id');
+    }
+
+    public function getUserPmAttribute(){
+        return $this->users()->wherePivot('is_pm', true)->first();
     }
 
     public function tickets(){

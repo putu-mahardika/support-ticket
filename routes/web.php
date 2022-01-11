@@ -1,5 +1,8 @@
 <?php
 // Route::get('/', 'TicketController@create');
+
+use Illuminate\Http\Request;
+
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -23,10 +26,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/getJumlahTiketHarian', 'HomeController@getJumlahTiketHarian')->name('getJumlahTiketHarian');
     Route::get('/getLastComment', 'HomeController@getLastComment')->name('getLastComment');
-
     Route::get('/getDataDoughnut', 'HomeController@getDataDoughnut')->name('getDataDoughnut');
-
     Route::get('/getTicketsThisWeek', 'HomeController@getTicketsThisWeek')->name('getTicketsThisWeek');
+    Route::get('weeksInMonth', 'HomeController@weeksInMonth')->name('weeksInMonth');
+    Route::get('statPanel', 'HomeController@statPanel')->name('statPanel');
+
 
     // Permissions
     Route::delete('permissions/destroy', 'PermissionsController@massDestroy')->name('permissions.massDestroy');
@@ -65,6 +69,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::delete('tickets/destroy', 'TicketsController@massDestroy')->name('tickets.massDestroy');
     Route::post('tickets/media', 'TicketsController@storeMedia')->name('tickets.storeMedia');
     Route::post('tickets/comment/{ticket}', 'TicketsController@storeComment')->name('tickets.storeComment');
+    Route::get('tickets/data', 'TicketsController@data')->name('tickets.data');
     Route::get('tickets/report', 'TicketsController@showReport')->name('tickets.showReport');
     Route::get('tickets/getReport', 'TicketsController@getReport')->name('tickets.getReport');
     Route::get('tickets/getComments', 'TicketsController@getComments')->name('tickets.getComments');
@@ -72,6 +77,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::resource('tickets', 'TicketsController');
 
     // Comments
+    Route::get('comments/data', 'CommentsController@data')->name('comments.data');
     Route::delete('comments/destroy', 'CommentsController@massDestroy')->name('comments.massDestroy');
     Route::resource('comments', 'CommentsController');
 
@@ -80,11 +86,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Projects
     Route::delete('projects/destroy', 'ProjectsController@massDestroy')->name('projects.massDestroy');
+    Route::get('projects/data', 'ProjectsController@data')->name('projects.data');
     Route::resource('projects', 'ProjectsController');
 
     //Notif
     Route::get('notif', 'NotifController@index')->name('notif');
     Route::post('notif', 'NotifController@markRead')->name('notif.markRead');
+
+    //Profile
+    Route::resource('profile', 'ProfileController');
 
 });
 

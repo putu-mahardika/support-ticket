@@ -13,10 +13,13 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 // use Laravel\Passport\HasApiTokens;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
-    use SoftDeletes, Notifiable, HasApiTokens;
+    use SoftDeletes, Notifiable, HasApiTokens, InteractsWithMedia;
 
     public $table = 'users';
 
@@ -86,6 +89,16 @@ class User extends Authenticatable
         return $this->roles->contains(1);
     }
 
+    public function isAgent()
+    {
+        return $this->roles->contains(2);
+    }
+
+    public function isClient()
+    {
+        return $this->roles->contains(3);
+    }
+
     public function getRoleNamesAttribute()
     {
         return $this->roles()->pluck('title');
@@ -116,5 +129,15 @@ class User extends Authenticatable
         }
 
         return $this->projects->pluck('id')->contains($id);
+    }
+
+    public function registerMediaCollections(Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')->width(64)->height(64);
+    }
+
+    public function getPhotoAttribute()
+    {
+        return $this->getFirstMedia('profile');
     }
 }

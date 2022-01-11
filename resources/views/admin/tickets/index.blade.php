@@ -27,237 +27,198 @@
         @endif
 
         <div class="card-body">
-            <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-Ticket">
-                <thead>
-                    <tr>
-                        <th width="10">
-
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.created_at') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.code') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.title') }}
-                        </th>
-                        <th>
-                            Last Comment
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.status') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.priority') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.category') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.author_name') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.author_email') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.project') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.ticket.fields.assigned_to_user') }}
-                        </th>
-                        <th>
-                            Work Duration
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
-                    </tr>
-                </thead>
-            </table>
+            <div id="gridContainer"></div>
         </div>
     </div>
 @endsection
 
 @section('scripts')
-    @parent
     <script>
-        $(function () {
-            // let filters = `
-            //     <form class="form-inline" id="filtersForm">
-            //         <div class="form-group mx-sm-3 mb-2">
-            //             <select class="form-control" name="status">
-            //                 <option value="">Semua Status</option>
-            //                 @foreach($statuses as $status)
-            //                     <option value="{{ $status->id }}"{{ request('status') == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
-            //                 @endforeach
-            //             </select>
-            //         </div>
-            //     <div class="form-group mx-sm-3 mb-2">
-            //         <select class="form-control" name="priority">
-            //             <option value="">Semua Prioritas</option>
-            //             @foreach($priorities as $priority)
-            //                 <option value="{{ $priority->id }}"{{ request('priority') == $priority->id ? 'selected' : '' }}>{{ $priority->name }}</option>
-            //             @endforeach
-            //         </select>
-            //     </div>
-            //     <div class="form-group mx-sm-3 mb-2">
-            //         <select class="form-control" name="category">
-            //             <option value="">Semua Kategori</option>
-            //             @foreach($categories as $category)
-            //                 <option value="{{ $category->id }}"{{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-            //             @endforeach
-            //         </select>
-            //     </div>
-            //     </form>`;
-
-            $('.card-body').on('change', 'select', function() {
-                $('#filtersForm').submit();
-            });
-
-            let dtButtons = [];
-            @can('ticket_delete')
-                let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
-                let deleteButton = {
-                    text: deleteButtonTrans,
-                    url: "{{ route('admin.tickets.massDestroy') }}",
-                    className: 'btn-danger',
-                    action: function (e, dt, node, config) {
-                        var ids = $.map(dt.rows({
-                            selected: true
-                        }).data(), function (entry) {
-                            return entry.id
+        let dataGrid = null;
+        let dataSource = new DevExpress.data.CustomStore({
+            key: "id",
+            load: function(loadOptions) {
+                var d = $.Deferred();
+                var params = {};
+                [
+                    "filter",
+                    "group",
+                    "groupSummary",
+                    "parentIds",
+                    "requireGroupCount",
+                    "requireTotalCount",
+                    "searchExpr",
+                    "searchOperation",
+                    "searchValue",
+                    "select",
+                    "sort",
+                    "skip",
+                    "take",
+                    "totalSummary",
+                    "userData"
+                ].forEach(function(i) {
+                    if(i in loadOptions && isNotEmpty(loadOptions[i])) {
+                        params[i] = JSON.stringify(loadOptions[i]);
+                    }
+                });
+                console.log(params);
+                $.getJSON("{{ route('admin.tickets.data') }}", params)
+                    .done(function(response) {
+                        d.resolve(response.data, {
+                            totalCount: response.totalCount,
                         });
+                    })
+                    .fail(function() {
+                        throw "Data loading error"
+                    });
+                return d.promise();
+            },
+        });
 
-                        if (ids.length === 0) {
-                            alert('{{ trans('global.datatables.zero_selected ') }}');
-                            return
-                        }
+        function isNotEmpty(value) {
+            return value !== undefined && value !== null && value !== "";
+        }
 
-                        if (confirm('{{ trans('global.areYouSure ') }}')) {
-                            $.ajax({
-                                    headers: {
-                                        'x-csrf-token': _token
-                                    },
-                                    method: 'POST',
-                                    url: config.url,
-                                    data: {
-                                        ids: ids,
-                                        _method: 'DELETE'
-                                    }
-                                })
-                                .done(function () {
-                                    location.reload()
-                                })
-                        }
-                    }
-                }
-                dtButtons.push(deleteButton)
-            @endcan
-
-            let searchParams = new URLSearchParams(window.location.search)
-            let dtOverrideGlobals = {
-                buttons: dtButtons,
-                processing: true,
-                serverSide: true,
-                retrieve: true,
-                aaSorting: [],
-                ajax: {
-                    url: "{{ route('admin.tickets.index') }}",
-                    data: {
-                        'status': searchParams.get('status'),
-                        'priority': searchParams.get('priority'),
-                        'category': searchParams.get('category')
-                    }
+        function getData() {
+            dataGrid = $("#gridContainer").dxDataGrid({
+                dataSource: dataSource,
+                keyExpr: 'id',
+                sorting: {
+                    mode: "multiple"
                 },
-                columns: [{
-                        data: 'placeholder',
-                        name: 'placeholder'
+                columnAutoWidth: true,
+                columns: [
+                    {
+                        caption: '#',
+                        cellTemplate: function(cellElement, cellInfo) {
+                            cellElement.text(cellInfo.row.rowIndex + 1);
+                        },
+                        dataType: 'number',
                     },
                     {
-                        data: 'created_at',
-                        name: 'created_at'
+                        dataField: 'created_at',
+                        caption: 'Tgl Pembuatan',
+                        dataType: 'datetime',
+                        format: 'yyyy-MM-dd HH:mm:ss'
                     },
                     {
-                        data: 'code',
-                        name: 'code'
+                        dataField: 'project.name',
+                        caption: 'Project'
                     },
                     {
-                        data: 'title',
-                        name: 'title',
-                        render: function (data, type, row) {
-                            if(row.attachment_count > 0){
-                                return '<a href="' + row.view_link + '">' + data + ' (' + row.comments_count + ') <i class="fas fa-file-image"></i></a>';
+                        dataField: "code"
+                    },
+                    {
+                        dataField: "title",
+                        cellTemplate: function (cellElement, cellInfo) {
+                            let commentCount = cellInfo.data.comments_count > 0 ? ` (${cellInfo.data.comments_count})` : '';
+                            let attachmentCount = cellInfo.data.attachments.length > 0 ? ` <i class="fas fa-paperclip"></i>` : '';
+                            cellElement.html(
+                                `<a href="{{ route('admin.tickets.index') }}/${cellInfo.data.id}">${cellInfo.value}${commentCount}${attachmentCount}</a>`
+                            );
+                        }
+                    },
+                    {
+                        dataField: 'comments',
+                        cellTemplate: function (cellElement, cellInfo) {
+                            if (cellInfo.value.length > 0) {
+                                let attachmentCount = $(cellInfo.value).last()[0]['attachments'].length > 0 ? ` <i class="fas fa-paperclip"></i>` : '';
+                                cellElement.html(
+                                    strLimit($(cellInfo.value).last()[0]['comment_text'], 15) + attachmentCount
+                                );
                             } else {
-                                return '<a href="' + row.view_link + '">' + data + ' (' + row.comments_count + ') </a>';
+                                cellElement.html('-');
                             }
-                            
-                        }
+                        },
+                        caption: 'Last Comment',
+                        allowFiltering: false,
+                        allowSorting: false,
                     },
                     {
-                        data: 'last_comment',
-                        name: 'last_comment'
+                        dataField: 'status.name',
+                        caption: 'Status'
                     },
                     {
-                        data: 'status_name',
-                        name: 'status.name',
-                        render: function (data, type, row) {
-                            return '<span style="color:' + row.status_color + '">' + data + '</span>';
-                        }
+                        dataField: 'priority.name',
+                        caption: 'Priority'
                     },
                     {
-                        data: 'priority_name',
-                        name: 'priority.name',
-                        render: function (data, type, row) {
-                            return '<span style="color:' + row.priority_color + '">' + data + '</span>';
-                        }
+                        dataField: 'category.name',
+                        caption: 'Kategori'
                     },
                     {
-                        data: 'category_name',
-                        name: 'category.name',
-                        render: function (data, type, row) {
-                            return '<span style="color:' + row.category_color + '">' + data + '</span>';
-                        }
+                        dataField: 'author_name',
+                        caption: 'Nama Pelapor'
                     },
                     {
-                        data: 'author_name',
-                        name: 'author_name'
+                        dataField: 'author_email',
+                        caption: 'Email Pelapor'
                     },
                     {
-                        data: 'author_email',
-                        name: 'author_email'
+                        dataField: 'assigned_to_user.name',
+                        caption: 'PIC',
                     },
                     {
-                        data: 'project_name',
-                        name: 'project.name'
+                        dataField: 'work_duration'
                     },
                     {
-                        data: 'assigned_to_user_name',
-                        name: 'assigned_to_user.name'
-                    },
-                    {
-                        data: 'work_duration',
-                        name: 'work_duration'
-                    },
-                    {
-                        data: 'actions',
-                        name: '{{ trans('global.actions ') }}'
+                        caption: 'Actions',
+                        dataField: 'id',
+                        cellTemplate: (cellElement, cellInfo) => {
+                            cellElement.html(
+                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.tickets.index') }}/${cellInfo.value}/edit">
+                                    <i class="fas fa-edit fa-sm"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                    <i class="fas fa-trash-alt fa-sm"></i>
+                                </button>`
+                            );
+                        },
+                        allowFiltering: false,
+                        allowSorting: false,
+                        minWidth: 100,
                     }
                 ],
-                order: [
-                    [1, 'desc']
-                ],
-                pageLength: 100,
-            };
+                showBorders: true,
+                filterRow: { visible: true },
+                hoverStateEnabled: true,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true,
+                    sorting: true,
+                },
+                wordWrapEnabled: true,
+            }).dxDataGrid("instance");
+        }
 
-            // $(".datatable-Ticket").one("preInit.dt", function () {
-            //     $(".dataTables_filter").after(filters);
-            // });
-            tableToReload = $('.datatable-Ticket').DataTable(dtOverrideGlobals);
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            $($.fn.dataTable.tables(true)).DataTable()
-                .columns.adjust();
+        function actionDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                showDenyButton: true,
+                showConfirmButton: false,
+                showCancelButton: true,
+                denyButtonText: `Delete`,
+            }).then((result) => {
+                if (result.isDenied) {
+                    $.ajax({
+                        url: `{{ route('admin.tickets.index') }}/${id}`,
+                        type: 'POST',
+                        data: {
+                            _method: 'DELETE'
+                        },
+                        success: (res) => {
+                            location.reload();
+                        },
+                        error: (error) => {
+                            Swal.fire('Delete record is fail', '', 'error');
+                        }
+                    });
+                }
             });
+        }
+
+        $(document).ready(() => {
+            getData();
         });
     </script>
 @endsection
