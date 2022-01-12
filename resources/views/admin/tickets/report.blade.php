@@ -51,97 +51,94 @@
 
 @endsection
 @section('scripts')
-@parent
-<script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
+        {{-- <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script> --}}
 
-<!-- Export Excel -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.1.1/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
-<!-- End Export Pdf -->
+        <!-- Export Excel -->
+        {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.1.1/exceljs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script> --}}
+        <!-- End Export Pdf -->
 
-{{-- Export Pdf --}}
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
-{{-- End Export Pdf --}}
+        {{-- Export Pdf --}}
+        {{-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script> --}}
+        {{-- End Export Pdf --}}
 
-<script>
-  getData();
-  $('#filter').on('click', function () {
-      let awal = $('#awal').val();
-      let akhir = $('#akhir').val();
-      console.log(awal);
-      console.log(akhir);
-      $('#show_range').html('('+awal+' - '+akhir+')');
-      getData(awal, akhir);
-  });
+    <script>
+        getData();
+        $('#filter').on('click', function () {
+            let awal = $('#awal').val();
+            let akhir = $('#akhir').val();
+            $('#show_range').html('('+awal+' - '+akhir+')');
+            getData(awal, akhir);
+        });
 
-  let _token = $('meta[name="csrf-token"]').attr('content');
-  window.jsPDF = window.jspdf.jsPDF;
-  applyPlugin(window.jsPDF);
-  function getData(awal = '', akhir = '') {
-    $('#exportButton').dxButton({
-        icon: 'exportpdf',
-        text: 'Export to PDF',
-        onClick: function() {
-          const doc = new jsPDF();
-          DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: grid
-          }).then(function() {
-            doc.save('Report Help Desk ('+awal+' - '+akhir+').pdf');
-          });
-        }
-    });
-    var grid = $("#gridContainer").dxDataGrid({
-        dataSource: `{{ url('admin/tickets/getReport') }}?awal=${awal}&akhir=${akhir}`,
-        data: {awal: awal, akhir: akhir},
-        columns: [
-          "tgl",
-          // "proyek",
-          "author",
-          "kategori",
-          "prioritas",
-          "judul",
-          "deskripsi",
-          "status",
-          "work_duration",
-          "menit"
-        ],
-        showBorders: true,
-        filterRow: { visible: true },
-        headerFilter: { visible: true },
-        paging: {
-            pageSize: 10
-        },
-        pager: {
-            visible: true,
-            showNavigationButtons: true,
-        },
-        selection: {
-            mode: 'single',
-            columnRenderingMode: "virtual"
-        },
-        export: {
-            enabled: true,
-            allowExportSelectedData: false
-        },
-        onExporting: function(e) {
-          var workbook = new ExcelJS.Workbook();
-          var worksheet = workbook.addWorksheet(awal+' - '+akhir);
+        //   let _token = $('meta[name="csrf-token"]').attr('content');
+        //   window.jsPDF = window.jspdf.jsPDF;
+        //   applyPlugin(window.jsPDF);
+        function getData(awal = '', akhir = '') {
+            // $('#exportButton').dxButton({
+            //     icon: 'exportpdf',
+            //     text: 'Export to PDF',
+            //     onClick: function() {
+            //       const doc = new jsPDF();
+            //       DevExpress.pdfExporter.exportDataGrid({
+            //         jsPDFDocument: doc,
+            //         component: grid
+            //       }).then(function() {
+            //         doc.save('Report Help Desk ('+awal+' - '+akhir+').pdf');
+            //       });
+            //     }
+            // });
+            var grid = $("#gridContainer").dxDataGrid({
+                dataSource: `{{ url('admin/tickets/getReport') }}?awal=${awal}&akhir=${akhir}`,
+                data: {awal: awal, akhir: akhir},
+                columns: [
+                "tgl",
+                // "proyek",
+                "author",
+                "kategori",
+                "prioritas",
+                "judul",
+                "deskripsi",
+                "status",
+                "work_duration",
+                "menit"
+                ],
+                showBorders: true,
+                filterRow: { visible: true },
+                headerFilter: { visible: true },
+                paging: {
+                    pageSize: 10
+                },
+                pager: {
+                    visible: true,
+                    showNavigationButtons: true,
+                },
+                selection: {
+                    mode: 'single',
+                    columnRenderingMode: "virtual"
+                },
+                export: {
+                    enabled: true,
+                    allowExportSelectedData: false
+                },
+                onExporting: function(e) {
+                var workbook = new ExcelJS.Workbook();
+                var worksheet = workbook.addWorksheet(awal+' - '+akhir);
 
-          DevExpress.excelExporter.exportDataGrid({
-            component: e.component,
-            worksheet: worksheet,
-            autoFilterEnabled: true
-          }).then(function() {
-            workbook.xlsx.writeBuffer().then(function(buffer) {
-              saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'Report Help Desk ('+awal+' - '+akhir+').xlsx');
-            });
-          });
-          e.cancel = true;
-        },
-    }).dxDataGrid('instance');
-  };
-</script>
+                DevExpress.excelExporter.exportDataGrid({
+                    component: e.component,
+                    worksheet: worksheet,
+                    autoFilterEnabled: true
+                }).then(function() {
+                    workbook.xlsx.writeBuffer().then(function(buffer) {
+                    saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'Report Help Desk ('+awal+' - '+akhir+').xlsx');
+                    });
+                });
+                e.cancel = true;
+                },
+            }).dxDataGrid('instance');
+        };
+    </script>
 @endsection

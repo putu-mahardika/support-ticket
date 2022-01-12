@@ -22,7 +22,8 @@
         "sass": "^1.20.1",
         "sass-loader": "7.*",
         "vue": "^2.5.17",
-        "vue-template-compiler": "^2.6.10"
+        "vue-template-compiler": "^2.6.10",
+        "webpack-cli": "^4.9.1"
     },
     "dependencies": {
         "@babel/polyfill": "^7.4.0",

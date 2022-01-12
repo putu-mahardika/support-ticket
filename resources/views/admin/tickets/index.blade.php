@@ -35,7 +35,7 @@
 @section('scripts')
     <script>
         let dataGrid = null;
-        let dataSource = new DevExpress.data.CustomStore({
+        let dataSource = new DevExpress.data.CustomStore.constructor({
             key: "id",
             load: function(loadOptions) {
                 var d = $.Deferred();
@@ -61,7 +61,7 @@
                         params[i] = JSON.stringify(loadOptions[i]);
                     }
                 });
-                console.log(params);
+
                 $.getJSON("{{ route('admin.tickets.data') }}", params)
                     .done(function(response) {
                         d.resolve(response.data, {

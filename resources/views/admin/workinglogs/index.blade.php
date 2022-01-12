@@ -46,10 +46,9 @@
         let selectedTickets = [];
         let dataGrid = null;
         let dataGridTickets = null;
-        let dataSource = new DevExpress.data.CustomStore({
+        let dataSource = new DevExpress.data.CustomStore.constructor({
             key: "id",
             load: function(loadOptions) {
-                console.log(loadOptions);
                 var d = $.Deferred();
                 var params = {};
                 [
@@ -73,7 +72,7 @@
                         params[i] = JSON.stringify(loadOptions[i]);
                     }
                 });
-                console.log(params);
+
                 $.getJSON("{{ route('admin.workinglogs.data') }}", params)
                     .done(function(response) {
                         d.resolve(response.data, {

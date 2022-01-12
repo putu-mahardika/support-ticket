@@ -1,5 +1,5 @@
 require('./bootstrap');
-// require('./mqtt');
+require('./mqtt');
 require('./sb-admin-2');
 window.pswpElement = document.querySelectorAll('.pswp')[0];
 window.pswpGalery = null;

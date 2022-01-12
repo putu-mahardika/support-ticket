@@ -22,7 +22,7 @@
 @section('scripts')
     <script>
         let dataGrid = null;
-        let dataSource = new DevExpress.data.CustomStore({
+        let dataSource = new DevExpress.data.CustomStore.constructor({
             key: "id",
             load: function(loadOptions) {
                 var d = $.Deferred();
