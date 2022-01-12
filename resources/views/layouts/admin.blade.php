@@ -95,7 +95,7 @@
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                     Hallo {{ auth()->user()->name ?? '(null)' }}
                                 </span>
-                                <img class="img-profile rounded-circle" src="{{ asset(auth()->user()->photo->getUrl('thumb')) }}">
+                                <img class="img-profile rounded-circle" src="{{ empty(auth()->user()->photo) ? Avatar::create(auth()->user()->name)->toBase64() : asset(auth()->user()->photo->getUrl('thumb')) }}">
                                 <i class="fas fa-caret-down p-2"></i>
                             </a>
                             <!-- Dropdown - User Information -->

@@ -282,14 +282,9 @@ class TicketsController extends Controller
                             ->whereYear('created_at', now()->year)
                             ->latest()
                             ->first();
-        $project_code = explode('.', $lastCode->code);
-        // dd(
-        //     $project,
-        //     $lastCode->toArray(),
-        //     $project_code
-        // );
-        $newNum = empty($lastCode) ? 1 : intval($project_code[2]) + 1;
-        return $project_code[0] . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
+        $newNum = empty($lastCode) ? 1 : intval(explode('.', $lastCode->code)[2]) + 1;
+        $project = Project::find($project);
+        return $project->code . '.' . now()->format('my') . '.' . Str::padLeft($newNum, 4, '0');
     }
 
     public function getComments(Request $request)
