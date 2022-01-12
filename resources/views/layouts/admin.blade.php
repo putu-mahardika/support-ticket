@@ -13,7 +13,7 @@
     <title>{{ config('app.name') }}</title>
 
     <link rel="icon" href="{{ asset('theme/img/headset.png') }}">
-    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+    <link rel="stylesheet" href="{{ url(mix('css/app.css')) }}">
     <style>
         .disabledContainer {
             pointer-events: none;
@@ -172,7 +172,7 @@
 
     @include('partials.photoswipe')
 
-    <script src="{{ mix('js/app.js') }}"></script>
+    <script src="{{ url(mix('js/app.js')) }}"></script>
     <script>
         $(document).ready(() => {
             mqttUserKey = "{{ md5(auth()->user()->email) }}";
