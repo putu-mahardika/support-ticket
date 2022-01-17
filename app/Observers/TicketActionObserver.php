@@ -84,7 +84,7 @@ class TicketActionObserver
 
 
         /**
-         * Check and fill word_end column
+         * Check and fill work_end column
          */
         if ($ticket->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
             if ($ticket->getOriginal('status_id', 1) < 5) {

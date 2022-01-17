@@ -9,7 +9,7 @@ class Update
     public function production(Runner $run)
     {
         $run->artisan('down')
-            ->external('git', 'pull')
+            // ->external('git', 'pull')
             ->external('composer', 'install', '--optimize-autoloader')
             ->external('npm', 'install')
             ->external('npm', 'run', 'production')
