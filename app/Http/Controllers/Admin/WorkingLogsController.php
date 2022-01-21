@@ -20,8 +20,8 @@ class WorkingLogsController extends Controller
     public function data(Request $request)
     {
         $query = WorkingLog::with('ticket', 'status')
-                           ->when($request->has('filter'), function ($query) use ($request) {
-                               return FunctionHelper::dxFilterGenerator($query, $request->filter);
+                           ->when($request->has('filter'), function ($q) use ($request) {
+                               return FunctionHelper::dxFilterGenerator($q, $request->filter);
                            });
 
         $logs = $query->limit($request->take)->offset($request->skip)->get();
@@ -31,10 +31,17 @@ class WorkingLogsController extends Controller
         ];
     }
 
-    public function tickets()
+    public function tickets(Request $request)
     {
-        $tickets = Ticket::limit(10)->get();
-        return $tickets;
+        $query = Ticket::with('status')->when($request->has('filter'), function ($q) use ($request) {
+            return FunctionHelper::dxFilterGenerator($q, $request->filter);
+        });
+
+        $tickets = $query->limit($request->take)->offset($request->skip)->get();
+        return [
+            'data' => $tickets,
+            'totalCount' => $query->count()
+        ];
     }
 
     public function recreateLogs(Request $request)

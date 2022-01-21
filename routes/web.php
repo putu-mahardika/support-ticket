@@ -74,6 +74,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('tickets/getReport', 'TicketsController@getReport')->name('tickets.getReport');
     Route::get('tickets/getComments', 'TicketsController@getComments')->name('tickets.getComments');
     Route::put('tickets/quick-edit/{ticket_id}', 'TicketsController@quickEdit')->name('tickets.quickEdit');
+    Route::post('tickets/recalculate-duration', 'TicketsController@recalculateDuration')->name('tickets.recalculate-duration');
     Route::resource('tickets', 'TicketsController');
 
     // Comments

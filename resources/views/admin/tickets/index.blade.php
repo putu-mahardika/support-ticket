@@ -2,16 +2,29 @@
 
 @section('content')
 
-    <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12 d-flex justify-content-between">
-            @can('ticket_create')
-                <a class="btn btn-success" href="{{ route("admin.tickets.create") }}">
+    <div style="margin-bottom: 10px;" class="row justify-content-between">
+        @can('ticket_create')
+            <div class="col-lg-2 col-md-3 mb-3">
+                <a class="btn btn-block btn-success" href="{{ route("admin.tickets.create") }}">
                     {{ trans('global.add') }} {{ trans('cruds.ticket.title_singular') }}
                 </a>
-            @endcan
-            <a class="btn btn-primary" href="{{ route("admin.tickets.showReport") }}">
-                Laporan
-            </a>
+            </div>
+        @endcan
+
+        <div class="col-md-6 mb-3 text-right">
+            <div class="row justify-content-end">
+                <div class="col-lg-6 col-md-7">
+                    <button id="btnRecalculateDuration" class="btn btn-block btn-outline-primary mb-3">
+                        <span id="labelSelectedTickets" class="badge badge-danger"></span>
+                        Hitung ulang durasi
+                    </button>
+                </div>
+                <div class="col-lg-6 col-md-5">
+                    <a class="btn btn-block btn-primary mb-3" href="{{ route("admin.tickets.showReport") }}">
+                        Laporan
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -35,6 +48,7 @@
 @section('scripts')
     <script>
         let dataGrid = null;
+        let selectedTickets = [];
         let dataSource = new DevExpress.data.CustomStore.constructor({
             key: "id",
             load: function(loadOptions) {
@@ -85,6 +99,11 @@
                 keyExpr: 'id',
                 sorting: {
                     mode: "multiple"
+                },
+                selection: {
+                    mode: 'multiple',
+                    selectAllMode: 'page',
+                    showCheckBoxesMode: 'always'
                 },
                 columnAutoWidth: true,
                 columns: [
@@ -182,6 +201,10 @@
                 showBorders: true,
                 filterRow: { visible: true },
                 hoverStateEnabled: true,
+                onSelectionChanged: function (e) {
+                    selectedTickets = e.selectedRowKeys;
+                    $('#labelSelectedTickets').html(selectedTickets.length > 0 ? selectedTickets.length : '');
+                },
                 remoteOperations: {
                     paging: true,
                     filtering: true,
@@ -217,8 +240,43 @@
             });
         }
 
+        function loadEvents() {
+            $('#btnRecalculateDuration').on('click', function () {
+                if (selectedTickets.length <= 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Pilih 1 atau lebih tiket.'
+                    });
+                    return false;
+                }
+
+                $.ajax({
+                    url: "{{ route('admin.tickets.recalculate-duration') }}",
+                    type: "POST",
+                    data: {
+                        ids: selectedTickets
+                    },
+                    success: (res) => {
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Hitung ulang durasi berhasil'
+                        });
+                        dataGrid.refresh();
+                    },
+                    error: (error) => {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Hitung ulang durasi gagal'
+                        });
+                    }
+                });
+            });
+        }
+
         $(document).ready(() => {
             getData();
+            loadEvents();
         });
     </script>
 @endsection

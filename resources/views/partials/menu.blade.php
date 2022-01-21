@@ -85,9 +85,9 @@
 					@can('category_access')
 						<a class="collapse-item" href="{{ route("admin.categories.index") }}"> {{ trans('cruds.category.title') }}</a>
 					@endcan
-					@can('category_access')
+					{{-- @can('category_access')
 						<a class="collapse-item" href="{{ route("admin.workinglogs.index") }}">Working Logs</a>
-					@endcan
+					@endcan --}}
                     @can('category_access')
 						<a class="collapse-item" href="{{ route("admin.workclock.index") }}">Work Clock</a>
 					@endcan

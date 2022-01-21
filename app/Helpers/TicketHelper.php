@@ -6,6 +6,9 @@ use App\Ticket;
 use App\Workclock;
 use App\WorkingLog;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TicketHelper {
 
@@ -95,37 +98,41 @@ class TicketHelper {
         }
     }
 
-    public static function calculateWorkDuration($tickets, $ignorePerfectLog = false)
+    public static function calculateWorkDuration($tickets)
     {
-        if (app()->runningInConsole()) {
-            $progressIndex = 0;
-            $progressMax = $tickets->count();
-        }
-
+        $workClocks = Workclock::all();
+        $result = true;
         foreach ($tickets as $ticket) {
-            $ticketLogs = WorkingLog::where('ticket_id', $ticket->id)->get();
-            if (static::isPerfectLog($ticket->id) || $ignorePerfectLog) {
-                $ticket->work_duration = $ticketLogs->map(function($log, $key) {
-                    return $log->finished_at->diffInSeconds($log->started_at);
-                })
-                ->sum();
-                $ticket->save();
-                $ticket->refresh();
-            }
+            $ticket->refresh();
+            $period = CarbonPeriod::create($ticket->work_start, $ticket->work_end);
+            $workingHours = collect($period->toArray())->map(function ($date) use ($ticket, $workClocks) {
+                $workClock = $workClocks->where('day', $date->dayName)->first();
+                $timeStart = $workClock->time_start->setDate($date->year, $date->month, $date->day);
+                $timeEnd = $timeStart->copy()->addHours($workClock->duration);
 
-            if (app()->runningInConsole()) {
-                $progressIndex++;
-                FunctionHelper::progressBar($progressIndex, $progressMax);
+                // Head
+                if (Carbon::create($ticket->work_start)->toDateString() == $date->toDateString()) {
+                    return $timeEnd->diffInSeconds($ticket->work_start);
+                }
+                // Tail
+                elseif (Carbon::create($ticket->work_end)->toDateString() == $date->toDateString()) {
+                    return $timeStart->diffInSeconds($ticket->work_end);
+                }
+                // Body
+                else {
+                    return $workClock->duration * 3600;
+                }
+            });
+
+            try {
+                $result = $ticket->update([
+                    'work_duration' => $workingHours->sum()
+                ]);
+            } catch (\Throwable $th) {
+                throw $th;
             }
         }
-    }
-
-    public static function isPerfectLog($ticket_id)
-    {
-        $logs = WorkingLog::where('ticket_id', $ticket_id)->get();
-        return !$logs->pluck('started_at')->contains(null) &&
-               !$logs->pluck('finished_at')->contains(null) &&
-               $logs->pluck('status_id')->contains(5);
+        return $result;
     }
 
     public static function recreateLog($tickets)
@@ -199,5 +206,141 @@ class TicketHelper {
             FunctionHelper::progressBar($progressIndex, $progressMax);
         }
         static::calculateWorkDuration($tickets);
+    }
+
+    public static function autoFinishTicket()
+    {
+        $workClock = Workclock::where('day', now()->dayName)->first();
+
+        /**
+         * If duration is lower or equal to 0, it will be skipped. 0 (zero) value is weekend
+         */
+        if ($workClock->duration <= 0) return;
+
+        /**
+         * If the current time is less than the start of working hours, it will be skipped
+         */
+        if (now() < $workClock->time_start) return;
+
+        /**
+         * If the current time is less than the end of working hours, it will be skipped
+         */
+        if (now() < $workClock->time_start->addHours($workClock->duration)) return;
+
+        /**
+         * Get all latest working log with finished_at column is null
+         */
+        $ids = DB::select('
+            SELECT * FROM `workinglogs` wl
+            INNER JOIN (
+                SELECT MAX(id) AS max_id FROM `workinglogs` GROUP BY ticket_id
+            ) latest_record ON (wl.id = latest_record.max_id)
+            WHERE finished_at IS NULL
+            AND status_id < 5
+        ');
+
+        /**
+         * If the variable is empty, will be skipped
+         */
+        if (empty($ids)) return;
+
+        /**
+         * Convert the array into a collection, then retrieve only the "id" column values
+         */
+        $ids = collect($ids)->pluck('id');
+
+        /**
+         * Update working logs
+         */
+        try {
+            $status = WorkingLog::whereIn('id', $ids->toArray())
+                              ->update([
+                                  'finished_at' => now()
+                              ]);
+            Log::info('TicketHelper::autoFinishTicket has been run', [
+                'status' => $status,
+                'time' => now()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('TicketHelper::autoFinishTicket has been run', [
+                'status' => $status,
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'time' => now()
+            ]);
+        }
+    }
+
+    public static function autoStartTicket()
+    {
+        $workClock = Workclock::where('day', now()->dayName)->first();
+
+        /**
+         * If duration is lower or equal to 0, it will be skipped. 0 (zero) value is weekend
+         */
+        if ($workClock->duration <= 0) return;
+
+        /**
+         * If the current time is less than the start of working hours, it will be skipped
+         */
+        if (now() < $workClock->time_start) return;
+
+        /**
+         * If the current time is less than the end of working hours, it will be skipped
+         */
+        if (now() >= $workClock->time_start->addHours($workClock->duration)) return;
+
+        /**
+         * Get all latest working log with finished_at column is null
+         */
+        $tickets = DB::select('
+            SELECT * FROM `workinglogs` wl
+            INNER JOIN (
+                SELECT MAX(id) AS max_id FROM `workinglogs` GROUP BY ticket_id
+            ) latest_record ON (wl.id = latest_record.max_id)
+            WHERE finished_at IS NOT NULL
+            AND status_id < 5
+        ');
+
+        /**
+         * If the variable is empty, will be skipped
+         */
+        if (empty($tickets)) return;
+
+        /**
+         * Convert the array into a collection, then retrieve only the "id" column values
+         */
+        $tickets = collect($tickets);
+
+        /**
+         * Create working logs
+         */
+        try {
+            $logs = [];
+
+            foreach ($tickets as $ticket) {
+                $logs[] = [
+                    'ticket_id' => $ticket->ticket_id,
+                    'status_id' => $ticket->status_id,
+                    'started_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
+
+            WorkingLog::insert($logs);
+
+            Log::info('TicketHelper::autoStartTicket has been run', [
+                'status' => true,
+                'time' => now()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('TicketHelper::autoStartTicket has been run', [
+                'status' => false,
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'time' => now()
+            ]);
+        }
     }
 }
