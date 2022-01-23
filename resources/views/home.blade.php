@@ -203,263 +203,262 @@
     </div>
 @endsection
 @section('scripts')
-@parent
-<script>
-    let dailyTicketWeek = null;
-    let dailyTicketMonth = null;
-    let currCategory = null;
-    let currPriority = null;
-    let currStatus = null;
-    let formatNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format;
-    let commonSettings = {
-        innerRadius: 0.65,
-        resolveLabelOverlapping: "shift",
-        sizeGroup: "piesGroup",
-        legend: {
-            visible: false
-        },
-        type: "doughnut",
-        series: [{
-            argumentField: "name",
-            valueField: "value",
-            label: {
-                visible: true,
-                connector: {
-                    visible: true
-                },
-                format: "fixedPoint",
-                backgroundColor: "none",
-                customizeText: function(e) {
-                    return e.argumentText + "\n" + e.valueText;
-                }
-            }
-        }],
-        centerTemplate: function(pieChart, container) {
-            var total = pieChart.getAllSeries()[0].getVisiblePoints().reduce(function(s, p) { return s + p.originalValue; }, 0),
-                content = $('<svg><circle cx="100" cy="100" fill="#fff" r="' + (pieChart.getInnerRadius() - 6) + '"></circle>' +
-                    '<text text-anchor="middle" style="font-size: 50px" x="100" y="120" fill="#494949"></text></svg>' );
-
-            container.appendChild(content.get(0));
-        },
-        loadingIndicator: {
-            enabled: true,
-        },
-    };
-
-    function counterUp(el, count, delay = 100) {
-        let start = 0;
-        let interval = setInterval(() => {
-            start += Math.max(Math.floor(count/delay), 1);
-            $(el).text(start);
-            if (start >= count) {
-                clearInterval(interval);
-                $(el).text(count);
-            }
-        }, delay/((50/100)*count));
-    }
-
-    function loadCurrentConditionChart() {
-        currCategory = $("#kategori").dxPieChart($.extend({}, commonSettings, {
-            dataSource: `{{ url('admin/getDataDoughnut') }}?table=categories&${generateFilter()}`
-        })).dxPieChart('instance');
-
-        currPriority = $("#prioritas").dxPieChart($.extend({}, commonSettings, {
-            dataSource: `{{ url('admin/getDataDoughnut') }}?table=priorities&${generateFilter()}`
-        })).dxPieChart('instance');
-
-        currStatus = $("#status").dxPieChart($.extend({}, commonSettings, {
-            dataSource: `{{ url('admin/getDataDoughnut') }}?table=statuses&${generateFilter()}`,
-        })).dxPieChart('instance');
-    }
-
-    function loadDailyTicketWeek() {
-        dailyTicketWeek = $("#chart1").dxChart({
-            dataSource: `{{ url('admin/getTicketsThisWeek') }}?${generateFilter()}`,
-            commonSeriesSettings: {
+    <script>
+        let dailyTicketWeek = null;
+        let dailyTicketMonth = null;
+        let currCategory = null;
+        let currPriority = null;
+        let currStatus = null;
+        let formatNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format;
+        let commonSettings = {
+            innerRadius: 0.65,
+            resolveLabelOverlapping: "shift",
+            sizeGroup: "piesGroup",
+            legend: {
+                visible: false
+            },
+            type: "doughnut",
+            series: [{
                 argumentField: "name",
                 valueField: "value",
-                type: "bar",
-                hoverMode: "allArgumentPoints",
-                selectionMode: "allArgumentPoints",
                 label: {
                     visible: true,
-                    format: {
-                        type: "fixedPoint",
-                        precision: 0
+                    connector: {
+                        visible: true
+                    },
+                    format: "fixedPoint",
+                    backgroundColor: "none",
+                    customizeText: function(e) {
+                        return e.argumentText + "\n" + e.valueText;
                     }
                 }
-            },
-            series: [
-                { valueField: "value", name: "Tiket", color: "#009423" }
-            ],
-            legend: {
-                visible: false
-            },
-            size: {
-                height: 400,
-                width: 1000
-            },
-            argumentAxis: {
-                allowDecimals: false,
-                title: 'Hari',
-                label: {
-                    wordWrap: "none",
-                    overlappingBehavior: "stagger",
-                }
-            },
-            valueAxis: {
-                title: 'Jumlah',
-                allowDecimals: false,
+            }],
+            centerTemplate: function(pieChart, container) {
+                var total = pieChart.getAllSeries()[0].getVisiblePoints().reduce(function(s, p) { return s + p.originalValue; }, 0),
+                    content = $('<svg><circle cx="100" cy="100" fill="#fff" r="' + (pieChart.getInnerRadius() - 6) + '"></circle>' +
+                        '<text text-anchor="middle" style="font-size: 50px" x="100" y="120" fill="#494949"></text></svg>' );
+
+                container.appendChild(content.get(0));
             },
             loadingIndicator: {
                 enabled: true,
             },
-        }).dxChart('instance');
-    }
+        };
 
-    function loadDailyTicketMonth() {
-        dailyTicketMonth = $("#chart").dxChart({
-            dataSource: `{{ url('admin/getJumlahTiketHarian') }}?${generateFilter()}`,
-            commonSeriesSettings: {
-                argumentField: "tgl",
-                valueField: "value",
-                type: "bar",
-                hoverMode: "allArgumentPoints",
-                selectionMode: "allArgumentPoints",
-                label: {
-                    visible: true,
-                    format: {
-                        type: "fixedPoint",
-                        precision: 0
+        function counterUp(el, count, delay = 100) {
+            let start = 0;
+            let interval = setInterval(() => {
+                start += Math.max(Math.floor(count/delay), 1);
+                $(el).text(start);
+                if (start >= count) {
+                    clearInterval(interval);
+                    $(el).text(count);
+                }
+            }, delay/((50/100)*count));
+        }
+
+        function loadCurrentConditionChart() {
+            currCategory = $("#kategori").dxPieChart($.extend({}, commonSettings, {
+                dataSource: `{{ url('admin/getDataDoughnut') }}?table=categories&${generateFilter()}`
+            })).dxPieChart('instance');
+
+            currPriority = $("#prioritas").dxPieChart($.extend({}, commonSettings, {
+                dataSource: `{{ url('admin/getDataDoughnut') }}?table=priorities&${generateFilter()}`
+            })).dxPieChart('instance');
+
+            currStatus = $("#status").dxPieChart($.extend({}, commonSettings, {
+                dataSource: `{{ url('admin/getDataDoughnut') }}?table=statuses&${generateFilter()}`,
+            })).dxPieChart('instance');
+        }
+
+        function loadDailyTicketWeek() {
+            dailyTicketWeek = $("#chart1").dxChart({
+                dataSource: `{{ url('admin/getTicketsThisWeek') }}?${generateFilter()}`,
+                commonSeriesSettings: {
+                    argumentField: "name",
+                    valueField: "value",
+                    type: "bar",
+                    hoverMode: "allArgumentPoints",
+                    selectionMode: "allArgumentPoints",
+                    label: {
+                        visible: true,
+                        format: {
+                            type: "fixedPoint",
+                            precision: 0
+                        }
                     }
+                },
+                series: [
+                    { valueField: "value", name: "Tiket", color: "#009423" }
+                ],
+                legend: {
+                    visible: false
+                },
+                size: {
+                    height: 400,
+                    width: 1000
+                },
+                argumentAxis: {
+                    allowDecimals: false,
+                    title: 'Hari',
+                    label: {
+                        wordWrap: "none",
+                        overlappingBehavior: "stagger",
+                    }
+                },
+                valueAxis: {
+                    title: 'Jumlah',
+                    allowDecimals: false,
+                },
+                loadingIndicator: {
+                    enabled: true,
+                },
+            }).dxChart('instance');
+        }
+
+        function loadDailyTicketMonth() {
+            dailyTicketMonth = $("#chart").dxChart({
+                dataSource: `{{ url('admin/getJumlahTiketHarian') }}?${generateFilter()}`,
+                commonSeriesSettings: {
+                    argumentField: "tgl",
+                    valueField: "value",
+                    type: "bar",
+                    hoverMode: "allArgumentPoints",
+                    selectionMode: "allArgumentPoints",
+                    label: {
+                        visible: true,
+                        format: {
+                            type: "fixedPoint",
+                            precision: 0
+                        }
+                    }
+                },
+                series: [
+                    { valueField: "value", name: "Tiket", color: "#06d638" }
+                ],
+                legend: {
+                    visible: false
+                },
+                size: {
+                    height: 400,
+                    width: 1200
+                },
+                argumentAxis: {
+                    allowDecimals: false,
+                    title: 'Tanggal',
+                    label: {
+                        wordWrap: "none",
+                        overlappingBehavior: "stagger",
+                    }
+                },
+                valueAxis: {
+                    title: 'Jumlah',
+                    allowDecimals: false,
+                },
+                loadingIndicator: {
+                    enabled: true,
+                },
+            }).dxChart('instance');
+        }
+
+        function loadStatPanel(params) {
+            $.get(`{{ route('admin.statPanel') }}?${generateFilter()}`, res => {
+                counterUp(
+                    $('#totalTicketCounter'),
+                    res.ticketsCount,
+                    1000
+                );
+                $('#avgTime').text(res.avgTime);
+            });
+        }
+
+        function generateFilter() {
+            let monthFilter = $('#monthFilter').val();
+            let weekFilter = $('#weekInput').val();
+            return `monthFilter=${monthFilter}&weekFilter=${weekFilter}`;
+        }
+
+        function loadEvents() {
+            $('#formModalFilterMonth').on('submit', function (e) {
+                e.preventDefault();
+                $('#monthFilter').val($('#monthFilterModal').val());
+                $('#formMonthFilter').trigger('submit');
+                $('#modalFilterMonth').modal('hide');
+            });
+
+            $('#formMonthFilter').on('submit', function (e) {
+                e.preventDefault();
+                loadWeekInput();
+                $('#monthFilterModal').val($('#monthFilter').val());
+                let requestParams = generateFilter();
+
+                changeLabelHeader();
+                loadStatPanel();
+                currCategory.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=categories&${requestParams}`);
+                currCategory.refresh();
+
+                currPriority.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=priorities&${requestParams}`);
+                currPriority.refresh();
+
+                currStatus.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=statuses&${requestParams}`);
+                currStatus.refresh();
+
+                dailyTicketMonth.option('dataSource', `{{ url('admin/getJumlahTiketHarian') }}?${requestParams}`);
+                dailyTicketMonth.refresh();
+
+                dailyTicketWeek.option('dataSource', `{{ url('admin/getTicketsThisWeek') }}?${requestParams}`);
+                dailyTicketWeek.refresh();
+
+            });
+
+            $('#weekInput').on('change', function () {
+                if ($(this).val() > $(this).attr('max')) {
+                    $(this).val($(this).attr('max'));
                 }
-            },
-            series: [
-                { valueField: "value", name: "Tiket", color: "#06d638" }
-            ],
-            legend: {
-                visible: false
-            },
-            size: {
-                height: 400,
-                width: 1200
-            },
-            argumentAxis: {
-                allowDecimals: false,
-                title: 'Tanggal',
-                label: {
-                    wordWrap: "none",
-                    overlappingBehavior: "stagger",
-                }
-            },
-            valueAxis: {
-                title: 'Jumlah',
-                allowDecimals: false,
-            },
-            loadingIndicator: {
-                enabled: true,
-            },
-        }).dxChart('instance');
-    }
+                let requestParams = generateFilter();
+                dailyTicketWeek.option('dataSource', `{{ url('admin/getTicketsThisWeek') }}?${requestParams}`);
+                dailyTicketWeek.refresh();
+            });
+        }
 
-    function loadStatPanel(params) {
-        $.get(`{{ route('admin.statPanel') }}?${generateFilter()}`, res => {
-            counterUp(
-                $('#totalTicketCounter'),
-                res.ticketsCount,
-                1000
-            );
-            $('#avgTime').text(res.avgTime);
-        });
-    }
+        function loadWeekInput() {
+            let monthFilter = $('#monthFilter').val();
+            $.get(`{{ route('admin.weeksInMonth') }}?${generateFilter()}&onlyWeek=true`, res => {
+                let html = "";
+                res.forEach(week => {
+                    html += `<option value="${week}">${week}</option>`;
+                });
+                $('#weekInput').html(html);
+            });
+        }
 
-    function generateFilter() {
-        let monthFilter = $('#monthFilter').val();
-        let weekFilter = $('#weekInput').val();
-        return `monthFilter=${monthFilter}&weekFilter=${weekFilter}`;
-    }
+        function changeLabelHeader() {
+            $('#headerCurrentCondition').text(`Group ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+            $('#headerDailyTicket').text(`Grafik Tiket Harian ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+            $('#headerWeeklyTicket').text(`Grafik Tiket Mingguan ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+            // $('#headerCurrentCondition').append(` ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
+        }
 
-    function loadEvents() {
-        $('#formModalFilterMonth').on('submit', function (e) {
-            e.preventDefault();
-            $('#monthFilter').val($('#monthFilterModal').val());
-            $('#formMonthFilter').trigger('submit');
-            $('#modalFilterMonth').modal('hide');
+        $(function(){
+            $("#gridContainer").dxDataGrid({
+                dataSource: "{{ url('admin/getLastComment') }}",
+                // keyExpr: 'ID',
+                columns: ["tgl", "proyek", "judul_tiket", "deskripsi"],
+                showBorders: true,
+                filterRow: { visible: true },
+                headerFilter: { visible: true },
+            });
         });
 
-        $('#formMonthFilter').on('submit', function (e) {
-            e.preventDefault();
-            loadWeekInput();
-            $('#monthFilterModal').val($('#monthFilter').val());
-            let requestParams = generateFilter();
-
+        $(document).ready(() => {
             changeLabelHeader();
             loadStatPanel();
-            currCategory.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=categories&${requestParams}`);
-            currCategory.refresh();
-
-            currPriority.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=priorities&${requestParams}`);
-            currPriority.refresh();
-
-            currStatus.option('dataSource', `{{ url('admin/getDataDoughnut') }}?table=statuses&${requestParams}`);
-            currStatus.refresh();
-
-            dailyTicketMonth.option('dataSource', `{{ url('admin/getJumlahTiketHarian') }}?${requestParams}`);
-            dailyTicketMonth.refresh();
-
-            dailyTicketWeek.option('dataSource', `{{ url('admin/getTicketsThisWeek') }}?${requestParams}`);
-            dailyTicketWeek.refresh();
-
+            loadEvents();
+            loadCurrentConditionChart();
+            loadDailyTicketMonth();
+            loadDailyTicketWeek();
+            loadWeekInput();
         });
 
-        $('#weekInput').on('change', function () {
-            if ($(this).val() > $(this).attr('max')) {
-                $(this).val($(this).attr('max'));
-            }
-            let requestParams = generateFilter();
-            dailyTicketWeek.option('dataSource', `{{ url('admin/getTicketsThisWeek') }}?${requestParams}`);
-            dailyTicketWeek.refresh();
-        });
-    }
-
-    function loadWeekInput() {
-        let monthFilter = $('#monthFilter').val();
-        $.get(`{{ route('admin.weeksInMonth') }}?${generateFilter()}&onlyWeek=true`, res => {
-            let html = "";
-            res.forEach(week => {
-                html += `<option value="${week}">${week}</option>`;
-            });
-            $('#weekInput').html(html);
-        });
-    }
-
-    function changeLabelHeader() {
-        $('#headerCurrentCondition').text(`Group ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
-        $('#headerDailyTicket').text(`Grafik Tiket Harian ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
-        $('#headerWeeklyTicket').text(`Grafik Tiket Mingguan ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
-        // $('#headerCurrentCondition').append(` ( ${moment($('#monthFilter').val()).format('MMMM YYYY')} )`);
-    }
-
-    $(function(){
-        $("#gridContainer").dxDataGrid({
-            dataSource: "{{ url('admin/getLastComment') }}",
-            // keyExpr: 'ID',
-            columns: ["tgl", "proyek", "judul_tiket", "deskripsi"],
-            showBorders: true,
-            filterRow: { visible: true },
-            headerFilter: { visible: true },
-        });
-    });
-
-    $(document).ready(() => {
-        changeLabelHeader();
-        loadStatPanel();
-        loadEvents();
-        loadCurrentConditionChart();
-        loadDailyTicketMonth();
-        loadDailyTicketWeek();
-        loadWeekInput();
-    });
-
-</script>
+    </script>
 @endsection
