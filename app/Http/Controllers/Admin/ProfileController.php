@@ -43,7 +43,10 @@ class ProfileController extends Controller
             'company' => $request->company
         ]);
 
-        $user->photo->delete();
+        if (!empty($user->photo)) {
+            $user->photo->delete();
+        }
+
         $user->addMediaFromBase64($request->photo, 'image/*')
             ->toMediaCollection('profile');
 
