@@ -11,19 +11,13 @@
             </div>
         @endcan
 
-        <div class="col-md-6 mb-3 text-right">
-            <div class="row justify-content-end">
-                <div class="col-lg-6 col-md-7">
-                    <button id="btnRecalculateDuration" class="btn btn-block btn-outline-primary mb-3">
-                        <span id="labelSelectedTickets" class="badge badge-danger"></span>
-                        Hitung ulang durasi
-                    </button>
-                </div>
-                <div class="col-lg-6 col-md-5">
-                    <a class="btn btn-block btn-primary mb-3" href="{{ route("admin.tickets.showReport") }}">
-                        Laporan
-                    </a>
-                </div>
+        <div class="col-md-4 mb-3 text-right">
+            <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-outline-primary" id="btnRecalculateDuration">
+                    <span id="labelSelectedTickets" class="badge badge-danger"></span>
+                    Hitung Durasi
+                </button>
+                <a href="{{ route("admin.tickets.showReport") }}" type="button" class="btn btn-outline-primary">Laporan</a>
             </div>
         </div>
     </div>
@@ -133,7 +127,12 @@
                             let commentCount = cellInfo.data.comments_count > 0 ? ` (${cellInfo.data.comments_count})` : '';
                             let attachmentCount = cellInfo.data.attachments.length > 0 ? ` <i class="fas fa-paperclip"></i>` : '';
                             cellElement.html(
-                                `<a href="{{ route('admin.tickets.index') }}/${cellInfo.data.id}">${cellInfo.value}${commentCount}${attachmentCount}</a>`
+                                /**
+                                 * You can find the strLimit function in the resource/js/app.js file
+                                 */
+                                `<a href="{{ route('admin.tickets.index') }}/${cellInfo.data.id}">
+                                    ${strLimit(cellInfo.value, 25)}${commentCount}${attachmentCount}
+                                </a>`
                             );
                         }
                     },
@@ -143,6 +142,9 @@
                             if (cellInfo.value.length > 0) {
                                 let attachmentCount = $(cellInfo.value).last()[0]['attachments'].length > 0 ? ` <i class="fas fa-paperclip"></i>` : '';
                                 cellElement.html(
+                                    /**
+                                     * You can find the strLimit function in the resource/js/app.js file
+                                     */
                                     strLimit($(cellInfo.value).last()[0]['comment_text'], 15) + attachmentCount
                                 );
                             } else {
@@ -185,10 +187,10 @@
                         dataField: 'id',
                         cellTemplate: (cellElement, cellInfo) => {
                             cellElement.html(
-                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.tickets.index') }}/${cellInfo.value}/edit">
+                                `<a class="btn btn-warning btn-sm" title="Edit" href="{{ route('admin.tickets.index') }}/${cellInfo.value}/edit">
                                     <i class="fas fa-edit fa-sm"></i>
                                 </a>
-                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                <button class="btn btn-danger btn-sm" title="Delete" type="button" onclick="actionDelete(${cellInfo.value});">
                                     <i class="fas fa-trash-alt fa-sm"></i>
                                 </button>`
                             );

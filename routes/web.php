@@ -56,25 +56,30 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::delete('categories/destroy', 'CategoriesController@massDestroy')->name('categories.massDestroy');
     Route::resource('categories', 'CategoriesController');
 
-    // Working Logs
-    Route::get('/workinglogs', 'WorkingLogsController@index')->name('workinglogs.index');
-    Route::get('/workinglogs/data', 'WorkingLogsController@data')->name('workinglogs.data');
-    Route::get('/workinglogs/tickets', 'WorkingLogsController@tickets')->name('workinglogs.tickets');
-    Route::post('/workinglogs/recreate-logs', 'WorkingLogsController@recreateLogs')->name('workinglogs.recreateLogs');
+    /**
+     * Working Logs is deprecated!
+     */
+    // // Working Logs
+    // Route::get('/workinglogs', 'WorkingLogsController@index')->name('workinglogs.index');
+    // Route::get('/workinglogs/data', 'WorkingLogsController@data')->name('workinglogs.data');
+    // Route::get('/workinglogs/tickets', 'WorkingLogsController@tickets')->name('workinglogs.tickets');
+    // Route::post('/workinglogs/recreate-logs', 'WorkingLogsController@recreateLogs')->name('workinglogs.recreateLogs');
 
     //Work Clock
     Route::resource('/workclock', 'WorkClockController');
 
     // Tickets
-    Route::delete('tickets/destroy', 'TicketsController@massDestroy')->name('tickets.massDestroy');
-    Route::post('tickets/media', 'TicketsController@storeMedia')->name('tickets.storeMedia');
-    Route::post('tickets/comment/{ticket}', 'TicketsController@storeComment')->name('tickets.storeComment');
-    Route::get('tickets/data', 'TicketsController@data')->name('tickets.data');
-    Route::get('tickets/report', 'TicketsController@showReport')->name('tickets.showReport');
-    Route::get('tickets/getReport', 'TicketsController@getReport')->name('tickets.getReport');
-    Route::get('tickets/getComments', 'TicketsController@getComments')->name('tickets.getComments');
-    Route::put('tickets/quick-edit/{ticket_id}', 'TicketsController@quickEdit')->name('tickets.quickEdit');
-    Route::post('tickets/recalculate-duration', 'TicketsController@recalculateDuration')->name('tickets.recalculate-duration');
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::delete('destroy', 'TicketsController@massDestroy')->name('massDestroy');
+        Route::post('media', 'TicketsController@storeMedia')->name('storeMedia');
+        Route::post('comment/{ticket}', 'TicketsController@storeComment')->name('storeComment');
+        Route::get('data', 'TicketsController@data')->name('data');
+        Route::get('report', 'TicketsController@showReport')->name('showReport');
+        Route::get('getReport', 'TicketsController@getReport')->name('getReport');
+        Route::get('getComments', 'TicketsController@getComments')->name('getComments');
+        Route::put('quick-edit/{ticket_id}', 'TicketsController@quickEdit')->name('quickEdit');
+        Route::post('recalculate-duration', 'TicketsController@recalculateDuration')->name('recalculate-duration');
+    });
     Route::resource('tickets', 'TicketsController');
 
     // Comments
