@@ -27,13 +27,6 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
-        $schedule->call(function () {
-            TicketHelper::autoFinishTicket();
-        })->hourly();
-
-        $schedule->call(function () {
-            TicketHelper::autoStartTicket();
-        })->hourly();
     }
 
     /**

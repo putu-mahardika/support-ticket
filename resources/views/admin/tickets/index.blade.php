@@ -269,7 +269,7 @@
                     error: (error) => {
                         Toast.fire({
                             icon: 'error',
-                            title: 'Hitung ulang durasi gagal'
+                            title: error.responseText
                         });
                     }
                 });
