@@ -12,7 +12,7 @@ class Update
             // ->external('git', 'pull')
             ->external('composer', 'install', '--optimize-autoloader')
             ->external('npm', 'install')
-            ->external('npm', 'run', 'production')
+            ->external('npx', 'mix', '--production')
             ->artisan('migrate', ['--force' => true])
             ->artisan('version:absorb')
             ->artisan('optimize:clear')
@@ -23,7 +23,7 @@ class Update
     {
         $run->external('composer', 'install')
             ->external('npm', 'install')
-            ->external('npm', 'run', 'development')
+            ->external('npx', 'mix')
             ->artisan('migrate')
             ->artisan('optimize:clear');
     }
