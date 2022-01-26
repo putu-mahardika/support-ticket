@@ -2,16 +2,23 @@
 
 @section('content')
 
-    <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12 d-flex justify-content-between">
-            @can('ticket_create')
-                <a class="btn btn-success" href="{{ route("admin.tickets.create") }}">
+    <div style="margin-bottom: 10px;" class="row justify-content-between">
+        @can('ticket_create')
+            <div class="col-lg-2 col-md-3 mb-3">
+                <a class="btn btn-block btn-success" href="{{ route("admin.tickets.create") }}">
                     {{ trans('global.add') }} {{ trans('cruds.ticket.title_singular') }}
                 </a>
-            @endcan
-            <a class="btn btn-primary" href="{{ route("admin.tickets.showReport") }}">
-                Laporan
-            </a>
+            </div>
+        @endcan
+
+        <div class="col-md-4 mb-3 text-right">
+            <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-outline-primary" id="btnRecalculateDuration">
+                    <span id="labelSelectedTickets" class="badge badge-danger"></span>
+                    Hitung Durasi
+                </button>
+                <a href="{{ route("admin.tickets.showReport") }}" type="button" class="btn btn-outline-primary">Laporan</a>
+            </div>
         </div>
     </div>
 
@@ -35,6 +42,7 @@
 @section('scripts')
     <script>
         let dataGrid = null;
+        let selectedTickets = [];
         let dataSource = new DevExpress.data.CustomStore.constructor({
             key: "id",
             load: function(loadOptions) {
@@ -86,6 +94,11 @@
                 sorting: {
                     mode: "multiple"
                 },
+                selection: {
+                    mode: 'multiple',
+                    selectAllMode: 'page',
+                    showCheckBoxesMode: 'always'
+                },
                 columnAutoWidth: true,
                 columns: [
                     {
@@ -114,7 +127,12 @@
                             let commentCount = cellInfo.data.comments_count > 0 ? ` (${cellInfo.data.comments_count})` : '';
                             let attachmentCount = cellInfo.data.attachments.length > 0 ? ` <i class="fas fa-paperclip"></i>` : '';
                             cellElement.html(
-                                `<a href="{{ route('admin.tickets.index') }}/${cellInfo.data.id}">${cellInfo.value}${commentCount}${attachmentCount}</a>`
+                                /**
+                                 * You can find the strLimit function in the resource/js/app.js file
+                                 */
+                                `<a href="{{ route('admin.tickets.index') }}/${cellInfo.data.id}">
+                                    ${strLimit(cellInfo.value, 25)}${commentCount}${attachmentCount}
+                                </a>`
                             );
                         }
                     },
@@ -124,6 +142,9 @@
                             if (cellInfo.value.length > 0) {
                                 let attachmentCount = $(cellInfo.value).last()[0]['attachments'].length > 0 ? ` <i class="fas fa-paperclip"></i>` : '';
                                 cellElement.html(
+                                    /**
+                                     * You can find the strLimit function in the resource/js/app.js file
+                                     */
                                     strLimit($(cellInfo.value).last()[0]['comment_text'], 15) + attachmentCount
                                 );
                             } else {
@@ -166,10 +187,10 @@
                         dataField: 'id',
                         cellTemplate: (cellElement, cellInfo) => {
                             cellElement.html(
-                                `<a class="btn btn-warning btn-sm" href="{{ route('admin.tickets.index') }}/${cellInfo.value}/edit">
+                                `<a class="btn btn-warning btn-sm" title="Edit" href="{{ route('admin.tickets.index') }}/${cellInfo.value}/edit">
                                     <i class="fas fa-edit fa-sm"></i>
                                 </a>
-                                <button class="btn btn-danger btn-sm" type="button" onclick="actionDelete(${cellInfo.value});">
+                                <button class="btn btn-danger btn-sm" title="Delete" type="button" onclick="actionDelete(${cellInfo.value});">
                                     <i class="fas fa-trash-alt fa-sm"></i>
                                 </button>`
                             );
@@ -182,6 +203,10 @@
                 showBorders: true,
                 filterRow: { visible: true },
                 hoverStateEnabled: true,
+                onSelectionChanged: function (e) {
+                    selectedTickets = e.selectedRowKeys;
+                    $('#labelSelectedTickets').html(selectedTickets.length > 0 ? selectedTickets.length : '');
+                },
                 remoteOperations: {
                     paging: true,
                     filtering: true,
@@ -217,8 +242,43 @@
             });
         }
 
+        function loadEvents() {
+            $('#btnRecalculateDuration').on('click', function () {
+                if (selectedTickets.length <= 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Pilih 1 atau lebih tiket.'
+                    });
+                    return false;
+                }
+
+                $.ajax({
+                    url: "{{ route('admin.tickets.recalculate-duration') }}",
+                    type: "POST",
+                    data: {
+                        ids: selectedTickets
+                    },
+                    success: (res) => {
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Hitung ulang durasi berhasil'
+                        });
+                        dataGrid.refresh();
+                    },
+                    error: (error) => {
+                        Toast.fire({
+                            icon: 'error',
+                            title: error.responseText
+                        });
+                    }
+                });
+            });
+        }
+
         $(document).ready(() => {
             getData();
+            loadEvents();
         });
     </script>
 @endsection

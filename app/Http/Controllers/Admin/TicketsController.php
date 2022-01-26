@@ -465,4 +465,10 @@ class TicketsController extends Controller
             'totalCount' => $query->count()
         ];
     }
+
+    public function recalculateDuration(Request $request)
+    {
+        $tickets = Ticket::whereIn('id', $request->ids)->get();
+        return TicketHelper::calculateWorkDuration($tickets);
+    }
 }

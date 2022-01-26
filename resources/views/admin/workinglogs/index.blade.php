@@ -22,7 +22,7 @@
     </div>
     <!-- Modal -->
     <div class="modal fade" id="modalRecreateLog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="modalRecreateLogLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalRecreateLogLabel">Choose one or more</h5>
@@ -84,6 +84,44 @@
             },
         });
 
+        let dataSourceTicket = new DevExpress.data.CustomStore.constructor({
+            key: "id",
+            load: function(loadOptions) {
+                var d = $.Deferred();
+                var params = {};
+                [
+                    "filter",
+                    "group",
+                    "groupSummary",
+                    "parentIds",
+                    "requireGroupCount",
+                    "requireTotalCount",
+                    "searchExpr",
+                    "searchOperation",
+                    "searchValue",
+                    "select",
+                    "sort",
+                    "skip",
+                    "take",
+                    "totalSummary",
+                    "userData"
+                ].forEach(function(i) {
+                    if(i in loadOptions && isNotEmpty(loadOptions[i])) {
+                        params[i] = JSON.stringify(loadOptions[i]);
+                    }
+                });
+
+                $.getJSON("{{ route('admin.workinglogs.tickets') }}", params)
+                    .done(function(response) {
+                        d.resolve(response.data, {
+                            totalCount: response.totalCount,
+                        });
+                    })
+                    .fail(function() { throw "Data loading error" });
+                return d.promise();
+            },
+        });
+
         function customDataSource() {
 
         }
@@ -112,6 +150,7 @@
                         },
                         dataType: 'number'
                     },
+                    {dataField: "ticket.code", caption: "Code"},
                     {dataField: "ticket.title", caption: "Ticket"},
                     {dataField: "status.name", caption: "Status"},
                     {dataField: "started_at", caption: "Start", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"},
@@ -133,7 +172,7 @@
 
         function getDataTickets() {
             dataGridTickets = $("#gridContainerTicket").dxDataGrid({
-                dataSource: "{{ route('admin.workinglogs.tickets') }}",
+                dataSource: dataSourceTicket,
                 keyExpr: 'id',
                 sorting: {
                     mode: "multiple"
@@ -143,14 +182,20 @@
                     showCheckBoxesMode: "always"
                 },
                 columns: [
+                    {dataField: "code", caption: "Code"},
                     {dataField: "title", caption: "Ticket"},
-                    {dataField: "work_start", caption: "Start", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"},
-                    {dataField: "work_end", caption: "End", dataType: "datetime", format: "EEEE, yyyy-MM-dd HH:mm:ss"}
+                    {dataField: "status.name", caption: "Status"},
+                    {dataField: "work_start", caption: "Start", dataType: "datetime", format: "yyyy-MM-dd HH:mm:ss"},
+                    {dataField: "work_end", caption: "End", dataType: "datetime", format: "yyyy-MM-dd HH:mm:ss"}
                 ],
                 showBorders: true,
                 filterRow: { visible: true },
                 hoverStateEnabled: true,
-                onSelectionChanged: selectionChanged
+                onSelectionChanged: selectionChanged,
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                }
             }).dxDataGrid("instance");
         };
 

@@ -3,7 +3,9 @@
 namespace App\Helpers;
 
 use App\Ticket;
+use App\Workclock;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image as FacadesImage;

@@ -146,4 +146,14 @@ class Ticket extends Model implements HasMedia
     {
         return $this->belongsTo(Ticket::class, 'ref_id');
     }
+
+    /**
+     * Get all of the logs for the Ticket
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function logs()
+    {
+        return $this->hasMany(TicketLog::class);
+    }
 }

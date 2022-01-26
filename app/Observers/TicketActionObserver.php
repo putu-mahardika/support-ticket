@@ -73,9 +73,6 @@ class TicketActionObserver
         if ($ticket->status_id == 3 && empty($ticket->work_start)) {
             if ($ticket->getOriginal('status_id', 1) < 3) {
                 Ticket::withoutEvents(function () use ($ticket) {
-                    // Ticket::find($ticket->id)->update([
-                    //     'work_start' => now()
-                    // ]);
                     $ticket->work_start = now();
                     $ticket->save();
                 });
@@ -84,27 +81,17 @@ class TicketActionObserver
 
 
         /**
-         * Check and fill word_end column
+         * Check and fill work_end column
          */
         if ($ticket->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
             if ($ticket->getOriginal('status_id', 1) < 5) {
                 Ticket::withoutEvents(function () use ($ticket) {
-                    // Ticket::find($ticket->id)->update([
-                    //     'work_end' => now()
-                    // ]);
-                    $ticket->work_end = now();
-                    $ticket->save();
+                    $ticket->update([
+                        'work_end' => now(),
+                    ]);
+                    TicketHelper::calculateWorkDuration(collect([$ticket]));
                 });
             }
-        }
-
-
-        /**
-         * Generate working log
-         */
-        if ($ticket->wasChanged('work_start') || $ticket->wasChanged('work_end')) {
-            TicketHelper::generateWorkingLog($ticket->id);
-            TicketHelper::calculateWorkDuration(collect([$ticket]));
         }
 
 

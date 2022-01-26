@@ -61,7 +61,7 @@ class HomeController
                          ->whereDate('created_at', '>=', $dateFilter->toDateString())
                          ->whereDate('created_at', '<=', $dateFilter->endOfMonth()->toDateString())
                          ->get();
-        $names = DB::table($request->table)->pluck('name');
+        $names = DB::table($request->table)->whereNull('deleted_at')->pluck('name');
         $data = [];
         $groupTicket = $tickets->groupBy(Str::singular($request->table).'.name');
         $ticketKeys = $groupTicket->keys();
