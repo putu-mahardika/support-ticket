@@ -73,31 +73,47 @@ class TicketHelper {
         foreach ($tickets as $ticket) {
             $ticket->refresh();
             $period = CarbonPeriod::create($ticket->work_start, $ticket->work_end);
-            $workingHours = collect($period->toArray())->map(function ($date) use ($ticket, $workClocks) {
-                $workClock = $workClocks->where('day', $date->dayName)->first();
-                $timeStart = $workClock->time_start->setDate($date->year, $date->month, $date->day);
-                $timeEnd = $timeStart->copy()->addHours($workClock->duration);
 
-                // Head
-                if (Carbon::create($ticket->work_start)->toDateString() == $date->toDateString()) {
-                    return $timeEnd->diffInSeconds($ticket->work_start);
-                }
-                // Tail
-                elseif (Carbon::create($ticket->work_end)->toDateString() == $date->toDateString()) {
-                    return $timeStart->diffInSeconds($ticket->work_end);
-                }
-                // Body
-                else {
-                    return $workClock->duration * 3600;
-                }
-            });
+            if (count($period->toArray()) > 1) {
+                $workingHours = collect($period->toArray())->map(function ($date) use ($ticket, $workClocks) {
+                    $workClock = $workClocks->where('day', $date->dayName)->first();
+                    $timeStart = $workClock->time_start->setDate($date->year, $date->month, $date->day);
+                    $timeEnd = $timeStart->copy()->addHours($workClock->duration);
 
-            try {
-                $result = $ticket->update([
-                    'work_duration' => $workingHours->sum()
-                ]);
-            } catch (\Throwable $th) {
-                throw $th;
+                    // Head
+                    if (Carbon::create($ticket->work_start)->toDateString() == $date->toDateString()) {
+                        return $timeEnd->diffInSeconds($ticket->work_start);
+                    }
+                    // Tail
+                    elseif (Carbon::create($ticket->work_end)->toDateString() == $date->toDateString()) {
+                        return $timeStart->diffInSeconds($ticket->work_end);
+                    }
+                    // Body
+                    else {
+                        return $workClock->duration * 3600;
+                    }
+                });
+
+                try {
+                    $result = $ticket->update([
+                        'work_duration' => $workingHours->sum()
+                    ]);
+                } catch (\Throwable $th) {
+                    throw $th;
+                }
+            }
+            else {
+                $workingHours = Carbon::create($ticket->work_end)->diffInSeconds(
+                    Carbon::create($ticket->work_start)
+                );
+
+                try {
+                    $result = $ticket->update([
+                        'work_duration' => $workingHours
+                    ]);
+                } catch (\Throwable $th) {
+                    throw $th;
+                }
             }
         }
         return $result;

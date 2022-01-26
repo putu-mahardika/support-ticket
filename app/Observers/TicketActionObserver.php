@@ -23,6 +23,33 @@ class TicketActionObserver
          */
         if (app()->runningInConsole()) return;
 
+        /**
+         * Check and fill word_start column
+         */
+        if ($ticket->status_id == 3 && empty($ticket->work_start)) {
+            Ticket::withoutEvents(function () use ($ticket) {
+                $ticket->work_start = now();
+                $ticket->save();
+            });
+        }
+
+
+        /**
+         * Check and fill work_end column
+         */
+        if ($ticket->status_id == 5) {
+            if (empty($ticket->work_start) && empty($ticket->work_end)) {
+                Ticket::withoutEvents(function () use ($ticket) {
+                    $ticket->update([
+                        'work_start' => $ticket->created_at,
+                        'work_end' => now(),
+                    ]);
+                    TicketHelper::calculateWorkDuration(collect([$ticket]));
+                });
+            }
+        }
+
+
 
         /**
          * Send websocket notification
@@ -83,15 +110,45 @@ class TicketActionObserver
         /**
          * Check and fill work_end column
          */
-        if ($ticket->status_id == 5 && !empty($ticket->work_start) && empty($ticket->work_end)) {
+        if ($ticket->status_id == 5) {
             if ($ticket->getOriginal('status_id', 1) < 5) {
-                Ticket::withoutEvents(function () use ($ticket) {
-                    $ticket->update([
-                        'work_end' => now(),
-                    ]);
-                    TicketHelper::calculateWorkDuration(collect([$ticket]));
-                });
+
+                /**
+                 * Normal Condition
+                 * From Working to Close
+                 */
+                if (!empty($ticket->work_start) && empty($ticket->work_end)) {
+                    Ticket::withoutEvents(function () use ($ticket) {
+                        $ticket->update([
+                            'work_end' => now(),
+                        ]);
+                        TicketHelper::calculateWorkDuration(collect([$ticket]));
+                    });
+                }
+
+                /**
+                 * Abnormal Condition 1
+                 * From Open to Close, etc..
+                 */
+                elseif (empty($ticket->work_start) && empty($ticket->work_end)) {
+                    Ticket::withoutEvents(function () use ($ticket) {
+                        $ticket->update([
+                            'work_start' => $ticket->created_at,
+                            'work_end' => now(),
+                        ]);
+                        TicketHelper::calculateWorkDuration(collect([$ticket]));
+                    });
+                }
             }
+        }
+
+        /**
+         * When work start or work end has been updated
+         */
+        if ($ticket->work_start != $ticket->getOriginal('work_start') || $ticket->work_end != $ticket->getOriginal('work_end')) {
+            Ticket::withoutEvents(function () use ($ticket) {
+                TicketHelper::calculateWorkDuration(collect([$ticket]));
+            });
         }
 
 
