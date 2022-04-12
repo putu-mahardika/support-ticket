@@ -1,7 +1,22 @@
 FROM php:7.4-fpm-alpine
 
-RUN apk add --update nodejs npm
+RUN apk add --no-cache \
+       freetype \
+       libpng \
+       libjpeg-turbo \
+       freetype-dev \
+       libpng-dev \
+       jpeg-dev \
+       libjpeg \
+       libjpeg-turbo-dev \
+       libwebp \
+       libwebp-dev
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype
+RUN docker-php-ext-install gd
+
+RUN apk add --update --no-cache nodejs npm
 RUN docker-php-ext-install pdo pdo_mysql mysqli
+RUN docker-php-ext-install exif
 
 RUN curl -sS https://getcomposer.org/installer​ | php -- \
      --install-dir=/usr/local/bin --filename=composer
