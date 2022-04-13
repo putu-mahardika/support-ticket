@@ -89,6 +89,11 @@
                             <img src="{{ asset('theme/img/ill-1.png') }}" style="margin-top: 5rem; width: auto; height: 20rem; position: right;">
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-12 text-center">
+                            <p>version 1.0.0</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

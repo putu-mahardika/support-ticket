@@ -1,8 +1,9 @@
 let mqtt = require('mqtt');
-let host = 'monstercode.ip-dynamic.com';
-let port = 9001;
-let protocol = 'mqqt://';
-let fullHost = `${protocol}${host}:${port}`;
+let host = 'mqtt.hjex.co.id';
+let port = 443;
+let protocol = 'wss://';
+let basepath = 'mqtt';
+let fullHost = `${protocol}${host}:${port}/${basepath}`;
 let client = null;
 window.mqttUserKey = '';
 window.tableToReload = null;
@@ -28,11 +29,11 @@ client.on('connect', (connect) => {
 })
 
 client.on('disconnect', (packet) => {
-    // console.log(packet);
+    console.log('Disconnected');
 });
 
 client.on('error', (params) => {
-    // console.log('Error', params)
+    console.log('Error')
 })
 
 client.on('message', function (topic, message) {

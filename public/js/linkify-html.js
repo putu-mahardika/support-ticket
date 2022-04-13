@@ -1,1 +1,1389 @@
-var linkifyHtml=function(t){"use strict";function e(t){if(t&&t.__esModule)return t;var e=Object.create(null);return t&&Object.keys(t).forEach((function(i){if("default"!==i){var n=Object.getOwnPropertyDescriptor(t,i);Object.defineProperty(e,i,n.get?n:{enumerable:!0,get:function(){return t[i]}})}})),e.default=t,Object.freeze(e)}var i=e(t),n={nbsp:" "},s=/^#[xX]([A-Fa-f0-9]+)$/,o=/^#([0-9]+)$/,a=/^([A-Za-z0-9]+)$/,r=function(){function t(t){this.named=t}return t.prototype.parse=function(t){if(t){var e=t.match(s);return e?"&#x"+e[1]+";":(e=t.match(o))?"&#"+e[1]+";":(e=t.match(a))?this.named[e[1]]||"&"+e[1]+";":void 0}},t}(),h=/[\t\n\f ]/,u=/[A-Za-z]/,c=/\r\n?/g;function p(t){return h.test(t)}function d(t){return u.test(t)}var f=function(){function t(t,e,i){void 0===i&&(i="precompile"),this.delegate=t,this.entityParser=e,this.mode=i,this.state="beforeData",this.line=-1,this.column=-1,this.input="",this.index=-1,this.tagNameBuffer="",this.states={beforeData:function(){var t=this.peek();if("<"!==t||this.isIgnoredEndTag()){if("precompile"===this.mode&&"\n"===t){var e=this.tagNameBuffer.toLowerCase();"pre"!==e&&"textarea"!==e||this.consume()}this.transitionTo("data"),this.delegate.beginData()}else this.transitionTo("tagOpen"),this.markTagStart(),this.consume()},data:function(){var t=this.peek(),e=this.tagNameBuffer;"<"!==t||this.isIgnoredEndTag()?"&"===t&&"script"!==e&&"style"!==e?(this.consume(),this.delegate.appendToData(this.consumeCharRef()||"&")):(this.consume(),this.delegate.appendToData(t)):(this.delegate.finishData(),this.transitionTo("tagOpen"),this.markTagStart(),this.consume())},tagOpen:function(){var t=this.consume();"!"===t?this.transitionTo("markupDeclarationOpen"):"/"===t?this.transitionTo("endTagOpen"):("@"===t||":"===t||d(t))&&(this.transitionTo("tagName"),this.tagNameBuffer="",this.delegate.beginStartTag(),this.appendToTagName(t))},markupDeclarationOpen:function(){var t=this.consume();"-"===t&&"-"===this.peek()?(this.consume(),this.transitionTo("commentStart"),this.delegate.beginComment()):"DOCTYPE"===t.toUpperCase()+this.input.substring(this.index,this.index+6).toUpperCase()&&(this.consume(),this.consume(),this.consume(),this.consume(),this.consume(),this.consume(),this.transitionTo("doctype"),this.delegate.beginDoctype&&this.delegate.beginDoctype())},doctype:function(){p(this.consume())&&this.transitionTo("beforeDoctypeName")},beforeDoctypeName:function(){var t=this.consume();p(t)||(this.transitionTo("doctypeName"),this.delegate.appendToDoctypeName&&this.delegate.appendToDoctypeName(t.toLowerCase()))},doctypeName:function(){var t=this.consume();p(t)?this.transitionTo("afterDoctypeName"):">"===t?(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData")):this.delegate.appendToDoctypeName&&this.delegate.appendToDoctypeName(t.toLowerCase())},afterDoctypeName:function(){var t=this.consume();if(!p(t))if(">"===t)this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData");else{var e=t.toUpperCase()+this.input.substring(this.index,this.index+5).toUpperCase(),i="PUBLIC"===e.toUpperCase(),n="SYSTEM"===e.toUpperCase();(i||n)&&(this.consume(),this.consume(),this.consume(),this.consume(),this.consume(),this.consume()),i?this.transitionTo("afterDoctypePublicKeyword"):n&&this.transitionTo("afterDoctypeSystemKeyword")}},afterDoctypePublicKeyword:function(){var t=this.peek();p(t)?(this.transitionTo("beforeDoctypePublicIdentifier"),this.consume()):'"'===t?(this.transitionTo("doctypePublicIdentifierDoubleQuoted"),this.consume()):"'"===t?(this.transitionTo("doctypePublicIdentifierSingleQuoted"),this.consume()):">"===t&&(this.consume(),this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData"))},doctypePublicIdentifierDoubleQuoted:function(){var t=this.consume();'"'===t?this.transitionTo("afterDoctypePublicIdentifier"):">"===t?(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData")):this.delegate.appendToDoctypePublicIdentifier&&this.delegate.appendToDoctypePublicIdentifier(t)},doctypePublicIdentifierSingleQuoted:function(){var t=this.consume();"'"===t?this.transitionTo("afterDoctypePublicIdentifier"):">"===t?(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData")):this.delegate.appendToDoctypePublicIdentifier&&this.delegate.appendToDoctypePublicIdentifier(t)},afterDoctypePublicIdentifier:function(){var t=this.consume();p(t)?this.transitionTo("betweenDoctypePublicAndSystemIdentifiers"):">"===t?(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData")):'"'===t?this.transitionTo("doctypeSystemIdentifierDoubleQuoted"):"'"===t&&this.transitionTo("doctypeSystemIdentifierSingleQuoted")},betweenDoctypePublicAndSystemIdentifiers:function(){var t=this.consume();p(t)||(">"===t?(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData")):'"'===t?this.transitionTo("doctypeSystemIdentifierDoubleQuoted"):"'"===t&&this.transitionTo("doctypeSystemIdentifierSingleQuoted"))},doctypeSystemIdentifierDoubleQuoted:function(){var t=this.consume();'"'===t?this.transitionTo("afterDoctypeSystemIdentifier"):">"===t?(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData")):this.delegate.appendToDoctypeSystemIdentifier&&this.delegate.appendToDoctypeSystemIdentifier(t)},doctypeSystemIdentifierSingleQuoted:function(){var t=this.consume();"'"===t?this.transitionTo("afterDoctypeSystemIdentifier"):">"===t?(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData")):this.delegate.appendToDoctypeSystemIdentifier&&this.delegate.appendToDoctypeSystemIdentifier(t)},afterDoctypeSystemIdentifier:function(){var t=this.consume();p(t)||">"===t&&(this.delegate.endDoctype&&this.delegate.endDoctype(),this.transitionTo("beforeData"))},commentStart:function(){var t=this.consume();"-"===t?this.transitionTo("commentStartDash"):">"===t?(this.delegate.finishComment(),this.transitionTo("beforeData")):(this.delegate.appendToCommentData(t),this.transitionTo("comment"))},commentStartDash:function(){var t=this.consume();"-"===t?this.transitionTo("commentEnd"):">"===t?(this.delegate.finishComment(),this.transitionTo("beforeData")):(this.delegate.appendToCommentData("-"),this.transitionTo("comment"))},comment:function(){var t=this.consume();"-"===t?this.transitionTo("commentEndDash"):this.delegate.appendToCommentData(t)},commentEndDash:function(){var t=this.consume();"-"===t?this.transitionTo("commentEnd"):(this.delegate.appendToCommentData("-"+t),this.transitionTo("comment"))},commentEnd:function(){var t=this.consume();">"===t?(this.delegate.finishComment(),this.transitionTo("beforeData")):(this.delegate.appendToCommentData("--"+t),this.transitionTo("comment"))},tagName:function(){var t=this.consume();p(t)?this.transitionTo("beforeAttributeName"):"/"===t?this.transitionTo("selfClosingStartTag"):">"===t?(this.delegate.finishTag(),this.transitionTo("beforeData")):this.appendToTagName(t)},endTagName:function(){var t=this.consume();p(t)?(this.transitionTo("beforeAttributeName"),this.tagNameBuffer=""):"/"===t?(this.transitionTo("selfClosingStartTag"),this.tagNameBuffer=""):">"===t?(this.delegate.finishTag(),this.transitionTo("beforeData"),this.tagNameBuffer=""):this.appendToTagName(t)},beforeAttributeName:function(){var t=this.peek();p(t)?this.consume():"/"===t?(this.transitionTo("selfClosingStartTag"),this.consume()):">"===t?(this.consume(),this.delegate.finishTag(),this.transitionTo("beforeData")):"="===t?(this.delegate.reportSyntaxError("attribute name cannot start with equals sign"),this.transitionTo("attributeName"),this.delegate.beginAttribute(),this.consume(),this.delegate.appendToAttributeName(t)):(this.transitionTo("attributeName"),this.delegate.beginAttribute())},attributeName:function(){var t=this.peek();p(t)?(this.transitionTo("afterAttributeName"),this.consume()):"/"===t?(this.delegate.beginAttributeValue(!1),this.delegate.finishAttributeValue(),this.consume(),this.transitionTo("selfClosingStartTag")):"="===t?(this.transitionTo("beforeAttributeValue"),this.consume()):">"===t?(this.delegate.beginAttributeValue(!1),this.delegate.finishAttributeValue(),this.consume(),this.delegate.finishTag(),this.transitionTo("beforeData")):'"'===t||"'"===t||"<"===t?(this.delegate.reportSyntaxError(t+" is not a valid character within attribute names"),this.consume(),this.delegate.appendToAttributeName(t)):(this.consume(),this.delegate.appendToAttributeName(t))},afterAttributeName:function(){var t=this.peek();p(t)?this.consume():"/"===t?(this.delegate.beginAttributeValue(!1),this.delegate.finishAttributeValue(),this.consume(),this.transitionTo("selfClosingStartTag")):"="===t?(this.consume(),this.transitionTo("beforeAttributeValue")):">"===t?(this.delegate.beginAttributeValue(!1),this.delegate.finishAttributeValue(),this.consume(),this.delegate.finishTag(),this.transitionTo("beforeData")):(this.delegate.beginAttributeValue(!1),this.delegate.finishAttributeValue(),this.transitionTo("attributeName"),this.delegate.beginAttribute(),this.consume(),this.delegate.appendToAttributeName(t))},beforeAttributeValue:function(){var t=this.peek();p(t)?this.consume():'"'===t?(this.transitionTo("attributeValueDoubleQuoted"),this.delegate.beginAttributeValue(!0),this.consume()):"'"===t?(this.transitionTo("attributeValueSingleQuoted"),this.delegate.beginAttributeValue(!0),this.consume()):">"===t?(this.delegate.beginAttributeValue(!1),this.delegate.finishAttributeValue(),this.consume(),this.delegate.finishTag(),this.transitionTo("beforeData")):(this.transitionTo("attributeValueUnquoted"),this.delegate.beginAttributeValue(!1),this.consume(),this.delegate.appendToAttributeValue(t))},attributeValueDoubleQuoted:function(){var t=this.consume();'"'===t?(this.delegate.finishAttributeValue(),this.transitionTo("afterAttributeValueQuoted")):"&"===t?this.delegate.appendToAttributeValue(this.consumeCharRef()||"&"):this.delegate.appendToAttributeValue(t)},attributeValueSingleQuoted:function(){var t=this.consume();"'"===t?(this.delegate.finishAttributeValue(),this.transitionTo("afterAttributeValueQuoted")):"&"===t?this.delegate.appendToAttributeValue(this.consumeCharRef()||"&"):this.delegate.appendToAttributeValue(t)},attributeValueUnquoted:function(){var t=this.peek();p(t)?(this.delegate.finishAttributeValue(),this.consume(),this.transitionTo("beforeAttributeName")):"/"===t?(this.delegate.finishAttributeValue(),this.consume(),this.transitionTo("selfClosingStartTag")):"&"===t?(this.consume(),this.delegate.appendToAttributeValue(this.consumeCharRef()||"&")):">"===t?(this.delegate.finishAttributeValue(),this.consume(),this.delegate.finishTag(),this.transitionTo("beforeData")):(this.consume(),this.delegate.appendToAttributeValue(t))},afterAttributeValueQuoted:function(){var t=this.peek();p(t)?(this.consume(),this.transitionTo("beforeAttributeName")):"/"===t?(this.consume(),this.transitionTo("selfClosingStartTag")):">"===t?(this.consume(),this.delegate.finishTag(),this.transitionTo("beforeData")):this.transitionTo("beforeAttributeName")},selfClosingStartTag:function(){">"===this.peek()?(this.consume(),this.delegate.markTagAsSelfClosing(),this.delegate.finishTag(),this.transitionTo("beforeData")):this.transitionTo("beforeAttributeName")},endTagOpen:function(){var t=this.consume();("@"===t||":"===t||d(t))&&(this.transitionTo("endTagName"),this.tagNameBuffer="",this.delegate.beginEndTag(),this.appendToTagName(t))}},this.reset()}return t.prototype.reset=function(){this.transitionTo("beforeData"),this.input="",this.tagNameBuffer="",this.index=0,this.line=1,this.column=0,this.delegate.reset()},t.prototype.transitionTo=function(t){this.state=t},t.prototype.tokenize=function(t){this.reset(),this.tokenizePart(t),this.tokenizeEOF()},t.prototype.tokenizePart=function(t){for(this.input+=function(t){return t.replace(c,"\n")}(t);this.index<this.input.length;){var e=this.states[this.state];if(void 0===e)throw new Error("unhandled state "+this.state);e.call(this)}},t.prototype.tokenizeEOF=function(){this.flushData()},t.prototype.flushData=function(){"data"===this.state&&(this.delegate.finishData(),this.transitionTo("beforeData"))},t.prototype.peek=function(){return this.input.charAt(this.index)},t.prototype.consume=function(){var t=this.peek();return this.index++,"\n"===t?(this.line++,this.column=0):this.column++,t},t.prototype.consumeCharRef=function(){var t=this.input.indexOf(";",this.index);if(-1!==t){var e=this.input.slice(this.index,t),i=this.entityParser.parse(e);if(i){for(var n=e.length;n;)this.consume(),n--;return this.consume(),i}}},t.prototype.markTagStart=function(){this.delegate.tagOpen()},t.prototype.appendToTagName=function(t){this.tagNameBuffer+=t,this.delegate.appendToTagName(t)},t.prototype.isIgnoredEndTag=function(){var t=this.tagNameBuffer;return"title"===t&&"</title>"!==this.input.substring(this.index,this.index+8)||"style"===t&&"</style>"!==this.input.substring(this.index,this.index+8)||"script"===t&&"<\/script>"!==this.input.substring(this.index,this.index+9)},t}(),l=function(){function t(t,e){void 0===e&&(e={}),this.options=e,this.token=null,this.startLine=1,this.startColumn=0,this.tokens=[],this.tokenizer=new f(this,t,e.mode),this._currentAttribute=void 0}return t.prototype.tokenize=function(t){return this.tokens=[],this.tokenizer.tokenize(t),this.tokens},t.prototype.tokenizePart=function(t){return this.tokens=[],this.tokenizer.tokenizePart(t),this.tokens},t.prototype.tokenizeEOF=function(){return this.tokens=[],this.tokenizer.tokenizeEOF(),this.tokens[0]},t.prototype.reset=function(){this.token=null,this.startLine=1,this.startColumn=0},t.prototype.current=function(){var t=this.token;if(null===t)throw new Error("token was unexpectedly null");if(0===arguments.length)return t;for(var e=0;e<arguments.length;e++)if(t.type===arguments[e])return t;throw new Error("token type was unexpectedly "+t.type)},t.prototype.push=function(t){this.token=t,this.tokens.push(t)},t.prototype.currentAttribute=function(){return this._currentAttribute},t.prototype.addLocInfo=function(){this.options.loc&&(this.current().loc={start:{line:this.startLine,column:this.startColumn},end:{line:this.tokenizer.line,column:this.tokenizer.column}}),this.startLine=this.tokenizer.line,this.startColumn=this.tokenizer.column},t.prototype.beginDoctype=function(){this.push({type:"Doctype",name:""})},t.prototype.appendToDoctypeName=function(t){this.current("Doctype").name+=t},t.prototype.appendToDoctypePublicIdentifier=function(t){var e=this.current("Doctype");void 0===e.publicIdentifier?e.publicIdentifier=t:e.publicIdentifier+=t},t.prototype.appendToDoctypeSystemIdentifier=function(t){var e=this.current("Doctype");void 0===e.systemIdentifier?e.systemIdentifier=t:e.systemIdentifier+=t},t.prototype.endDoctype=function(){this.addLocInfo()},t.prototype.beginData=function(){this.push({type:"Chars",chars:""})},t.prototype.appendToData=function(t){this.current("Chars").chars+=t},t.prototype.finishData=function(){this.addLocInfo()},t.prototype.beginComment=function(){this.push({type:"Comment",chars:""})},t.prototype.appendToCommentData=function(t){this.current("Comment").chars+=t},t.prototype.finishComment=function(){this.addLocInfo()},t.prototype.tagOpen=function(){},t.prototype.beginStartTag=function(){this.push({type:"StartTag",tagName:"",attributes:[],selfClosing:!1})},t.prototype.beginEndTag=function(){this.push({type:"EndTag",tagName:""})},t.prototype.finishTag=function(){this.addLocInfo()},t.prototype.markTagAsSelfClosing=function(){this.current("StartTag").selfClosing=!0},t.prototype.appendToTagName=function(t){this.current("StartTag","EndTag").tagName+=t},t.prototype.beginAttribute=function(){this._currentAttribute=["","",!1]},t.prototype.appendToAttributeName=function(t){this.currentAttribute()[0]+=t},t.prototype.beginAttributeValue=function(t){this.currentAttribute()[2]=t},t.prototype.appendToAttributeValue=function(t){this.currentAttribute()[1]+=t},t.prototype.finishAttributeValue=function(){this.current("StartTag").attributes.push(this._currentAttribute)},t.prototype.reportSyntaxError=function(t){this.current().syntaxError=t},t}();function m(t,e){return new l(new r(n),e).tokenize(t)}var g=i.Options,b="StartTag",T="EndTag",y="Chars",D="Comment",v="Doctype";function A(t,e){for(var n=i.tokenize(t),s=[],o=0;o<n.length;o++){var a=n[o];if("nl"===a.t&&e.nl2br)s.push({type:b,tagName:"br",attributes:[],selfClosing:!0});else if(a.isLink&&e.check(a)){var r=e.resolve(a),h=r.formatted,u=r.formattedHref,c=r.tagName,p=r.className,d=r.target,f=r.rel,l=r.attributes,m=r.truncate,g=[["href",u]];for(var D in p&&g.push(["class",p]),d&&g.push(["target",d]),f&&g.push(["rel",f]),m&&h.length>m&&(h=h.substring(0,m)+"…"),l)g.push([D,l[D]]);s.push({type:b,tagName:c,attributes:g,selfClosing:!1}),s.push({type:y,chars:h}),s.push({type:T,tagName:c})}else s.push({type:y,chars:a.toString()})}return s}function k(t,e,i,n){for(var s=1;i<e.length&&s>0;){var o=e[i];o.type===b&&o.tagName.toUpperCase()===t?s++:o.type===T&&o.tagName.toUpperCase()===t&&s--,n.push(o),i++}return n}function N(t){for(var e=[],i=0;i<t.length;i++){var n=t[i][0],s=t[i][1];e.push("".concat(n,'="').concat(s.replace(/"/g,"&quot;"),'"'))}return e}return function(t){var e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{},i=m(t),n=[],s=[];e=new g(e);for(var o=0;o<i.length;o++){var a=i[o];if(a.type!==b)if(a.type===y){var r=A(a.chars,e);n.push.apply(n,r)}else n.push(a);else{n.push(a);var h=a.tagName.toUpperCase(),u="A"===h||e.ignoreTags.indexOf(h)>=0;if(!u)continue;var c=n.length;k(h,i,++o,n),o+=n.length-c-1}}for(var p=0;p<n.length;p++){var d=n[p];switch(d.type){case b:var f="<"+d.tagName;if(d.attributes.length>0){var l=N(d.attributes);f+=" "+l.join(" ")}f+=">",s.push(f);break;case T:s.push("</".concat(d.tagName,">"));break;case y:s.push(d.chars);break;case D:s.push("\x3c!--".concat(d.chars,"--\x3e"));break;case v:var C="<!DOCTYPE ".concat(d.name);d.publicIdentifier&&(C+=' PUBLIC "'.concat(d.publicIdentifier,'"')),d.systemIdentifier&&(C+=' "'.concat(d.systemIdentifier,'"')),C+=">",s.push(C)}}return s.join("")}}(linkify);
+var linkifyHtml = (function (linkify) {
+    'use strict';
+
+    function _interopNamespace(e) {
+        if (e && e.__esModule) return e;
+        var n = Object.create(null);
+        if (e) {
+            Object.keys(e).forEach(function (k) {
+                if (k !== 'default') {
+                    var d = Object.getOwnPropertyDescriptor(e, k);
+                    Object.defineProperty(n, k, d.get ? d : {
+                        enumerable: true,
+                        get: function () { return e[k]; }
+                    });
+                }
+            });
+        }
+        n["default"] = e;
+        return Object.freeze(n);
+    }
+
+    var linkify__namespace = /*#__PURE__*/_interopNamespace(linkify);
+
+    /**
+     * generated from https://raw.githubusercontent.com/w3c/html/26b5126f96f736f796b9e29718138919dd513744/entities.json
+     * do not edit
+     */
+    var HTML5NamedCharRefs = {
+      // We don't need the complete named character reference because linkifyHtml
+      // does not modify the escape sequences. We do need &nbsp; so that
+      // whitespace is parsed properly. Other types of whitespace should already
+      // be accounted for
+      nbsp: " "
+    };
+    var HEXCHARCODE = /^#[xX]([A-Fa-f0-9]+)$/;
+    var CHARCODE = /^#([0-9]+)$/;
+    var NAMED = /^([A-Za-z0-9]+)$/;
+
+    var EntityParser =
+    /** @class */
+    function () {
+      function EntityParser(named) {
+        this.named = named;
+      }
+
+      EntityParser.prototype.parse = function (entity) {
+        if (!entity) {
+          return;
+        }
+
+        var matches = entity.match(HEXCHARCODE);
+
+        if (matches) {
+          return "&#x" + matches[1] + ";";
+        }
+
+        matches = entity.match(CHARCODE);
+
+        if (matches) {
+          return "&#" + matches[1] + ";";
+        }
+
+        matches = entity.match(NAMED);
+
+        if (matches) {
+          return this.named[matches[1]] || "&" + matches[1] + ";";
+        }
+      };
+
+      return EntityParser;
+    }();
+
+    var WSP = /[\t\n\f ]/;
+    var ALPHA = /[A-Za-z]/;
+    var CRLF = /\r\n?/g;
+
+    function isSpace(char) {
+      return WSP.test(char);
+    }
+
+    function isAlpha(char) {
+      return ALPHA.test(char);
+    }
+
+    function preprocessInput(input) {
+      return input.replace(CRLF, '\n');
+    }
+
+    var EventedTokenizer =
+    /** @class */
+    function () {
+      function EventedTokenizer(delegate, entityParser, mode) {
+        if (mode === void 0) {
+          mode = 'precompile';
+        }
+
+        this.delegate = delegate;
+        this.entityParser = entityParser;
+        this.mode = mode;
+        this.state = "beforeData"
+        /* beforeData */
+        ;
+        this.line = -1;
+        this.column = -1;
+        this.input = '';
+        this.index = -1;
+        this.tagNameBuffer = '';
+        this.states = {
+          beforeData: function beforeData() {
+            var char = this.peek();
+
+            if (char === '<' && !this.isIgnoredEndTag()) {
+              this.transitionTo("tagOpen"
+              /* tagOpen */
+              );
+              this.markTagStart();
+              this.consume();
+            } else {
+              if (this.mode === 'precompile' && char === '\n') {
+                var tag = this.tagNameBuffer.toLowerCase();
+
+                if (tag === 'pre' || tag === 'textarea') {
+                  this.consume();
+                }
+              }
+
+              this.transitionTo("data"
+              /* data */
+              );
+              this.delegate.beginData();
+            }
+          },
+          data: function data() {
+            var char = this.peek();
+            var tag = this.tagNameBuffer;
+
+            if (char === '<' && !this.isIgnoredEndTag()) {
+              this.delegate.finishData();
+              this.transitionTo("tagOpen"
+              /* tagOpen */
+              );
+              this.markTagStart();
+              this.consume();
+            } else if (char === '&' && tag !== 'script' && tag !== 'style') {
+              this.consume();
+              this.delegate.appendToData(this.consumeCharRef() || '&');
+            } else {
+              this.consume();
+              this.delegate.appendToData(char);
+            }
+          },
+          tagOpen: function tagOpen() {
+            var char = this.consume();
+
+            if (char === '!') {
+              this.transitionTo("markupDeclarationOpen"
+              /* markupDeclarationOpen */
+              );
+            } else if (char === '/') {
+              this.transitionTo("endTagOpen"
+              /* endTagOpen */
+              );
+            } else if (char === '@' || char === ':' || isAlpha(char)) {
+              this.transitionTo("tagName"
+              /* tagName */
+              );
+              this.tagNameBuffer = '';
+              this.delegate.beginStartTag();
+              this.appendToTagName(char);
+            }
+          },
+          markupDeclarationOpen: function markupDeclarationOpen() {
+            var char = this.consume();
+
+            if (char === '-' && this.peek() === '-') {
+              this.consume();
+              this.transitionTo("commentStart"
+              /* commentStart */
+              );
+              this.delegate.beginComment();
+            } else {
+              var maybeDoctype = char.toUpperCase() + this.input.substring(this.index, this.index + 6).toUpperCase();
+
+              if (maybeDoctype === 'DOCTYPE') {
+                this.consume();
+                this.consume();
+                this.consume();
+                this.consume();
+                this.consume();
+                this.consume();
+                this.transitionTo("doctype"
+                /* doctype */
+                );
+                if (this.delegate.beginDoctype) this.delegate.beginDoctype();
+              }
+            }
+          },
+          doctype: function doctype() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              this.transitionTo("beforeDoctypeName"
+              /* beforeDoctypeName */
+              );
+            }
+          },
+          beforeDoctypeName: function beforeDoctypeName() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              return;
+            } else {
+              this.transitionTo("doctypeName"
+              /* doctypeName */
+              );
+              if (this.delegate.appendToDoctypeName) this.delegate.appendToDoctypeName(char.toLowerCase());
+            }
+          },
+          doctypeName: function doctypeName() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              this.transitionTo("afterDoctypeName"
+              /* afterDoctypeName */
+              );
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              if (this.delegate.appendToDoctypeName) this.delegate.appendToDoctypeName(char.toLowerCase());
+            }
+          },
+          afterDoctypeName: function afterDoctypeName() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              return;
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              var nextSixChars = char.toUpperCase() + this.input.substring(this.index, this.index + 5).toUpperCase();
+              var isPublic = nextSixChars.toUpperCase() === 'PUBLIC';
+              var isSystem = nextSixChars.toUpperCase() === 'SYSTEM';
+
+              if (isPublic || isSystem) {
+                this.consume();
+                this.consume();
+                this.consume();
+                this.consume();
+                this.consume();
+                this.consume();
+              }
+
+              if (isPublic) {
+                this.transitionTo("afterDoctypePublicKeyword"
+                /* afterDoctypePublicKeyword */
+                );
+              } else if (isSystem) {
+                this.transitionTo("afterDoctypeSystemKeyword"
+                /* afterDoctypeSystemKeyword */
+                );
+              }
+            }
+          },
+          afterDoctypePublicKeyword: function afterDoctypePublicKeyword() {
+            var char = this.peek();
+
+            if (isSpace(char)) {
+              this.transitionTo("beforeDoctypePublicIdentifier"
+              /* beforeDoctypePublicIdentifier */
+              );
+              this.consume();
+            } else if (char === '"') {
+              this.transitionTo("doctypePublicIdentifierDoubleQuoted"
+              /* doctypePublicIdentifierDoubleQuoted */
+              );
+              this.consume();
+            } else if (char === "'") {
+              this.transitionTo("doctypePublicIdentifierSingleQuoted"
+              /* doctypePublicIdentifierSingleQuoted */
+              );
+              this.consume();
+            } else if (char === '>') {
+              this.consume();
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            }
+          },
+          doctypePublicIdentifierDoubleQuoted: function doctypePublicIdentifierDoubleQuoted() {
+            var char = this.consume();
+
+            if (char === '"') {
+              this.transitionTo("afterDoctypePublicIdentifier"
+              /* afterDoctypePublicIdentifier */
+              );
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              if (this.delegate.appendToDoctypePublicIdentifier) this.delegate.appendToDoctypePublicIdentifier(char);
+            }
+          },
+          doctypePublicIdentifierSingleQuoted: function doctypePublicIdentifierSingleQuoted() {
+            var char = this.consume();
+
+            if (char === "'") {
+              this.transitionTo("afterDoctypePublicIdentifier"
+              /* afterDoctypePublicIdentifier */
+              );
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              if (this.delegate.appendToDoctypePublicIdentifier) this.delegate.appendToDoctypePublicIdentifier(char);
+            }
+          },
+          afterDoctypePublicIdentifier: function afterDoctypePublicIdentifier() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              this.transitionTo("betweenDoctypePublicAndSystemIdentifiers"
+              /* betweenDoctypePublicAndSystemIdentifiers */
+              );
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else if (char === '"') {
+              this.transitionTo("doctypeSystemIdentifierDoubleQuoted"
+              /* doctypeSystemIdentifierDoubleQuoted */
+              );
+            } else if (char === "'") {
+              this.transitionTo("doctypeSystemIdentifierSingleQuoted"
+              /* doctypeSystemIdentifierSingleQuoted */
+              );
+            }
+          },
+          betweenDoctypePublicAndSystemIdentifiers: function betweenDoctypePublicAndSystemIdentifiers() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              return;
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else if (char === '"') {
+              this.transitionTo("doctypeSystemIdentifierDoubleQuoted"
+              /* doctypeSystemIdentifierDoubleQuoted */
+              );
+            } else if (char === "'") {
+              this.transitionTo("doctypeSystemIdentifierSingleQuoted"
+              /* doctypeSystemIdentifierSingleQuoted */
+              );
+            }
+          },
+          doctypeSystemIdentifierDoubleQuoted: function doctypeSystemIdentifierDoubleQuoted() {
+            var char = this.consume();
+
+            if (char === '"') {
+              this.transitionTo("afterDoctypeSystemIdentifier"
+              /* afterDoctypeSystemIdentifier */
+              );
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              if (this.delegate.appendToDoctypeSystemIdentifier) this.delegate.appendToDoctypeSystemIdentifier(char);
+            }
+          },
+          doctypeSystemIdentifierSingleQuoted: function doctypeSystemIdentifierSingleQuoted() {
+            var char = this.consume();
+
+            if (char === "'") {
+              this.transitionTo("afterDoctypeSystemIdentifier"
+              /* afterDoctypeSystemIdentifier */
+              );
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              if (this.delegate.appendToDoctypeSystemIdentifier) this.delegate.appendToDoctypeSystemIdentifier(char);
+            }
+          },
+          afterDoctypeSystemIdentifier: function afterDoctypeSystemIdentifier() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              return;
+            } else if (char === '>') {
+              if (this.delegate.endDoctype) this.delegate.endDoctype();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            }
+          },
+          commentStart: function commentStart() {
+            var char = this.consume();
+
+            if (char === '-') {
+              this.transitionTo("commentStartDash"
+              /* commentStartDash */
+              );
+            } else if (char === '>') {
+              this.delegate.finishComment();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.delegate.appendToCommentData(char);
+              this.transitionTo("comment"
+              /* comment */
+              );
+            }
+          },
+          commentStartDash: function commentStartDash() {
+            var char = this.consume();
+
+            if (char === '-') {
+              this.transitionTo("commentEnd"
+              /* commentEnd */
+              );
+            } else if (char === '>') {
+              this.delegate.finishComment();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.delegate.appendToCommentData('-');
+              this.transitionTo("comment"
+              /* comment */
+              );
+            }
+          },
+          comment: function comment() {
+            var char = this.consume();
+
+            if (char === '-') {
+              this.transitionTo("commentEndDash"
+              /* commentEndDash */
+              );
+            } else {
+              this.delegate.appendToCommentData(char);
+            }
+          },
+          commentEndDash: function commentEndDash() {
+            var char = this.consume();
+
+            if (char === '-') {
+              this.transitionTo("commentEnd"
+              /* commentEnd */
+              );
+            } else {
+              this.delegate.appendToCommentData('-' + char);
+              this.transitionTo("comment"
+              /* comment */
+              );
+            }
+          },
+          commentEnd: function commentEnd() {
+            var char = this.consume();
+
+            if (char === '>') {
+              this.delegate.finishComment();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.delegate.appendToCommentData('--' + char);
+              this.transitionTo("comment"
+              /* comment */
+              );
+            }
+          },
+          tagName: function tagName() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              this.transitionTo("beforeAttributeName"
+              /* beforeAttributeName */
+              );
+            } else if (char === '/') {
+              this.transitionTo("selfClosingStartTag"
+              /* selfClosingStartTag */
+              );
+            } else if (char === '>') {
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.appendToTagName(char);
+            }
+          },
+          endTagName: function endTagName() {
+            var char = this.consume();
+
+            if (isSpace(char)) {
+              this.transitionTo("beforeAttributeName"
+              /* beforeAttributeName */
+              );
+              this.tagNameBuffer = '';
+            } else if (char === '/') {
+              this.transitionTo("selfClosingStartTag"
+              /* selfClosingStartTag */
+              );
+              this.tagNameBuffer = '';
+            } else if (char === '>') {
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+              this.tagNameBuffer = '';
+            } else {
+              this.appendToTagName(char);
+            }
+          },
+          beforeAttributeName: function beforeAttributeName() {
+            var char = this.peek();
+
+            if (isSpace(char)) {
+              this.consume();
+              return;
+            } else if (char === '/') {
+              this.transitionTo("selfClosingStartTag"
+              /* selfClosingStartTag */
+              );
+              this.consume();
+            } else if (char === '>') {
+              this.consume();
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else if (char === '=') {
+              this.delegate.reportSyntaxError('attribute name cannot start with equals sign');
+              this.transitionTo("attributeName"
+              /* attributeName */
+              );
+              this.delegate.beginAttribute();
+              this.consume();
+              this.delegate.appendToAttributeName(char);
+            } else {
+              this.transitionTo("attributeName"
+              /* attributeName */
+              );
+              this.delegate.beginAttribute();
+            }
+          },
+          attributeName: function attributeName() {
+            var char = this.peek();
+
+            if (isSpace(char)) {
+              this.transitionTo("afterAttributeName"
+              /* afterAttributeName */
+              );
+              this.consume();
+            } else if (char === '/') {
+              this.delegate.beginAttributeValue(false);
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.transitionTo("selfClosingStartTag"
+              /* selfClosingStartTag */
+              );
+            } else if (char === '=') {
+              this.transitionTo("beforeAttributeValue"
+              /* beforeAttributeValue */
+              );
+              this.consume();
+            } else if (char === '>') {
+              this.delegate.beginAttributeValue(false);
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else if (char === '"' || char === "'" || char === '<') {
+              this.delegate.reportSyntaxError(char + ' is not a valid character within attribute names');
+              this.consume();
+              this.delegate.appendToAttributeName(char);
+            } else {
+              this.consume();
+              this.delegate.appendToAttributeName(char);
+            }
+          },
+          afterAttributeName: function afterAttributeName() {
+            var char = this.peek();
+
+            if (isSpace(char)) {
+              this.consume();
+              return;
+            } else if (char === '/') {
+              this.delegate.beginAttributeValue(false);
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.transitionTo("selfClosingStartTag"
+              /* selfClosingStartTag */
+              );
+            } else if (char === '=') {
+              this.consume();
+              this.transitionTo("beforeAttributeValue"
+              /* beforeAttributeValue */
+              );
+            } else if (char === '>') {
+              this.delegate.beginAttributeValue(false);
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.delegate.beginAttributeValue(false);
+              this.delegate.finishAttributeValue();
+              this.transitionTo("attributeName"
+              /* attributeName */
+              );
+              this.delegate.beginAttribute();
+              this.consume();
+              this.delegate.appendToAttributeName(char);
+            }
+          },
+          beforeAttributeValue: function beforeAttributeValue() {
+            var char = this.peek();
+
+            if (isSpace(char)) {
+              this.consume();
+            } else if (char === '"') {
+              this.transitionTo("attributeValueDoubleQuoted"
+              /* attributeValueDoubleQuoted */
+              );
+              this.delegate.beginAttributeValue(true);
+              this.consume();
+            } else if (char === "'") {
+              this.transitionTo("attributeValueSingleQuoted"
+              /* attributeValueSingleQuoted */
+              );
+              this.delegate.beginAttributeValue(true);
+              this.consume();
+            } else if (char === '>') {
+              this.delegate.beginAttributeValue(false);
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.transitionTo("attributeValueUnquoted"
+              /* attributeValueUnquoted */
+              );
+              this.delegate.beginAttributeValue(false);
+              this.consume();
+              this.delegate.appendToAttributeValue(char);
+            }
+          },
+          attributeValueDoubleQuoted: function attributeValueDoubleQuoted() {
+            var char = this.consume();
+
+            if (char === '"') {
+              this.delegate.finishAttributeValue();
+              this.transitionTo("afterAttributeValueQuoted"
+              /* afterAttributeValueQuoted */
+              );
+            } else if (char === '&') {
+              this.delegate.appendToAttributeValue(this.consumeCharRef() || '&');
+            } else {
+              this.delegate.appendToAttributeValue(char);
+            }
+          },
+          attributeValueSingleQuoted: function attributeValueSingleQuoted() {
+            var char = this.consume();
+
+            if (char === "'") {
+              this.delegate.finishAttributeValue();
+              this.transitionTo("afterAttributeValueQuoted"
+              /* afterAttributeValueQuoted */
+              );
+            } else if (char === '&') {
+              this.delegate.appendToAttributeValue(this.consumeCharRef() || '&');
+            } else {
+              this.delegate.appendToAttributeValue(char);
+            }
+          },
+          attributeValueUnquoted: function attributeValueUnquoted() {
+            var char = this.peek();
+
+            if (isSpace(char)) {
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.transitionTo("beforeAttributeName"
+              /* beforeAttributeName */
+              );
+            } else if (char === '/') {
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.transitionTo("selfClosingStartTag"
+              /* selfClosingStartTag */
+              );
+            } else if (char === '&') {
+              this.consume();
+              this.delegate.appendToAttributeValue(this.consumeCharRef() || '&');
+            } else if (char === '>') {
+              this.delegate.finishAttributeValue();
+              this.consume();
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.consume();
+              this.delegate.appendToAttributeValue(char);
+            }
+          },
+          afterAttributeValueQuoted: function afterAttributeValueQuoted() {
+            var char = this.peek();
+
+            if (isSpace(char)) {
+              this.consume();
+              this.transitionTo("beforeAttributeName"
+              /* beforeAttributeName */
+              );
+            } else if (char === '/') {
+              this.consume();
+              this.transitionTo("selfClosingStartTag"
+              /* selfClosingStartTag */
+              );
+            } else if (char === '>') {
+              this.consume();
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.transitionTo("beforeAttributeName"
+              /* beforeAttributeName */
+              );
+            }
+          },
+          selfClosingStartTag: function selfClosingStartTag() {
+            var char = this.peek();
+
+            if (char === '>') {
+              this.consume();
+              this.delegate.markTagAsSelfClosing();
+              this.delegate.finishTag();
+              this.transitionTo("beforeData"
+              /* beforeData */
+              );
+            } else {
+              this.transitionTo("beforeAttributeName"
+              /* beforeAttributeName */
+              );
+            }
+          },
+          endTagOpen: function endTagOpen() {
+            var char = this.consume();
+
+            if (char === '@' || char === ':' || isAlpha(char)) {
+              this.transitionTo("endTagName"
+              /* endTagName */
+              );
+              this.tagNameBuffer = '';
+              this.delegate.beginEndTag();
+              this.appendToTagName(char);
+            }
+          }
+        };
+        this.reset();
+      }
+
+      EventedTokenizer.prototype.reset = function () {
+        this.transitionTo("beforeData"
+        /* beforeData */
+        );
+        this.input = '';
+        this.tagNameBuffer = '';
+        this.index = 0;
+        this.line = 1;
+        this.column = 0;
+        this.delegate.reset();
+      };
+
+      EventedTokenizer.prototype.transitionTo = function (state) {
+        this.state = state;
+      };
+
+      EventedTokenizer.prototype.tokenize = function (input) {
+        this.reset();
+        this.tokenizePart(input);
+        this.tokenizeEOF();
+      };
+
+      EventedTokenizer.prototype.tokenizePart = function (input) {
+        this.input += preprocessInput(input);
+
+        while (this.index < this.input.length) {
+          var handler = this.states[this.state];
+
+          if (handler !== undefined) {
+            handler.call(this);
+          } else {
+            throw new Error("unhandled state " + this.state);
+          }
+        }
+      };
+
+      EventedTokenizer.prototype.tokenizeEOF = function () {
+        this.flushData();
+      };
+
+      EventedTokenizer.prototype.flushData = function () {
+        if (this.state === 'data') {
+          this.delegate.finishData();
+          this.transitionTo("beforeData"
+          /* beforeData */
+          );
+        }
+      };
+
+      EventedTokenizer.prototype.peek = function () {
+        return this.input.charAt(this.index);
+      };
+
+      EventedTokenizer.prototype.consume = function () {
+        var char = this.peek();
+        this.index++;
+
+        if (char === '\n') {
+          this.line++;
+          this.column = 0;
+        } else {
+          this.column++;
+        }
+
+        return char;
+      };
+
+      EventedTokenizer.prototype.consumeCharRef = function () {
+        var endIndex = this.input.indexOf(';', this.index);
+
+        if (endIndex === -1) {
+          return;
+        }
+
+        var entity = this.input.slice(this.index, endIndex);
+        var chars = this.entityParser.parse(entity);
+
+        if (chars) {
+          var count = entity.length; // consume the entity chars
+
+          while (count) {
+            this.consume();
+            count--;
+          } // consume the `;`
+
+
+          this.consume();
+          return chars;
+        }
+      };
+
+      EventedTokenizer.prototype.markTagStart = function () {
+        this.delegate.tagOpen();
+      };
+
+      EventedTokenizer.prototype.appendToTagName = function (char) {
+        this.tagNameBuffer += char;
+        this.delegate.appendToTagName(char);
+      };
+
+      EventedTokenizer.prototype.isIgnoredEndTag = function () {
+        var tag = this.tagNameBuffer;
+        return tag === 'title' && this.input.substring(this.index, this.index + 8) !== '</title>' || tag === 'style' && this.input.substring(this.index, this.index + 8) !== '</style>' || tag === 'script' && this.input.substring(this.index, this.index + 9) !== '</script>';
+      };
+
+      return EventedTokenizer;
+    }();
+
+    var Tokenizer =
+    /** @class */
+    function () {
+      function Tokenizer(entityParser, options) {
+        if (options === void 0) {
+          options = {};
+        }
+
+        this.options = options;
+        this.token = null;
+        this.startLine = 1;
+        this.startColumn = 0;
+        this.tokens = [];
+        this.tokenizer = new EventedTokenizer(this, entityParser, options.mode);
+        this._currentAttribute = undefined;
+      }
+
+      Tokenizer.prototype.tokenize = function (input) {
+        this.tokens = [];
+        this.tokenizer.tokenize(input);
+        return this.tokens;
+      };
+
+      Tokenizer.prototype.tokenizePart = function (input) {
+        this.tokens = [];
+        this.tokenizer.tokenizePart(input);
+        return this.tokens;
+      };
+
+      Tokenizer.prototype.tokenizeEOF = function () {
+        this.tokens = [];
+        this.tokenizer.tokenizeEOF();
+        return this.tokens[0];
+      };
+
+      Tokenizer.prototype.reset = function () {
+        this.token = null;
+        this.startLine = 1;
+        this.startColumn = 0;
+      };
+
+      Tokenizer.prototype.current = function () {
+        var token = this.token;
+
+        if (token === null) {
+          throw new Error('token was unexpectedly null');
+        }
+
+        if (arguments.length === 0) {
+          return token;
+        }
+
+        for (var i = 0; i < arguments.length; i++) {
+          if (token.type === arguments[i]) {
+            return token;
+          }
+        }
+
+        throw new Error("token type was unexpectedly " + token.type);
+      };
+
+      Tokenizer.prototype.push = function (token) {
+        this.token = token;
+        this.tokens.push(token);
+      };
+
+      Tokenizer.prototype.currentAttribute = function () {
+        return this._currentAttribute;
+      };
+
+      Tokenizer.prototype.addLocInfo = function () {
+        if (this.options.loc) {
+          this.current().loc = {
+            start: {
+              line: this.startLine,
+              column: this.startColumn
+            },
+            end: {
+              line: this.tokenizer.line,
+              column: this.tokenizer.column
+            }
+          };
+        }
+
+        this.startLine = this.tokenizer.line;
+        this.startColumn = this.tokenizer.column;
+      }; // Data
+
+
+      Tokenizer.prototype.beginDoctype = function () {
+        this.push({
+          type: "Doctype"
+          /* Doctype */
+          ,
+          name: ''
+        });
+      };
+
+      Tokenizer.prototype.appendToDoctypeName = function (char) {
+        this.current("Doctype"
+        /* Doctype */
+        ).name += char;
+      };
+
+      Tokenizer.prototype.appendToDoctypePublicIdentifier = function (char) {
+        var doctype = this.current("Doctype"
+        /* Doctype */
+        );
+
+        if (doctype.publicIdentifier === undefined) {
+          doctype.publicIdentifier = char;
+        } else {
+          doctype.publicIdentifier += char;
+        }
+      };
+
+      Tokenizer.prototype.appendToDoctypeSystemIdentifier = function (char) {
+        var doctype = this.current("Doctype"
+        /* Doctype */
+        );
+
+        if (doctype.systemIdentifier === undefined) {
+          doctype.systemIdentifier = char;
+        } else {
+          doctype.systemIdentifier += char;
+        }
+      };
+
+      Tokenizer.prototype.endDoctype = function () {
+        this.addLocInfo();
+      };
+
+      Tokenizer.prototype.beginData = function () {
+        this.push({
+          type: "Chars"
+          /* Chars */
+          ,
+          chars: ''
+        });
+      };
+
+      Tokenizer.prototype.appendToData = function (char) {
+        this.current("Chars"
+        /* Chars */
+        ).chars += char;
+      };
+
+      Tokenizer.prototype.finishData = function () {
+        this.addLocInfo();
+      }; // Comment
+
+
+      Tokenizer.prototype.beginComment = function () {
+        this.push({
+          type: "Comment"
+          /* Comment */
+          ,
+          chars: ''
+        });
+      };
+
+      Tokenizer.prototype.appendToCommentData = function (char) {
+        this.current("Comment"
+        /* Comment */
+        ).chars += char;
+      };
+
+      Tokenizer.prototype.finishComment = function () {
+        this.addLocInfo();
+      }; // Tags - basic
+
+
+      Tokenizer.prototype.tagOpen = function () {};
+
+      Tokenizer.prototype.beginStartTag = function () {
+        this.push({
+          type: "StartTag"
+          /* StartTag */
+          ,
+          tagName: '',
+          attributes: [],
+          selfClosing: false
+        });
+      };
+
+      Tokenizer.prototype.beginEndTag = function () {
+        this.push({
+          type: "EndTag"
+          /* EndTag */
+          ,
+          tagName: ''
+        });
+      };
+
+      Tokenizer.prototype.finishTag = function () {
+        this.addLocInfo();
+      };
+
+      Tokenizer.prototype.markTagAsSelfClosing = function () {
+        this.current("StartTag"
+        /* StartTag */
+        ).selfClosing = true;
+      }; // Tags - name
+
+
+      Tokenizer.prototype.appendToTagName = function (char) {
+        this.current("StartTag"
+        /* StartTag */
+        , "EndTag"
+        /* EndTag */
+        ).tagName += char;
+      }; // Tags - attributes
+
+
+      Tokenizer.prototype.beginAttribute = function () {
+        this._currentAttribute = ['', '', false];
+      };
+
+      Tokenizer.prototype.appendToAttributeName = function (char) {
+        this.currentAttribute()[0] += char;
+      };
+
+      Tokenizer.prototype.beginAttributeValue = function (isQuoted) {
+        this.currentAttribute()[2] = isQuoted;
+      };
+
+      Tokenizer.prototype.appendToAttributeValue = function (char) {
+        this.currentAttribute()[1] += char;
+      };
+
+      Tokenizer.prototype.finishAttributeValue = function () {
+        this.current("StartTag"
+        /* StartTag */
+        ).attributes.push(this._currentAttribute);
+      };
+
+      Tokenizer.prototype.reportSyntaxError = function (message) {
+        this.current().syntaxError = message;
+      };
+
+      return Tokenizer;
+    }();
+
+    function tokenize(input, options) {
+      var tokenizer = new Tokenizer(new EntityParser(HTML5NamedCharRefs), options);
+      return tokenizer.tokenize(input);
+    }
+
+    var Options = linkify__namespace.Options;
+    var StartTag = 'StartTag';
+    var EndTag = 'EndTag';
+    var Chars = 'Chars';
+    var Comment = 'Comment';
+    var Doctype = 'Doctype';
+    /**
+     * @param {string} str html string to link
+     * @param {object} [opts] linkify options
+     * @returns {string} resulting string
+     */
+
+    function linkifyHtml(str) {
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      // `tokens` and `token` in this section refer to tokens generated by the
+      // HTML parser, not linkify's parser
+      var tokens = tokenize(str);
+      var linkifiedTokens = [];
+      var linkified = [];
+      opts = new Options(opts); // Linkify the tokens given by the parser
+
+      for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+
+        if (token.type === StartTag) {
+          linkifiedTokens.push(token); // Ignore all the contents of ignored tags
+
+          var tagName = token.tagName.toUpperCase();
+          var isIgnored = tagName === 'A' || opts.ignoreTags.indexOf(tagName) >= 0;
+
+          if (!isIgnored) {
+            continue;
+          }
+
+          var preskipLen = linkifiedTokens.length;
+          skipTagTokens(tagName, tokens, ++i, linkifiedTokens);
+          i += linkifiedTokens.length - preskipLen - 1;
+          continue;
+        } else if (token.type !== Chars) {
+          // Skip this token, it's not important
+          linkifiedTokens.push(token);
+          continue;
+        } // Valid text token, linkify it!
+
+
+        var linkifedChars = linkifyChars(token.chars, opts);
+        linkifiedTokens.push.apply(linkifiedTokens, linkifedChars);
+      } // Convert the tokens back into a string
+
+
+      for (var _i = 0; _i < linkifiedTokens.length; _i++) {
+        var _token = linkifiedTokens[_i];
+
+        switch (_token.type) {
+          case StartTag:
+            {
+              var link = '<' + _token.tagName;
+
+              if (_token.attributes.length > 0) {
+                var attrs = attrsToStrings(_token.attributes);
+                link += ' ' + attrs.join(' ');
+              }
+
+              link += '>';
+              linkified.push(link);
+              break;
+            }
+
+          case EndTag:
+            linkified.push("</".concat(_token.tagName, ">"));
+            break;
+
+          case Chars:
+            linkified.push(escapeText(_token.chars));
+            break;
+
+          case Comment:
+            linkified.push("<!--".concat(escapeText(_token.chars), "-->"));
+            break;
+
+          case Doctype:
+            {
+              var doctype = "<!DOCTYPE ".concat(_token.name);
+
+              if (_token.publicIdentifier) {
+                doctype += " PUBLIC \"".concat(_token.publicIdentifier, "\"");
+              }
+
+              if (_token.systemIdentifier) {
+                doctype += " \"".concat(_token.systemIdentifier, "\"");
+              }
+
+              doctype += '>';
+              linkified.push(doctype);
+              break;
+            }
+        }
+      }
+
+      return linkified.join('');
+    }
+    /**
+    	`tokens` and `token` in this section referes to tokens returned by
+    	`linkify.tokenize`. `linkified` will contain HTML Parser-style tokens
+    */
+
+    function linkifyChars(str, opts) {
+      var tokens = linkify__namespace.tokenize(str);
+      var result = [];
+
+      for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+
+        if (token.t === 'nl' && opts.nl2br) {
+          result.push({
+            type: StartTag,
+            tagName: 'br',
+            attributes: [],
+            selfClosing: true
+          });
+          continue;
+        } else if (!token.isLink || !opts.check(token)) {
+          result.push({
+            type: Chars,
+            chars: token.toString()
+          });
+          continue;
+        }
+
+        var _opts$resolve = opts.resolve(token),
+            formatted = _opts$resolve.formatted,
+            formattedHref = _opts$resolve.formattedHref,
+            tagName = _opts$resolve.tagName,
+            className = _opts$resolve.className,
+            target = _opts$resolve.target,
+            rel = _opts$resolve.rel,
+            attributes = _opts$resolve.attributes,
+            truncate = _opts$resolve.truncate; // Build up attributes
+
+
+        var attributeArray = [['href', formattedHref]];
+
+        if (className) {
+          attributeArray.push(['class', className]);
+        }
+
+        if (target) {
+          attributeArray.push(['target', target]);
+        }
+
+        if (rel) {
+          attributeArray.push(['rel', rel]);
+        }
+
+        if (truncate && formatted.length > truncate) {
+          formatted = formatted.substring(0, truncate) + '…';
+        }
+
+        for (var attr in attributes) {
+          attributeArray.push([attr, attributes[attr]]);
+        } // Add the required tokens
+
+
+        result.push({
+          type: StartTag,
+          tagName: tagName,
+          attributes: attributeArray,
+          selfClosing: false
+        });
+        result.push({
+          type: Chars,
+          chars: formatted
+        });
+        result.push({
+          type: EndTag,
+          tagName: tagName
+        });
+      }
+
+      return result;
+    }
+    /**
+    	Returns a list of tokens skipped until the closing tag of tagName.
+
+    	* `tagName` is the closing tag which will prompt us to stop skipping
+    	* `tokens` is the array of tokens generated by HTML5Tokenizer which
+    	* `i` is the index immediately after the opening tag to skip
+    	* `skippedTokens` is an array which skipped tokens are being pushed into
+
+    	Caveats
+
+    	* Assumes that i is the first token after the given opening tagName
+    	* The closing tag will be skipped, but nothing after it
+    	* Will track whether there is a nested tag of the same type
+    */
+
+
+    function skipTagTokens(tagName, tokens, i, skippedTokens) {
+      // number of tokens of this type on the [fictional] stack
+      var stackCount = 1;
+
+      while (i < tokens.length && stackCount > 0) {
+        var token = tokens[i];
+
+        if (token.type === StartTag && token.tagName.toUpperCase() === tagName) {
+          // Nested tag of the same type, "add to stack"
+          stackCount++;
+        } else if (token.type === EndTag && token.tagName.toUpperCase() === tagName) {
+          // Closing tag
+          stackCount--;
+        }
+
+        skippedTokens.push(token);
+        i++;
+      } // Note that if stackCount > 0 here, the HTML is probably invalid
+
+
+      return skippedTokens;
+    }
+
+    function escapeText(text) {
+      // Not required, HTML tokenizer ensures this occurs properly
+      return text;
+    }
+
+    function escapeAttr(attr) {
+      return attr.replace(/"/g, '&quot;');
+    }
+
+    function attrsToStrings(attrs) {
+      var attrStrs = [];
+
+      for (var i = 0; i < attrs.length; i++) {
+        var name = attrs[i][0];
+        var value = attrs[i][1];
+        attrStrs.push("".concat(name, "=\"").concat(escapeAttr(value), "\""));
+      }
+
+      return attrStrs;
+    }
+
+    return linkifyHtml;
+
+})(linkify);
