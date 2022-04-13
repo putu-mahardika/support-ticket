@@ -24,10 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // if (env('APP_ENV') === 'production') {
-        //     $this->app['request']->server->set('HTTPS','on');
+        if (env('APP_ENV') === 'production') {
+            $this->app['request']->server->set('HTTPS','on');
 
-        //     URL::forceScheme('https');
-        // }
+            URL::forceScheme('https');
+        }
     }
 }
