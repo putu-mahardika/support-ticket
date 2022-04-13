@@ -91,7 +91,7 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-12 text-center">
-                            <p>version 1.0.0</p>
+                            <p>version 1.0.1</p>
                         </div>
                     </div>
                 </div>
