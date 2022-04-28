@@ -29,21 +29,26 @@ class UsersController extends Controller
 
         $roles = Role::all()->pluck('title', 'id')->prepend(trans('global.pleaseSelect'), '');
         $projects = DB::table('projects')
-                ->join('user_project', 'user_project.project_id', '=', 'projects.id')
-                ->join('users', 'users.id', '=', 'user_project.user_id', )
-                ->select('projects.id as id', 'projects.name as name')
-                ->where('user_project.is_pm', 1)
-                ->get();
+            ->join('user_project', 'user_project.project_id', '=', 'projects.id')
+            ->join('users', 'users.id', '=', 'user_project.user_id',)
+            ->select('projects.id as id', 'projects.name as name')
+            ->where('user_project.is_pm', 1)
+            ->get();
 
         return view('admin.users.create', compact('roles', 'projects'));
     }
 
     public function store(StoreUserRequest $request)
     {
+        $tempIsActive = $request['is_active'];
+        $request['is_active'] = false;
+        if ($tempIsActive === 'on') {
+            $request['is_active'] = true;
+        }
         $user = User::create($request->all());
         $user->projects()->sync($request->projects);
         $user->roles()->sync($request->input('roles', []));
-
+        
         return redirect()->route('admin.users.index');
     }
 
@@ -55,17 +60,23 @@ class UsersController extends Controller
         $projects = Project::all()->pluck('name', 'id');
 
         $projects = DB::table('projects')
-                ->join('user_project', 'user_project.project_id', '=', 'projects.id')
-                ->join('users', 'users.id', '=', 'user_project.user_id', )
-                ->select('projects.id as id', 'projects.name as name')
-                ->where('user_project.is_pm', 1)
-                ->get();
+            ->join('user_project', 'user_project.project_id', '=', 'projects.id')
+            ->join('users', 'users.id', '=', 'user_project.user_id',)
+            ->select('projects.id as id', 'projects.name as name')
+            ->where('user_project.is_pm', 1)
+            ->get();
 
         return view('admin.users.edit', compact('roles', 'user', 'projects'));
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
+        $tempIsActive = $request['is_active'];
+        $request['is_active'] = false;
+        if ($tempIsActive === 'on') {
+            $request['is_active'] = true;
+        }
+        // $request['is_active'] = 0;
         $user->update($request->all());
         $user->roles()->sync($request->input('roles', []));
         $user->projects()->sync($request->projects);
