@@ -48,7 +48,7 @@ class UsersController extends Controller
         $user = User::create($request->all());
         $user->projects()->sync($request->projects);
         $user->roles()->sync($request->input('roles', []));
-        
+
         return redirect()->route('admin.users.index');
     }
 
@@ -71,11 +71,15 @@ class UsersController extends Controller
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        $tempIsActive = $request['is_active'];
-        $request['is_active'] = false;
-        if ($tempIsActive === 'on') {
-            $request['is_active'] = true;
+        if ($request->has('is_active')) {
+            if ($request['is_active'] === 'on') {
+                $request['is_active'] = true;
+            }
+        } else {
+            $request->request->add(['is_active' => false]);
         }
+
+        // dd($request);
         // $request['is_active'] = 0;
         $user->update($request->all());
         $user->roles()->sync($request->input('roles', []));

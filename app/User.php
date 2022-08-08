@@ -45,6 +45,7 @@ class User extends Authenticatable implements HasMedia
         'remember_token',
         'email_verified_at',
         'company',
+        'is_active',
     ];
 
     public function tickets()
